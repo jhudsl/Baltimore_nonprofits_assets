@@ -46,7 +46,7 @@ Adding to this NA values can be considered less than 50000, as organizations are
 
 First want to recode our data based on Asset amounts. We will check if there are `NA` values for asset amounts.
 
-```{r}
+```{r, fig.height= 8}
 gg_miss_var(df_simplified)
 ```
 
@@ -82,7 +82,7 @@ Check that this worked and that there are no NA values now:
 table(df_simplified$ASSET_High, useNA = "always")
 ```
 
-Now we will convert these to text as another variable and also create a log version of the asset amount.
+Now we will convert these to text as another variable and also create a log version of the asset amount to normalize it, as plots and analysis may be easier to interpret if there are many values that are high or low.
 
 ```{r}
  df_simplified<-df_simplified %>%
@@ -96,7 +96,9 @@ Now we will convert these to text as another variable and also create a log vers
 
 Next we will modify the data to include a variable about the percentage of African American/Black people.
 ```{r}
-  # create new Percent_AA variable by converting `Normalized African American Population` variable into a percentage and rounding
+# create new Percent_AA variable by converting
+#`Normalized African American Population` variable 
+#into a percentage and rounding
  df_simplified<-df_simplified %>%
   mutate(Percent_AA = 
            round(`Normalized African American Population`*100, digits = 1))  %>%
@@ -197,6 +199,17 @@ df_simplified_no_zero <-df_simplified_no_zero %>%
 # Visualizations
 
 ## Deeper possible visualizations 
+
+First without log normalization figure:
+```{r}
+df_simplified_no_zero %>% 
+ggplot(aes(y = ASSET_AMT, x = Percent_AA)) +
+  geom_point() + geom_smooth(method = "loess")
+
+```
+We can see that some of the dat points are much higher and this makes it challenging to see the lower data values. 
+
+Now let's look at normalized version.
 
 Overall log Asset amount figure:
 ```{r}
@@ -452,11 +465,11 @@ plot2
 ```{r}
 
 # get the neighborhood values if no removing rows for nonprofits with NA or zero assets
-df_simplified %>% 
+neighborhood_AAperc <- df_simplified %>% 
  distinct(`neighborhood name`, Percent_AA)
 
 # get the neighborhood values after removing rows for nonprofits with NA or zero assets
-df_simplified_no_zero %>% 
+neighborhood_AAperc_nozero <- df_simplified_no_zero %>% 
  distinct(`neighborhood name`, Percent_AA)
 ```
 
@@ -464,12 +477,11 @@ df_simplified_no_zero %>%
 ```{r}
 
 # get the neighborhood values if no removing rows for nonprofits with NA or zero assets
-df_simplified %>% 
- distinct(`neighborhood name`, Percent_AA) %>% pull(Percent_AA) %>% hist()
+
+neighborhood_AAperc%>% pull(Percent_AA) %>% hist(main = "African American Percentage of Neighborhoods for each nonprofit")
 
 # get the neighborhood values after removing rows for nonprofits with NA or zero assets
-df_simplified_no_zero %>% 
- distinct(`neighborhood name`, Percent_AA) %>% pull(Percent_AA) %>% hist()
+neighborhood_AAperc_nozero %>% pull(Percent_AA) %>% hist(main = "African American Percentage of Neighborhoods \n (removed neighborhoods with only zero or NA assets)")
 
 ```
 
