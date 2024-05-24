@@ -1,8 +1,6 @@
 ---
 title: "Baltimore Nonprofit Analysis"
 output:
-  pdf_document:
-    toc: yes
   html_document:
     self_contained: yes
     code_download: yes
@@ -11,6 +9,8 @@ output:
     theme: cosmo
     toc: yes
     toc_float: yes
+  pdf_document:
+    toc: yes
   word_document:
     toc: yes
 ---
@@ -30,8 +30,7 @@ df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet
 ```
 
 Information about the data: 
-Here’s an [article](https://nccs.urban.org/sites/default/files/2018-12/Guide%20to%20Using%20NCCS%20Data.pdf) describing some of the datasets from the IRS 990s.  
-We’re using the BMF.  There’s a section titled “Minimum Filing Threshold” that explains a data limitation (and why we’re seeing so many 0’s).
+Here’s an [article](https://nccs.urban.org/nccs/datasets/bmf/) describing some of the datasets from the IRS 990s. We’re using the Business Master File (BMF).  There’s a section titled “Minimum Filing Threshold” that explains a data limitation (and why we’re seeing so many 0’s).
 
 It seems that if there is a value less than 50,000 other than zero, it must mean that the organization decided to submit to the IRS, because otherwise they would be listed as a zero. It is not possible to distinguish a true zero from a zero due to not meeting the threshold of 50,000 and just not submitting.
 
@@ -161,8 +160,9 @@ df_simplified_no_removal %>% group_by(ASSET_quartile_text) %>% summarise(range =
 
 Turns out this doesn't really work because the 1st and 2nd quartiles can't be distinguished as we don't know if the values of 0 are actually some number below 50,000 and both quartlies have a max of less than 50,000. So we will stick with our removal.
 
-## NTEE recoding
+## National Taxonomy of Exempt Entities (NTEE) recoding
 
+To provide more information to readers about what the nonprofits do, we will convert the National Taxonomy of Exempt Entities (NTEE) codes based on [this](https://urbaninstitute.github.io/nccs-legacy/ntee/ntee.html) and [this (see page 15)](https://www.irs.gov/pub/irs-tege/p4838.pdf).
 ```{r}
 df_simplified <-df_simplified %>%
   mutate(NTEE_text = case_when(
@@ -184,7 +184,7 @@ df_simplified_no_zero <-df_simplified_no_zero %>%
   mutate(NTEE_text = case_when(
     str_starts(NTEE_CD, pattern = "A")~ "Arts", # if NTEE_CD starts with A make new variable value "Arts" etc.
     str_starts(NTEE_CD, pattern = "B") ~ "Education",
-    str_starts(NTEE_CD, pattern = "C|D") ~ "Enviornment/Animals", # if NTEE_CD value starts with C or D make new variable value "Environment/Animals"
+    str_starts(NTEE_CD, pattern = "C|D") ~ "Environment/Animals", # if NTEE_CD value starts with C or D make new variable value "Environment/Animals"
     str_starts(NTEE_CD, pattern = "E|F|G|H") ~ "Health",
     str_starts(NTEE_CD, pattern = "I|J|K|L|M|N|O|P") ~ "Human Services",
     str_starts(NTEE_CD, pattern = "Q") ~ "International Affairs",
