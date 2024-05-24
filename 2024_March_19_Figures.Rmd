@@ -242,11 +242,9 @@ df_simplified_no_zero %>%
   geom_boxplot()+ geom_jitter(width = .08) + geom_smooth(method = "lm", se=TRUE, aes(group=1))
 ```
 
-## t test
+## Association Tests
 
 ```{r}
-#nonparmetric test
-cor.test(df_simplified_no_zero$ASSET_AMT, df_simplified_no_zero$Percent_AA, method = "spearman")
 
 summary(glm(data = df_simplified_no_zero, ASSET_AMT ~Percent_AA)) # for every increase in percent AA of the neighborhood there was a 266,249$ decrease in asset amount of the nonprofits in the neighborhood
 # there is a less than 5% risk of concluding that an association exists between asset amount a percent AA of neighborhood when there is no actual association.
@@ -317,7 +315,7 @@ quart_plot + labs(x = "Quartile based on nonprofit asset amount", y = "Percentag
 ## Overall Percentage Plot
 
 First let's get a count of each - **NOTE we are keeping zero values and NA as low asset**!
-the NA neighborhood - means there is only one neighborhood that did not fit the categories or have information. we can drop this neighborhood
+The NA neighborhood means there is only one neighborhood that did not fit the categories or have information. We can drop this neighborhood.
 ```{r}
 df_simplified %>%
   count(ASSET_High_text, Neighborhood)
