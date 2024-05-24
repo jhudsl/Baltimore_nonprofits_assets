@@ -1,5 +1,5 @@
 ---
-title: "2021_10_08_Figures"
+title: "Baltimore Nonprofit Analysis"
 output:
   pdf_document:
     toc: yes
@@ -29,15 +29,13 @@ library(naniar)
 df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet = 3)
 ```
 
-From Tyler:
-Here’s an article describing some of the datasets from the IRS 990s.  https://nccs.urban.org/sites/default/files/2018-12/Guide%20to%20Using%20NCCS%20Data.pdf
-We’re using the BMF.  There’s a section titled “Minimum Filing Threshold” that explains a data limitation (and why we’re seeing so many 0’s).  With this confirmation, we may want to return to Asset Codes, even though it’s ordinal.  Carrie, any way of maintaining scale data while managing this limitation? I can’t think of one.
-Thanks,
-Tyler
+Information about the data: 
+Here’s an [article](https://nccs.urban.org/sites/default/files/2018-12/Guide%20to%20Using%20NCCS%20Data.pdf) describing some of the datasets from the IRS 990s.  
+We’re using the BMF.  There’s a section titled “Minimum Filing Threshold” that explains a data limitation (and why we’re seeing so many 0’s).
 
-It seems that if there is a value less than 50,000 other than zero, it must mean that the organization decided to submit to the IRS, becuase otherwise they would be listed as a zero. It is not possible to distinguish a true zero from a zero due to not meeting the threshold of 50,000 and thus not submitting.
+It seems that if there is a value less than 50,000 other than zero, it must mean that the organization decided to submit to the IRS, because otherwise they would be listed as a zero. It is not possible to distinguish a true zero from a zero due to not meeting the threshold of 50,000 and just not submitting.
 
-I think it therefore makes sense to remove zero values (which I have already done) and to report this caveat that the data is incomplete because many nonprofits that had assets less than 50,000 are not included.
+It therefore makes sense to remove zero values and to report this caveat that the data is incomplete because many nonprofits that had assets less than 50,000 are not included.
 
 However for the high vs nonhigh asset we could keep these - because zero values would still be less than the threshold regardless.
 
@@ -54,7 +52,7 @@ gg_miss_var(df_simplified)
 ```
 
 Yes, indeed there are...
-Thus, we will recode asset amount based on a threshold of greater than or equal to 50,000 as high asset and  less than 50000 as not high asset.
+Thus, we will recode asset amount based on a threshold of greater than or equal to 50,000 as high asset and less than 50000 as not high asset.
 
 ```{r}
 
@@ -97,7 +95,7 @@ Now we will convert these to text as another variable and also create a log vers
 
 ### Neighborhood category
 
-Next we will modify the data to include a variable about the percentage of African American or Black people.
+Next we will modify the data to include a variable about the percentage of African American/Black people.
 ```{r}
   # create new Percent_AA variable by converting `Normalized African American Population` variable into a percentage and rounding
  df_simplified<-df_simplified %>%
@@ -111,14 +109,14 @@ Next we will modify the data to include a variable about the percentage of Afric
   # create a new variable about this in text
    mutate(Neighborhood = case_when(
     Percent_AA >= 50 ~ "Majority\nBlack", 
-    Percent_AA <  50 ~ "Majority\nNon-Black")) %>% # Tyler thinks if a neighborhood is less than 50% black that they are majority white from previously looking at the data and is checking that this is true... that there aren't some neighborhoods that might have a different composition
+    Percent_AA <  50 ~ "Majority\nNon-Black")) %>% 
   # make this a factor and order by level appearance in the data
   mutate(Neighborhood = as_factor(Neighborhood),
          Neighborhood = forcats::fct_inorder(Neighborhood))
 ```
 
 ### Quantile data
-To group the data by quantiles, we first remove organizations with zero assets because we don't know if zero values are real. If assets are under 50,000 I think organizations can report as zero also.
+To group the data by quantiles, we first remove organizations with zero assets because we don't know if zero values are real. If assets are under 50,000, organizations can report as zero also.
 
 Similarly, NA values could be anything between 0 and less than 50,000. Thus we aren't sure what those asset amounts are.
 ```{r}
