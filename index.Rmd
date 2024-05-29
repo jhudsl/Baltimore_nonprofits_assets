@@ -428,12 +428,10 @@ High_asset_data %>%
 
 ```{r}
 library(forcats)
-library(janitor)
 df_simplified %>% group_by(NTEE_text) %>%summarize(count = n()) %>% 
   mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified")) %>%
  mutate(Percentage = round(count/sum(count)*100, digits = 2)) %>%
-  arrange(NTEE_text) %>%
-  adorn_totals("row")
+  arrange(NTEE_text)
 
 Total_NTEE <-df_simplified %>% group_by(NTEE_text) %>%summarize(count = n()) %>% 
   mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified")) %>%
