@@ -1,0 +1,16 @@
+name: Baltimore nonprofits assets
+output_dir: '.'
+navbar:
+  title: Baltimore nonprofits assets analysis
+  left:
+  - text: Analysis
+    href: index.html
+
+
+
+output:
+  html_document:
+    theme: cosmo
+    lib_dir: site_libs
+    self_contained: no
+    highlight: textmate
