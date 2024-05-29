@@ -24,7 +24,7 @@ library(stringr)
 library(naniar)
 ```
 
-## Import data
+# Data Import
 ```{r}
 df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet = 3)
 ```
@@ -40,9 +40,9 @@ However for the high vs nonhigh asset we could keep these - because zero values 
 
 Adding to this NA values can be considered less than 50000, as organizations are not required to report an amount if they have less than 50000.
 
-## Tidying data
+# Tidying data and Exploratory Analysis
 
-### Asset amount
+## Asset amount
 
 First let's check how many zero values there are for asset amounts.
 
@@ -103,7 +103,7 @@ Now we will convert these to text as another variable and also create a log vers
   mutate(ASSET_AMT_log = log(ASSET_AMT))
 ```
 
-### Neighborhood category
+## Neighborhood category
 
 Next we will modify the data to include a variable about the percentage of African American/Black people.
 ```{r}
@@ -127,7 +127,7 @@ Next we will modify the data to include a variable about the percentage of Afric
          Neighborhood = forcats::fct_inorder(Neighborhood))
 ```
 
-### Quantile data
+## Quantile data
 To group the data by quantiles, we first remove organizations with zero assets because we don't know if zero values are real. If assets are under 50,000, organizations can report as zero also.
 
 Similarly, NA values could be anything between 0 and less than 50,000. Thus we aren't sure what those asset amounts are.
@@ -208,7 +208,7 @@ df_simplified_no_zero <-df_simplified_no_zero %>%
 ```
 
 
-# Visualizations
+# Visualizations and Analysis
 
 ## Deeper possible visualizations 
 
