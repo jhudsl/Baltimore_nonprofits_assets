@@ -61,16 +61,16 @@ Yes, indeed there are...
 NA and zero values likely mean the nonprofit did not need to submit to the IRS.
 It is impossible to know however, if a zero is actually a true zero. NA values could mean something else. 
 
-Thus, we will recode asset amount based on a threshold of greater than or equal to 50,000 as high asset and less than 50000 (including zero) as not high asset.
+Thus, we will recode asset amount based on a threshold of greater than or equal to 500,000 as high asset and less than 500,000 (including zero) as not high asset.
 Note we keep our NA values with this recoding.
 
 ```{r}
 
 df_simplified<-df_simplified %>%
   # modify Asset amount variable to be numeric
-  mutate(ASSET_AMT =as.numeric(ASSET_AMT)) %>%
+  mutate(ASSET_AMT = as.numeric(ASSET_AMT)) %>%
   #create a variable about high asset amount (threshold being $500,000)
-  mutate(ASSET_High = case_when(ASSET_AMT >= 500000 ~ TRUE,
+  mutate(ASSET_High = case_when(ASSET_AMT  >= 500000 ~ TRUE,
                                 ASSET_AMT  < 500000 ~ FALSE))
 ```
 
@@ -399,6 +399,8 @@ High_asset_data <- High_asset_data %>%
   group_by(NTEE_text) %>% 
   mutate(Percent_ntee_cat = round(n/sum(n)*100)) 
 High_asset_data
+
+
 ```
 
 Visuals...of the above data:
@@ -420,13 +422,26 @@ High_asset_data %>%
 
 **this includes all 4,082 organizations**
 
-### Count plots
+## Count plots/Tables
+
+### Different kinds of orgs
 
 ```{r}
 library(forcats)
-df_simplified %>% group_by(NTEE_text) %>%summarize(count = n()) 
+library(janitor)
+df_simplified %>% group_by(NTEE_text) %>%summarize(count = n()) %>% 
+  mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified")) %>%
+ mutate(Percentage = round(count/sum(count)*100, digits = 2)) %>%
+  arrange(NTEE_text) %>%
+  adorn_totals("row")
+
+Total_NTEE <-df_simplified %>% group_by(NTEE_text) %>%summarize(count = n()) %>% 
+  mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified")) %>%
+  arrange(NTEE_text)
+```
 
 
+```{r}
 df_simplified %>% 
   group_by(NTEE_text, Neighborhood) %>%
   summarize(count = n()) %>% 
@@ -469,7 +484,27 @@ plot2
 
 ```
 
+
 **This includes all 4,082 organizations** There was no removal of organizations based on asset amount, just to get a sense of what oganizations are in Baltimore.
+
+
+### High Asset Orgs
+
+```{r}
+High_counts <- df_simplified %>% 
+    mutate(NTEE_text = as_factor(NTEE_text),
+        NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "NA" )) %>%
+  group_by(NTEE_text, ASSET_High_text) %>%
+  summarize(count = n()) %>% filter(ASSET_High_text == "High Asset") %>%
+    mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
+
+  
+full_join(Total_NTEE, High_counts, by = "NTEE_text") %>%
+   mutate("Percentage_of_each_code" = round(count.y/count.x *100, digits = 2)) %>%
+  arrange(NTEE_text) 
+```
+
+
 
 ## Distribution of percent AA 
 
