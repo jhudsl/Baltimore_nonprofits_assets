@@ -32,7 +32,7 @@ df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet
 Information about the data: 
 Here’s an [article](https://nccs.urban.org/nccs/datasets/bmf/) describing some of the datasets from the IRS 990s. We’re using the Business Master File (BMF).  There’s a section titled “Minimum Filing Threshold” that explains a data limitation (and why we’re seeing so many 0’s). See [here](https://www.irs.gov/charities-non-profits/exempt-organizations-annual-reporting-requirements-overview-annual-return-filing-exceptions) for more info.
 
-It seems that if there is a value less than 50,000 other than zero, it must mean that the organization decided to submit to the IRS, because otherwise they would be listed as a zero. It is not possible to distinguish a true zero from a zero due to not meeting the threshold of 50,000 and just not submitting.
+It seems that if there is a value less than 50,000 other than zero, it must mean that the organization decided to submit to the IRS, because otherwise they would be listed as a zero. It is not possible to distinguish a true zero from a zero due to not meeting the threshold of 50,000 and just not submitting. See [this guide](https://github.com/jhudsl/Baltimore_nonprofits_assets/blob/8094191b88bcef6503c132c7cc73408c12ddc916/Guide_to_Using_NCCS_Data_202.pdf), page 5 in the "minimum filing threshold" section.
 
 It therefore makes sense to remove zero values and to report this caveat that the data is incomplete because many nonprofits that had assets less than 50,000 are not included.
 
