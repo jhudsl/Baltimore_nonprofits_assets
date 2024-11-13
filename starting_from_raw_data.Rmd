@@ -1,0 +1,741 @@
+---
+title: "Raw Data Import"
+author: "Carrie"
+output: html_document
+---
+
+# reading in the data in the drive
+
+```{r}
+library(readr)
+library(readxl)
+library(here)
+library(tidyverse)
+df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet = 3)
+
+#Different IRS submission forms:
+
+#epostcard form
+data_download_epostcard <- read_delim("data-download-epostcard.txt", 
+    delim = ",", escape_double = FALSE, trim_ws = TRUE, col_names = FALSE)
+problems(data_download_epostcard)
+#pub78 form
+data_download_pub78 <- read_delim("data-download-pub78.txt", 
+    delim = ",", escape_double = FALSE, trim_ws = TRUE)
+#state irs file - limited it by baltimore city
+eo_md <- read_csv("eo_md.csv") # mapped with city boarder limits - this has the full state originally there and used eo_md.pdf for the information about it
+
+irs <- read_csv("irs.csv") # master business filing includes pub78 and epostcard
+```
+
+"To perform the analysis, we collected data from federal and local government agencies data repositories of Baltimore City nonprofits and Baltimore City neighborhood data. Baltimore nonprofit data was organized from three national nonprofit reports provided by the IRS (2021b), and Baltimore neighborhood data was downloaded in a geospatial file format from the Baltimore City Office of Information & Technology (2020). **We used data updated in January 2020**, before the pandemic when many nonprofits paused their work or closed. We made this decision in hopes of coming to results that could speak to more generalizable non-profit decision-making, rather than any pandemic-related decision-making processes or skewed data sets because of temporary closures.    
+
+The **Baltimore City Office of Information & Technology’s [BCOIT] (2020)** Baltimore neighborhood data file provided total resident numbers and racial breakdowns for each designated neighborhood. Additionally, the file provided a mapped shapefile that could be uploaded into a geographic information system (GIS) tool for interactive mapping and analysis (ArcGIS online).  
+
+**this should be public - want to see if we can find the link**
+
+https://data.baltimorecity.gov/datasets/8112521d3e284518b9fa497a188bfb45/explore?location=39.284656%2C-76.620522%2C10.82
+(used Jan 2020 data)
+
+**also ideally want the link - for IRS= came from the master business file**
+
+https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads 
+
+(got Jan 2020 data at the time)
+
+Three separate IRS data files were downloaded representing all IRS-registered nonprofits in the United States or the State of Maryland: Publication 78 Data and Form 990-N (e-Postcard) US data from the IRS (2021b), and the Exempt Organizations Business Master File Extract (EO BMF) Maryland data (IRS, 2021a, b). These files were merged using non-profits’ unique Employee Identification Number (EIN). The merged lists made a comprehensive list of non-profits with central offices in Baltimore City. To establish which non-profits would be included in the ‘Baltimore City’ dataset, we used the Baltimore neighborhood shapefile, which has established city boundary lines.  **We then cross-analyzed non-profit street addresses, and only included addresses within the existing shapefile city boundary lines**. This cross analysis (along with limitations discussed below) resulted in a complete non-profit dataset of 4082 organizations. The datasets included non-profits’ street address, reported assets, and IRS assigned asset code (designated between 1 and 9 by established ranges, e.g. code 1 is assigned for non-profits with assets less than $50,000). We used this coding system to define a “high asset” sub-category of non-profits, where any nonprofit coded 5 or above ($500,000 or more in total assets) was marked a “high asset” non-profit.   
+
+The IRS datasets also included each organizations National Taxonomy of Exempt Entities (NTEE) code. The NTEE code is an alphanumeric system that categorizes 501.c.3 organizations by their primary purpose. For this study, we used the 10 broadest categories (identified by roman numerals I-X) for an analysis by non-profit sub-sectors: Arts, Culture, and Humanities; Education; Environment and Animals; Health; Human Services; International, Foreign Affairs; Public, Societal Benefit; Religion Related; Mutual/Membership Benefit; and Unknown, Unclassified (Jones, 2019).   
+
+To analyze organizations by the racial makeup of Baltimore neighborhoods, we coded non-profits with a 1 if the nonprofit’s primary address is located within a majority African American Neighborhood—a neighborhood where greater than half of the residents identified as African American—or a 0 otherwise. We used this coding in analyses answering research questions three and four.  
+
+Limitations and Excluded Nonprofits   
+
+We narrowed the complete non-profit dataset to ensure analysis on non-profits that mainly provide a direct service to communities.  This meant that we excluded social clubs with 501.c.3 status such as lodges and fraternal orders because their missions and funds are mostly used to assist members rather than the wider community, meaning that they may not accurately portray the access to resources or services provided to the communities in which they are located. Any lodges and fraternal orders were identified and filtered using their National Taxonomy of Exempt Entities (NTEE) code.   
+
+We also reviewed each non-profit address checking for postal (P.O.) boxes or otherwise erroneous addresses that could not be accurately mapped. These were also removed from the analyzed dataset. Given that a primary focus of this paper involves the structural power and accessibility of nonprofits within the communities they serve, nonprofits that could not be properly geolocated would skew neighborhood level analyses.  
+
+In a similar light, nonprofits with multiple addresses either within or outside of Baltimore City, Maryland are beyond the scope of this paper; the IRS data predominantly consisted of only a primary Baltimore address, meaning that secondary addresses could not be considered, and nonprofit resources could not be proportionately distributed between locations. Although only primary addresses appeared in the IRS data, it is believed that the financial data encompasses all locations and subdivisions of a nonprofit. Due to a lack of viable alternatives, financials and primary addresses were taken as-is from the IRS data.   
+
+Additionally, around 1,333 or 32.656% of the remaining Baltimore City nonprofits were missing an NTEE code altogether, meaning that they could not be categorized. Although it represented a significant limitation of available data, these nonprofits were grouped together and analyzed separately for all NTEE analyses. They remained a part of any analysis that did not break down by NTEE code.   "
+
+```{r}
+
+colnames(irs)
+colnames(eo_md)
+colnames(data_download_pub78)
+colnames(data_download_epostcard)
+colnames(df_simplified) # from the excel they gave me
+```
+
+```{r}
+
+library(raster)
+library(here)
+neighborhoods<-shapefile(here::here("Neighborhoods-shp/Neighborhoods.shp"))
+
+```
+
+
+Double check thresholds and try to recreate everything from scratch.
+
+figure?
+
+
+- look into revoked Baltimore neighborhoods? 
+- and misspellings?
+
+
+Hi Carrie,
+ 
+Here’s where the IRS data came from: ​txt icon README.txt. In the “original data” folder are the files along with the R code that we used to filter down the IRS data into the usable data set. 
+ 
+RE: the discrepancy between asset code and asset amount.  Some orgs have an asset code identified, but have an empty cell for asset amount. This seems to be an orginal dataset problem. So, I’m guessing when you ran your numbers those orgs were either excluded or counted as 0.
+ 
+Hope this helps. Let me know what else might be on your mind in relation to this/next steps.
+Thanks,
+Tyler
+
+It looks indeed like that was responsible for the difference. I have been working to recreate the other tables so that the code we release matches, but maybe we should share your code too?
+ 
+ 
+I also see a difference for the table about counts for the different classifications of neighborhoods and NTEE type.
+To get to this, I created a percentage variable by using the `Normalized African American Population` variable and multiplying it by 100 and rounding to one digit after the decimal and then using a threshold of greater than or equal to 50% to be categorized as a majority AA neighborhood. I tried rounding with 2 or zero digits, I also tried doing a threshold of majority being just greater than 50% rather than greater than or equal to 50%, but I didn’t quite get the numbers in the manuscript.
+ 
+Best,
+ 
+Carrie
+ 
+I also think it might help to add some caption
+
+
+Assets - use the code - that accounts for missing data better than the raw number. 
+African American - use percents from neighborhoods black and non black - 
+
+say it is 45 % black, 40% white, 5 % asian - still majority black but not a black majority neighborhood. 
+
+Use black > = 50% - 
+
+
+See if the data is updated for the neighborhood information. 
+ 
+ 
+This is where we got the MD irs info: https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf 
+ 
+But, they update it, so it’s likely not the same data file that we had a few years ago.  I don’t think we’d be able to piece it back together, because the other way to get historic data is through submissions organized by month, rather than a particular update that gathers across the year.  And it’s national only, rather than by state.
+Not sure of a pathway to tracking, unless we’re using entire new data sets with the updates (I don’t expect things to change that much as far as conclusions). Thoughts?
+Tyler
+
+# reading in old data from drive  and new data eo_md.csv
+
+eo_md.csv https://www.irs.gov/pub/irs-soi/eo_md.csv 
+```{r}
+irs_old<- read_csv("eo_md.csv")
+df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet = 3) # this file was made by our team
+filter(df_simplified, CITY != "BALTIMORE", is.na(CITY))
+```
+
+# New eo_md 
+
+990 or not is PF filing req code
+filing req code - don't have to file any forms or not 01 = 990, 02 = 990 but less than 25000 income, 03 = group return (don't know what that means), 06 = church, 07 = gov, 00 = not required to file
+```{r}
+irs_new<- read_csv("New_version_data/eo_md_downloaded_Aug22.csv") # direct link https://www.irs.gov/pub/irs-soi/eo_md.csv
+```
+
+## compare eo_md files
+
+```{r}
+irs_old <-filter(irs_old, CITY == "BALTIMORE") # filter for just Baltimore
+irs_new <-filter(irs_new, CITY == "BALTIMORE")
+identical(irs_old[1,], irs_new[1,]) # some of the rows are identical
+identical(irs_old[2,], irs_new[2,])
+identical(irs_old[3,], irs_new[3,]) # some are slightly different
+glimpse(bind_rows(irs_new[2,], irs_old[2,]))
+glimpse(bind_rows(irs_new[3,], irs_old[3,])) # tax period is a difference in this case, let's see if the 2019 data is in the new data too EIN:010613166
+
+count(irs_old, TAX_PERIOD) %>% print(n =65) 
+count(irs_new, TAX_PERIOD) %>% print(n =65)
+count(df_simplified, TAX_PERIOD) # looks like lots of tax periods in the current currated data - also looks like it is year and month
+
+irs_new %>% filter(EIN == "010613166") # doesn't look like it that is interesting... maybe it is only the latest per EIN?
+count(irs_new, EIN) %>% filter(n >1)
+count(irs_old, EIN) %>% filter(n >1)
+# yes, seems like only one unique row per EIN
+```
+
+
+```{r}
+#How about for name?
+  
+count(irs_new, NAME) %>% filter(n >1)
+count(irs_old, NAME) %>% filter(n >1)
+
+# hmmm what are the repeat names? those appear to be different divisions of the same CBO but same tax period - do we want to count all of these? Sometimes the income is the exact same for multiples
+filter(irs_new, NAME == "AMERICAN FEDERATION OF TEACHERS") %>% glimpse()
+filter(irs_old, NAME == "AMERICAN FEDERATION OF TEACHERS") %>% glimpse()
+
+```
+
+## Seperating tax period
+
+```{r}
+
+# seperating tax 
+irs_old <- irs_old %>% separate(remove = FALSE, col = TAX_PERIOD, into = c("year", "month"), sep = 4)
+
+irs_new <- irs_new %>% separate(remove = FALSE, col = TAX_PERIOD, into = c("year", "month"), sep = 4)
+df_simplified <-df_simplified %>% separate(remove = FALSE, col = TAX_PERIOD, into = c("year", "month"), sep = 4)
+
+
+count(irs_new, year) %>% print(n = 20) %>% plot() # no NA - all years
+count(irs_old, year) %>% print(n = 20) %>% plot() # 1838 NA the rest are years
+count(df_simplified, year) %>% print(n = 20) %>% plot() # lots of year 0 in this dataset - looking back at the TAX_PERIOD  it is 0 for these rows
+
+#According to this: https://www.irs.gov/pub/irs-soi/eo-info.pdf the "This is the tax period of the latest return filed (YYYYMM). "
+
+#What year do we want?? The paper kind of makes it seem like it is 2020
+
+
+#According to the new data very few of the data points are before 2020
+```
+
+# update new data
+
+make new data look like old - threshold year by 2020 (from the paper: "We used data updated in January 2020, before the pandemic when many nonprofits paused their work or closed")
+
+```{r}
+#let's convert month to numeric
+
+irs_new <-
+  irs_new %>% mutate(month = as.numeric(month))
+irs_old <-
+  irs_old %>% mutate(month = as.numeric(month))
+df_simplified <-
+  df_simplified  %>% mutate(month = as.numeric(month))
+
+irs_new <-
+  irs_new %>% mutate(year = as.numeric(year))
+irs_old <-
+  irs_old %>% mutate(year = as.numeric(year))
+df_simplified <-
+  df_simplified  %>% mutate(year = as.numeric(year))
+```
+
+
+
+```{r}
+
+#There appears to be quite a bit data in the current dataset after the pandemic:
+
+df_simplified %>% filter(year == 2020, month >1) %>% count(month)
+
+irs_old %>% filter( year == 2020, month >1) %>% count(month)
+
+```
+
+
+
+
+
+## IRS epostcard 
+
+https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads
+epostcard data: https://apps.irs.gov/pub/epostcard/data-download-epostcard.zip (last data posting Jan 2024)
+dictionary: https://www.irs.gov/pub/irs-tege/990n-data-dictionary.pdf
+
+EIN, Tax Year , Organization Name, Gross receipts not greater than, Organization has terminated, Tax Period Begin Date , Tax Period End Date , Website URL , Principal Officer’s Name , Principal Officer’s Address Line 1, Principal Officer’s Address Line 2, Principal Officer’s Address City , Principal Officer’s Address Province, Principal Officer’s Address State , Principal Officer’s Address Zip Code , Principal Officer’s Address Country ,Organization Mailing Address Line 1 , Organization Mailing Address Line 2 , Organization Mailing Address City , Organization Mailing Address Province , Organization Mailing Address State , Organization Mailing Address Zip Code, Organization Mailing Address Country ,Organization Doing Business as Name 1, Organization Doing Business as Name 2 , Organization Doing Business as Name 3 ,
+```{r}
+# specify character for last column
+epost <- read_delim("New_version_data/data-download-epostcard_2024.txt", 
+    delim = "|", escape_double = FALSE, col_names = FALSE, 
+    trim_ws = TRUE, col_types = c("X26" = "c"))
+```
+
+check problems
+```{r}
+pepost<-problems(epost)
+count(pepost, col)
+
+
+colnames(epost) <- c("EIN", "Tax Year" , "Organization Name", "Gross receipts not greater than", "Organization has terminated", "Tax Period Begin Date" , "Tax Period End Date" , "Website URL" , "Principal Officer’s Name" , "Principal Officer’s Address Line 1", "Principal Officer’s Address Line 2", "Principal Officer’s Address City" , "Principal Officer’s Address Province", "Principal Officer’s Address State" , "Principal Officer’s Address Zip Code" , "Principal Officer’s Address Country" ,"Organization Mailing Address Line 1" , "Organization Mailing Address Line 2" , "Organization Mailing Address City" , "Organization Mailing Address Province" , "Organization Mailing Address State" , "Organization Mailing Address Zip Code", "Organization Mailing Address Country" ,"Organization Doing Business as Name 1", "Organization Doing Business as Name 2", "Organization Doing Business as Name 3")
+
+library(janitor)
+
+epost <-clean_names(epost)
+
+```
+Get problematic rows:
+
+```{r}
+epost %>% slice(pepost$row[1]: last(pepost$row)) %>% glimpse()# looking at first problematic row # URL is not a url
+epost_prob_rows<-epost %>% slice(pepost$row)
+
+```
+
+Check if problematic rows matter to us
+
+```{r}
+#check for rows with MD in any column
+unlist(sapply(epost_prob_rows, grep, pattern = "MD"))
+# looks ok!
+```
+
+### IRS Publication 78 data
+
+publication 78: https://apps.irs.gov/pub/epostcard/data-download-pub78.zip
+
+colnames from: https://nccsgit.urban.org/nccs/datasets/pub78/#:~:text=Publication%2078%20is%20an%20example,to%20receive%20tax%2Ddeductible%20donations.
+
+Question: should we do anything with the deductible codes
+```{r}
+pub78 <-  read_delim("New_version_data/data-download-pub78_2024.txt", 
+    delim = "|", escape_double = FALSE, col_names = FALSE, 
+    trim_ws = TRUE)
+
+colnames(pub78) <-c("EIN", "legal_name",	"city",	"state",	"country",	"deductibility_status")
+```
+
+limitations of pub 78: https://nccsgit.urban.org/nccs/datasets/pub78/#:~:text=Publication%2078%20is%20an%20example,to%20receive%20tax%2Ddeductible%20donations.
+
+PC:	A public charity.	50% (60% for cash contributions)
+POF:	A private operating foundation.	50% (60% for cash contributions)
+PF:	A private foundation.	30% (generally)
+GROUP	Generally, a central organization holding a group exemption letter, whose subordinate units covered by the group exemption are also eligible to receive tax-deductible contributions, even though they are not separately listed.	Depends on various factors
+LODGE:	A domestic fraternal society, operating under the lodge system, but only if the contribution is to be used exclusively for charitable purposes.	30%
+UNKWN	A charitable organization whose public charity status has not been determined.	Depends on various factors
+EO:	An organization described in section 170(c) of the Internal Revenue Code other than a public charity or private foundation.	Depends on various factors
+FORGN	A foreign-addressed organization. These are generally organizations formed in the United States that conduct activities in foreign countries. Certain foreign organizations that receive charitable contributions deductible pursuant to treaty are also included, as are organizations created in U.S. possessions.	Depends on various factors
+SO:	A Type I, Type II, or functionally integrated Type III supporting organization.	50% (60% for cash contributions)
+SONFI:	A non-functionally integrated Type III supporting organization.	50% (60% for cash contributions)
+SOUNK:	A supporting organization, unspecified type.	50% (60% for cash contributions)
+
+Combine IRS data 
+```{r}
+irs_new<- rename_with(irs_new, tolower)
+
+IRS <-left_join(irs_new, pub78, by = c("ein" = "EIN"), suffix = c("_eo", "_pub78")) # keeps all rows of irs_new_2020 and adds info from pub78 where possible as new columns- NA is given for rows not in pub78
+
+
+IRS <-left_join(IRS, epost, by = "ein") # keeps all rows of IRS and adds info from epost where possible as new columns
+
+IRS %>% dplyr::select(contains("year"))
+```
+
+
+Let's make the new data match the paper statement: 
+```{r}
+filter(irs_new, year == 2020) %>% count(year, month) # looks like all 2020 data is after Jan
+irs_new_2020<- filter(IRS, tax_year  <= 2020 |is.na(tax_year)) # keep rows where year is less than or equal to 2020 or is na
+
+#Check for jan data from 2020
+filter(irs_new_2020, year == 2020, month ==1)
+
+#irs_old_2020 <- filter(irs_old, year <2020) # this removes NAs
+year_info <-IRS %>% dplyr::select(contains(c("year","period"))) 
+
+print(filter(year_info, rowSums(is.na(year_info)) != ncol(year_info))) # hmm where are there many with no date info...
+
+# what ar the rows with all NA???
+IRS %>% filter(is.na(year))
+```
+
+
+## Revocations
+
+```{r}
+revocations <- read_delim("New_version_data/data-download-revocation.txt", 
+    delim = "|", escape_double = FALSE, col_names = FALSE, 
+    trim_ws = TRUE)
+
+IRS_no_revoc<-anti_join(IRS, revocations, by = c("ein" = "X1")) # lost about 400
+dim(IRS)
+dim(IRS_no_revoc)
+IRS<- IRS_no_revoc
+```
+
+## PO Boxes
+
+```{r}
+IRS %>% filter(str_detect(street, "PO ")) %>% pull(street)
+IRS <- IRS %>% filter(!str_detect(street, "PO "))
+
+```
+
+
+```{r}
+#write_rds(IRS, file = "New_version_data/new_IRSdata.rds")
+```
+
+
+
+###STart HERE########################## (after first chunk)
+
+## Neighborhoods data
+
+Neighborhoods data: https://data.baltimorecity.gov/datasets/8112521d3e284518b9fa497a188bfb45/explore?location=39.284656%2C-76.620522%2C10.82
+https://data.baltimorecity.gov/datasets/8112521d3e284518b9fa497a188bfb45/explore
+(used Jan 2020 data)
+
+```{r}
+Neighborhoods_NSA <- read_csv("New_version_data/Neighborhoods_NSA.csv")
+Neighborhoods_NSA <-Neighborhoods_NSA %>% mutate(percent_AA = (Blk_AfAm/Population)*100 )
+Neighborhoods_NSA <-Neighborhoods_NSA %>% mutate(Maj_Black = 
+                                                   case_when(percent_AA >=50 ~ TRUE,
+                                                             percent_AA <50 ~FALSE))
+
+```
+
+
+```{r}
+
+library(raster)
+library(here)
+neighborhoods<-shapefile(here::here("Neighborhoods-shp/Neighborhoods.shp"))
+
+```
+
+The merged lists made a comprehensive list of non-profits with central offices in Baltimore City. To establish which non-profits would be included in the ‘Baltimore City’ dataset, we used the Baltimore neighborhood shapefile, which has established city boundary lines.  **We then cross-analyzed non-profit street addresses, and only included addresses within the existing shapefile city boundary lines**. This cross analysis (along with limitations discussed below) resulted in a complete non-profit dataset of 4082 organizations. The datasets included non-profits’ street address, reported assets, and IRS assigned asset code (designated between 1 and 9 by established ranges, e.g. code 1 is assigned for non-profits with assets less than $50,000).
+
+
+## get lat and long for addresses of CBOs
+
+```{r}
+library(ggmap)
+#IRS <- IRS %>% unite("address",street:zip, remove = FALSE, sep = ", ") # this next step is slow so commenting out
+#geos<-IRS %>% pull(address) %>% geocode() # this step is slow so commenting out
+#warnings(geos) # check things- relies on previous step that is slow
+#IRS <-cbind(IRS, geos) #relies on previous step that is slow
+
+#write_rds(IRS, file = "New_version_data/new_IRSdata.rds")
+```
+
+
+```{r}
+IRS <- readRDS("~/Documents/GitHub/tyler/New_version_data/new_IRSdata.rds")
+```
+
+
+## Get lat and long for shape file
+
+https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies-within-polygon
+https://www.statsilk.com/maps/convert-esri-shapefile-map-geojson-format
+
+```{r}
+# work with spatial data; sp package will load with rgdal.
+library(terra)
+# for metadata/attributes- vectors or rasters
+library(raster)
+library(sf)
+
+#neighborhood_shape <- system.file("Neighborhoods-shp/Neighborhoods.cpg", "Neighborhoods-shp/Neighborhoods.dbf", "Neighborhoods-shp/Neighborhoods.prj", "Neighborhoods-shp/Neighborhoods.shp", "Neighborhoods-shp/Neighborhoods.shx", package = "raster")
+
+#neighborhood_shape_1 <- system.file(here("Neighborhoods-shp/Neighborhoods.shp"), package = "raster")
+neighborhood_shape <-shapefile("Neighborhoods-shp/Neighborhoods.dbf", "Neighborhoods-shp/Neighborhoods.shp", "Neighborhoods-shp/Neighborhoods.shx")
+#identical(neighborhood_shape, neighborhood_shape_1)
+#identical(neighborhood_shape, neighborhood_shape_2)
+neighborhood_shape3 <-st_read("Neighborhoods-shp/Neighborhoods.shp", stringsAsFactors=FALSE)
+```
+https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies-within-polygon
+
+
+```{r}
+geo_clean <- IRS %>% dplyr::select(ein, lon, lat) %>% drop_na(lon) # one row - will need to remove form cbos
+CRS <- st_crs(neighborhood_shape3$geometry)
+pnts_sf <- st_as_sf(geo_clean, coords = c('lon', 'lat'), crs = st_crs(4326)) %>% st_set_crs(4326)
+neighborhood_Sf <-neighborhood_shape3$geometry
+neighborhood_Sf <- neighborhood_Sf %>% st_set_crs(4326)
+pnts_trans <- st_transform(pnts_sf, 2163)
+neighborhod_tt <- st_transform(neighborhood_shape3$geometry, 2163)
+test <-st_intersection(pnts_trans, neighborhod_tt)
+intersection <- pnts_sf %>% mutate(
+  intersection = as.integer(st_intersects( pnts_trans, neighborhod_tt )))
+not_in_balt <- intersection %>% filter(is.na(intersection))
+
+# getting an error about crs
+crs_neighborhood <-st_crs(neighborhood_Sf)
+crs_pnts <- st_crs(pnts_sf)
+identical(crs_neighborhood, crs_pnts)
+```
+
+
+Combining the intersection info with original bigger IRS data, to just get the IRS data for the data in the neighborhood data (just places in Baltimore)
+```{r}
+IRS <-left_join(intersection, IRS, by = "ein") #sf version - need to make a version like this without the sf version start here avocado
+```
+
+checking that it worked
+```{r}
+# first row:
+#            ein                   geometry intersection
+# 1  010591773 POINT (-76.69024 39.36632)           43
+
+#neighborhood_shape[43,]$name
+#filter(IRS, ein == "010591773")
+
+#Looks like this is in that location
+
+```
+
+
+Combining it all together:
+```{r}
+neighborhood_shape <-as_tibble(neighborhood_shape)
+neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number())
+cw_df_simp <-left_join(IRS, neighborhood_shape, by = c("intersection" = "id"))
+cw_df_simp[1,] %>% glimpse()
+
+# remove rows where intersection was not found (where intersection is NA) - aka CBO outside Baltimore
+cw_df_simp <-cw_df_simp %>% drop_na(intersection)
+```
+
+
+## remove NTEE code IX [(IX. Mutual/Membership Benefit - Y)](https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html) - social clubs
+- there only appears to be a small number of membership benefit clubs
+(Keep NA for broad analyses of high of vs low asset but possibly remove for other analyses)
+```{r}
+social_clubs <- cw_df_simp %>% filter(str_detect(string = ntee_cd, pattern = "Y|y"))
+
+clubs_lodges <- cw_df_simp %>% filter(str_detect(string = name.x, pattern = "club|Club|CLUB|lodge|Lodge|LODGE"))
+clubs_lodges2 <- cw_df_simp %>% filter(str_detect(string = legal_name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE"))
+
+#All of the second version are in the first:
+  clubs_lodges2$intersection %in% clubs_lodges$intersection
+  
+clubs$ntee_cd
+# also look for lodge
+dim(social_clubs)# only 12
+
+No_social_clubs <- cw_df_simp %>% filter(!str_detect(string = ntee_cd, pattern = "Y")|is.na(ntee_cd))
+
+#first remove for "Y ntee"
+cw_df_simp <- cw_df_simp %>% filter(!str_detect(string = ntee_cd, pattern = "Y") |is.na(ntee_cd))
+
+#remove for word club"
+cw_df_simp <- cw_df_simp %>% filter(!str_detect(string = name.x, pattern = "club|Club|CLUB|lodge|Lodge|LODGE"))
+```
+
+## For today Halloween
+publication 78: https://apps.irs.gov/pub/epostcard/data-download-pub78.zip
+
+colnames from: https://nccsgit.urban.org/nccs/datasets/pub78/#:~:text=Publication%2078%20is%20an%20example,to%20receive%20tax%2Ddeductible%20donations.
+
+eo_postcard
+
+Question: should we do anything with the deductible codes and columns from eo_postcard
+
+# to do after halloween
+- check cw_df_simp for deductability column to see if there are more codes - for clubs/lodges before we remove them
+- check for boosters and supporting organizations, fundraising 
+- How much overlap between eo and master file
+- if using 2020 docs - go back to 2017 and up - update every 3 years to stay in good standing if asset codes higher than 0 (if asset code of 0 don't have to submit)
+- check irs.csv vs eo and and pub78
+- eo info in one drive includes: https://livejohnshopkins-my.sharepoint.com/_forms/default.aspx 
+
+01 990 (all other) or 990EZ return 02  990 - Required to file Form 990-N - Income less than $25,000 per year 03 990 - Group return 04 990 - Required to file Form 990-BL, Black Lung Trusts 06 990 - Not required to file (church)  07 990 - Government 501(c)(1) 13 990 - Not required to file (religious organization) 14 990 - Not required to file (instrumentalities of states or political subdivisions) 00 990 - Not required to file (all other)
+
+eo file activity codes : https://www.irs.gov/pub/irs-soi/eo_md.csv
+
+activity codes align with ntee somewhat (classification also kinda helpful) - good for getting fundraizing, country club, social, membership benefit organizations, mutual, sport, benefiting themselves or sports and leasure
+
+There is a 3 digit code that is for fundraizing
+
+start with NTEE code alpha numeric, then activities 
+
+```{r}
+# remove older tax years - check for revocation rationale
+#classification, ruling, deductibility, status, tax period
+
+cw_df_simp %>% count(classification, sort = TRUE) %>% view()
+cw_df_simp %>% count(ruling, sort = TRUE) %>% view()
+cw_df_simp %>% count(deductibility)
+cw_df_simp %>% count(organization_has_terminated) # this one is important - what file does this come from
+cw_df_simp %>% count(status)
+cw_df_simp %>% count(tax_year, sort = TRUE) %>% View()
+
+```
+
+```{r}
+cw_df_simp  <-cw_df_simp  %>%
+  mutate(NTEE_text = case_when(
+    str_starts(ntee_cd, pattern = "A")~ "Arts", # if NTEE_CD starts with A make new variable value "Arts" etc.
+    str_starts(ntee_cd, pattern = "B") ~ "Education",
+    str_starts(ntee_cd, pattern = "C|D") ~ "Environment/Animals", # if NTEE_CD value starts with C or D make new variable value "Environment/Animals"
+    str_starts(ntee_cd, pattern = "E|F|G|H") ~ "Health",
+    str_starts(ntee_cd, pattern = "I|J|K|L|M|N|O|P") ~ "Human Services",
+    str_starts(ntee_cd, pattern = "Q") ~ "International Affairs",
+    str_starts(ntee_cd, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
+    str_starts(ntee_cd, pattern = "X") ~ "Religious",
+    TRUE ~ "NA")) # this line is redundant as this would happen automatically - but everything else will be NA
+```
+
+## remove replicate addresses 
+
+
+```{r}
+cw_df_simp <- cw_df_simp %>% unite(name.x,street, col = unique_ID, sep = " ", remove = FALSE)
+duplicates <-cw_df_simp[duplicated(cw_df_simp$unique_ID),]
+duplicates <-arrange(duplicates, unique_ID)
+duplicates %>% count(ntee_cd) # most duplicates have ntee code of NA
+duplicates%>% count(organization_name)
+
+Living <-duplicates %>% filter(str_detect(unique_ID, pattern = "LIVING")) # only one row has asset info
+
+cw_df_simp %>% filter(organization_name != "AMERICAN FEDERATION OF STATE COUNTY & MUNICIPAL EMPLOYEES")# Ask Tyler about what we want to do for these...
+
+municipal_employees <-cw_df_simp %>% filter(organization_name == "AMERICAN FEDERATION OF STATE COUNTY & MUNICIPAL EMPLOYEES")# Ask Tyler about what we want to do for these...
+
+NAACP <- cw_df_simp %>% filter(organization_name %in% c("NATIONAL ASSOCIATION FOR THE ADVANCEMENT OF COLORED PEOPLE","NAACP")) # Ask Tyler about what we want to do for these...
+
+write_csv(municipal_employees, file= "municipal_employees.csv")
+write_csv(NAACP, file = "NAACP.csv")
+
+cw_df_simp<- cw_df_simp %>% filter(organization_name == "AMERICAN FEDERATION OF STATE COUNTY & MUNICIPAL EMPLOYEES")#
+cw_df_simp <- cw_df_simp %>% filter(organization_name == "NATIONAL ASSOCIATION FOR THE ADVANCEMENT OF COLORED PEOPLE")
+
+```
+
+
+
+# Maps
+
+```{r}
+
+library(RColorBrewer) 
+
+# Plotting simple features (sf) with plot 
+plot(neighborhood_shape3$geometry)
+
+library(sp)
+library(leaflet)
+coordinates(geo_clean) <- ~lon+lat
+leaflet(geo_clean) %>% addMarkers() %>% addTiles()
+
+```
+
+```{r}
+for_plot <-cw_df_simp %>% dplyr::select(name.x, organization_name, lat, lon)
+# getting the map
+mapplotarea <- get_map(location = c(lon = mean(for_plot$lon), lat = mean(for_plot$lat)), zoom = 11,maptype = "satellite", scale = 2)
+# plotting the map with some points on it
+plot1 <- ggmap(mapplotarea) +
+  geom_point(data =for_plot, aes(x = lon, y = lat, fill = "red", alpha = 0.8), size = 2, shape = 21) +
+  guides(fill=FALSE, alpha=FALSE, size=FALSE)
+
+plot(neighborhood_shape3$geometry)
+
+neighborhoods <-neighborhood_shape3$geometry
+library(rnaturalearthdata)
+library(rnaturalearth)
+world <- ne_countries(scale = "medium", returnclass = "sf")
+glimpse(world)
+outline_plot<-ggplot(data = world) +
+    geom_sf() +  geom_sf(data = neighborhoods)+
+    coord_sf(xlim = c(-76.74, -76.5), ylim = c(39.19, 39.4), 
+             expand = FALSE)
+
+
+ outline_plot + geom_point(data = cw_df_simp, aes(x = lon, y = lat), size = 2, 
+               shape = 23, fill = "darkred")
+
+
+
+```
+
+
+
+
+## not mappable address - PO box only removed
+Nonprofits that solely provided postal (P.O.)
+boxes or otherwise erroneous addresses that
+could not be accurately mapped were also
+redacted from the list. Given that a primary
+focus of this paper involves the structural power
+and accessibility of nonprofits within the com-
+munities they serve, we felt that nonprofits that
+could not be properly geolocated might be mis-
+leading.
+
+## multiple addresses removed
+In a similar light, nonprofits with multiple
+addresses either within or outside of Baltimore
+City, Maryland are beyond the scope of this pa-
+per; the IRS data predominantly consisted of
+only a primary Baltimore address, meaning that
+secondary addresses could not be considered and
+nonprofit resources could not be proportionately
+distributed between locations. Although only
+primary addresses appeared in the IRS data, it is
+believed that the financial data encompasses all
+locations and subdivisions of a nonprofit. Due to
+a lack of viable alternatives, financials and pri-
+mary addresses were taken as-is from the IRS
+data. 
+
+
+## No NTEE - kept but analyzed seperately
+
+Additionally, around 1,333 or 32.656% of the
+remaining Baltimore City nonprofits were miss-
+ing an NTEE code altogether, meaning that they
+could not be categorized. Although it repre-
+sented a significant limitation of available data,
+these nonprofits were grouped together and an-
+alyzed separately.
+
+
+0.1.4 Combined Data set
+After all nonprofits listed to operate in Balti-
+more City were isolated, the primary address
+for each nonprofit was mapped in GIS overlay-
+ing the Baltimore Neighborhood Data already
+imported into GIS; using a geospatial join tool,
+all Baltimore City nonprofits whose primary ad-
+dress was not directly within the Baltimore City
+limits were omitted. A secondary advantage to
+performing the geospatial join between the non-
+profit data and the neighborhood shape file was
+the creation of a single tabular data set where
+each nonprofits' information was listed alongside
+the pertinent data regarding the neighborhood
+that the nonprofit is located in. An ntee at-
+tribute was appended to the combined data ta-
+ble, which broadly categorized the nonprofits'
+NTEE Codes into 10 generalized groups; Arts,
+Culture, and Humanities; Education; Environ-
+ment and Animals; Health; Human Services;
+International, Foreign Afiairs; Public, Societal
+Benefit; Religion Related; Mutual/Membership
+Benefit; and Unknown, Unclassified (Jones,
+2019). 
+
+## Lodges and fraternal orders or unknown
+
+As was mentioned previously, the lat-
+ter two NTEE groupings,Mutual/Membership
+Benefit (largely lodges and fraternal orders) and
+Unknown or Unclassified,were respectively re-
+moved and analyzed separately. 
+
+### Lodges and fraternal orders were deliberately omitted
+
+Lodges and fraternal orders were deliberately
+omitted from the data set at this stage; although
+these organizations are indeed nonprofits in Bal-
+timore City, their missions and funds are mostly
+used to assist members rather than the wider
+community, meaning that they may not accu-
+rately portray the access to resources or services
+provided to the communities in which they are
+located. Any lodges and fraternal orders were
+identified and filtered using their National Tax-onomy of Exempt Entities (NTEE) code.
+
+One other calculated column, Majority African American
+Neighborhood, was appended with a 1 if the
+nonprofit's primary address is located within
+a majority African American Neighborhood,a
+neighborhood where **greater than half of the res-
+idents are of African American descent**,or a 0
+otherwise.
+
+NTEE codes: https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html

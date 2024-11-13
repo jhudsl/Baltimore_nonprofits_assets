@@ -112,15 +112,15 @@ Next we will modify the data to include a variable about the percentage of Afric
 #into a percentage and rounding
  df_simplified<-df_simplified %>%
   mutate(Percent_AA = 
-           round(`Normalized African American Population`*100, digits = 1))  %>%
+           round(`Normalized African American Population`*100, digits = 2))  %>%
 
-  # create new Majority_AA variable that indicates if Percent_AA is greater than or equal to 50% or not
+  # create new Majority_AA variable that indicates if Percent_AA is greater than 50% or not
   mutate(Majority_AA = case_when(
-    Percent_AA >= 50 ~ "Yes", 
+    Percent_AA > 50 ~ "Yes", 
     Percent_AA <  50 ~ "No")) %>%
   # create a new variable about this in text
    mutate(Neighborhood = case_when(
-    Percent_AA >= 50 ~ "Majority\nBlack", 
+    Percent_AA > 50 ~ "Majority\nBlack", 
     Percent_AA <  50 ~ "Majority\nNon-Black")) %>% 
   # make this a factor and order by level appearance in the data
   mutate(Neighborhood = as_factor(Neighborhood),
@@ -487,6 +487,8 @@ plot2
 
 
 ### High Asset Orgs
+ 
+Based on Asset Amount (ASSET_AMT)
 
 ```{r}
 High_counts <- df_simplified %>% 
@@ -502,7 +504,53 @@ full_join(Total_NTEE, High_counts, by = "NTEE_text") %>%
   arrange(NTEE_text) 
 ```
 
+Based on ASSET_CD (Where 5 means >=500,000)
 
+```{r}
+High_counts <- df_simplified %>% 
+    mutate(NTEE_text = as_factor(NTEE_text),
+        NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "NA" )) %>%
+  mutate(ASSET_CD_High = case_when(ASSET_CD >= 5 ~ "High",
+                                   ASSET_CD < 5 ~ "Low")) %>%
+  group_by(NTEE_text, ASSET_CD_High) %>%
+  summarize(count = n()) %>% filter(ASSET_CD_High == "High") %>%
+    mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
+
+  
+full_join(Total_NTEE, High_counts, by = "NTEE_text") %>%
+   mutate("Percentage_of_each_code" = round(count.y/count.x *100, digits = 2)) %>%
+  arrange(NTEE_text) 
+```
+
+### Counts across neighborhood type and NTEE
+
+```{r}
+Count_by_neighborhood_type <- df_simplified %>% 
+    mutate(NTEE_text = as_factor(NTEE_text),
+        NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "NA" )) %>%
+  mutate(ASSET_CD_High = case_when(ASSET_CD >= 5 ~ "High",
+                                   ASSET_CD < 5 ~ "Low")) %>%
+  group_by(NTEE_text, Majority_AA) %>%
+  summarize(count = n())  %>%
+    mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
+
+full_join(Total_NTEE, Count_by_neighborhood_type, by = "NTEE_text") %>%
+   mutate("Percentage_of_each_code" = round(count.y/count.x *100, digits = 2)) %>%
+  arrange(NTEE_text) %>%
+  pivot_wider(names_from = Majority_AA, values_from = count.y:Percentage_of_each_code) %>% 
+  select(NTEE_text, count.x, count.y_Yes, Percentage_of_each_code_Yes,  count.y_No, Percentage_of_each_code_No) %>% 
+pivot_longer(-NTEE_text) %>%
+  mutate(name = case_when(
+            name == "count.x" ~ "Total",
+            name == "count.y_Yes" ~"Count_Majority_Black",
+            name == "Percentage_of_each_code_Yes" ~ "Perc_Maj_Black",
+            name == "count.y_No" ~ "Count_Non_Black",
+            name == "Percentage_of_each_code_No" ~ "Perc_Non_Black")) %>%
+  pivot_wider(names_from = name, values_from = value) %>%
+  mutate(ratio = Count_Majority_Black/Count_Non_Black)
+
+
+```
 
 ## Distribution of percent AA 
 
