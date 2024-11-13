@@ -25,7 +25,7 @@ data_download_pub78 <- read_delim("data-download-pub78.txt",
 #state irs file - limited it by baltimore city
 eo_md <- read_csv("eo_md.csv") # mapped with city boarder limits - this has the full state originally there and used eo_md.pdf for the information about it
 
-irs <- read_csv("irs.csv")
+irs <- read_csv("irs.csv") # master business filing includes pub78 and epostcard
 ```
 
 "To perform the analysis, we collected data from federal and local government agencies data repositories of Baltimore City nonprofits and Baltimore City neighborhood data. Baltimore nonprofit data was organized from three national nonprofit reports provided by the IRS (2021b), and Baltimore neighborhood data was downloaded in a geospatial file format from the Baltimore City Office of Information & Technology (2020). **We used data updated in January 2020**, before the pandemic when many nonprofits paused their work or closed. We made this decision in hopes of coming to results that could speak to more generalizable non-profit decision-making, rather than any pandemic-related decision-making processes or skewed data sets because of temporary closures.    
@@ -137,6 +137,8 @@ filter(df_simplified, CITY != "BALTIMORE", is.na(CITY))
 
 # New eo_md 
 
+990 or not is PF filing req code
+filing req code - don't have to file any forms or not 01 = 990, 02 = 990 but less than 25000 income, 03 = group return (don't know what that means), 06 = church, 07 = gov, 00 = not required to file
 ```{r}
 irs_new<- read_csv("New_version_data/eo_md_downloaded_Aug22.csv") # direct link https://www.irs.gov/pub/irs-soi/eo_md.csv
 ```
@@ -367,7 +369,7 @@ IRS <- IRS %>% filter(!str_detect(street, "PO "))
 
 
 
-
+###STart HERE########################## (after first chunk)
 
 ## Neighborhoods data
 
@@ -400,10 +402,10 @@ The merged lists made a comprehensive list of non-profits with central offices i
 
 ```{r}
 library(ggmap)
-IRS <- IRS %>% unite("address",street:zip, remove = FALSE, sep = ", ")
+#IRS <- IRS %>% unite("address",street:zip, remove = FALSE, sep = ", ") # this next step is slow so commenting out
 #geos<-IRS %>% pull(address) %>% geocode() # this step is slow so commenting out
-warnings(geos) # check things
-IRS <-cbind(IRS, geos)
+#warnings(geos) # check things- relies on previous step that is slow
+#IRS <-cbind(IRS, geos) #relies on previous step that is slow
 
 #write_rds(IRS, file = "New_version_data/new_IRSdata.rds")
 ```
@@ -483,18 +485,73 @@ neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number())
 cw_df_simp <-left_join(IRS, neighborhood_shape, by = c("intersection" = "id"))
 cw_df_simp[1,] %>% glimpse()
 
-# remove rows where intersection was not found - aka CBO outside Baltimore
+# remove rows where intersection was not found (where intersection is NA) - aka CBO outside Baltimore
 cw_df_simp <-cw_df_simp %>% drop_na(intersection)
 ```
 
 
 ## remove NTEE code IX [(IX. Mutual/Membership Benefit - Y)](https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html) - social clubs
-- there only appears to be 
+- there only appears to be a small number of membership benefit clubs
+(Keep NA for broad analyses of high of vs low asset but possibly remove for other analyses)
 ```{r}
+social_clubs <- cw_df_simp %>% filter(str_detect(string = ntee_cd, pattern = "Y|y"))
+
+clubs_lodges <- cw_df_simp %>% filter(str_detect(string = name.x, pattern = "club|Club|CLUB|lodge|Lodge|LODGE"))
+clubs_lodges2 <- cw_df_simp %>% filter(str_detect(string = legal_name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE"))
+
+#All of the second version are in the first:
+  clubs_lodges2$intersection %in% clubs_lodges$intersection
+  
+clubs$ntee_cd
+# also look for lodge
+dim(social_clubs)# only 12
+
+No_social_clubs <- cw_df_simp %>% filter(!str_detect(string = ntee_cd, pattern = "Y")|is.na(ntee_cd))
+
+#first remove for "Y ntee"
 cw_df_simp <- cw_df_simp %>% filter(!str_detect(string = ntee_cd, pattern = "Y") |is.na(ntee_cd))
 
-social_clubs <- cw_df_simp %>% filter(str_detect(string = ntee_cd, pattern = "Y")|is.na(ntee_cd)) # only 12
-No_social_clubs <- cw_df_simp %>% filter(!str_detect(string = ntee_cd, pattern = "Y")|is.na(ntee_cd))
+#remove for word club"
+cw_df_simp <- cw_df_simp %>% filter(!str_detect(string = name.x, pattern = "club|Club|CLUB|lodge|Lodge|LODGE"))
+```
+
+## For today Halloween
+publication 78: https://apps.irs.gov/pub/epostcard/data-download-pub78.zip
+
+colnames from: https://nccsgit.urban.org/nccs/datasets/pub78/#:~:text=Publication%2078%20is%20an%20example,to%20receive%20tax%2Ddeductible%20donations.
+
+eo_postcard
+
+Question: should we do anything with the deductible codes and columns from eo_postcard
+
+# to do after halloween
+- check cw_df_simp for deductability column to see if there are more codes - for clubs/lodges before we remove them
+- check for boosters and supporting organizations, fundraising 
+- How much overlap between eo and master file
+- if using 2020 docs - go back to 2017 and up - update every 3 years to stay in good standing if asset codes higher than 0 (if asset code of 0 don't have to submit)
+- check irs.csv vs eo and and pub78
+- eo info in one drive includes: https://livejohnshopkins-my.sharepoint.com/_forms/default.aspx 
+
+01 990 (all other) or 990EZ return 02  990 - Required to file Form 990-N - Income less than $25,000 per year 03 990 - Group return 04 990 - Required to file Form 990-BL, Black Lung Trusts 06 990 - Not required to file (church)  07 990 - Government 501(c)(1) 13 990 - Not required to file (religious organization) 14 990 - Not required to file (instrumentalities of states or political subdivisions) 00 990 - Not required to file (all other)
+
+eo file activity codes : https://www.irs.gov/pub/irs-soi/eo_md.csv
+
+activity codes align with ntee somewhat (classification also kinda helpful) - good for getting fundraizing, country club, social, membership benefit organizations, mutual, sport, benefiting themselves or sports and leasure
+
+There is a 3 digit code that is for fundraizing
+
+start with NTEE code alpha numeric, then activities 
+
+```{r}
+# remove older tax years - check for revocation rationale
+#classification, ruling, deductibility, status, tax period
+
+cw_df_simp %>% count(classification, sort = TRUE) %>% view()
+cw_df_simp %>% count(ruling, sort = TRUE) %>% view()
+cw_df_simp %>% count(deductibility)
+cw_df_simp %>% count(organization_has_terminated) # this one is important - what file does this come from
+cw_df_simp %>% count(status)
+cw_df_simp %>% count(tax_year, sort = TRUE) %>% View()
 
 ```
 
@@ -519,6 +576,22 @@ cw_df_simp  <-cw_df_simp  %>%
 cw_df_simp <- cw_df_simp %>% unite(name.x,street, col = unique_ID, sep = " ", remove = FALSE)
 duplicates <-cw_df_simp[duplicated(cw_df_simp$unique_ID),]
 duplicates <-arrange(duplicates, unique_ID)
+duplicates %>% count(ntee_cd) # most duplicates have ntee code of NA
+duplicates%>% count(organization_name)
+
+Living <-duplicates %>% filter(str_detect(unique_ID, pattern = "LIVING")) # only one row has asset info
+
+cw_df_simp %>% filter(organization_name != "AMERICAN FEDERATION OF STATE COUNTY & MUNICIPAL EMPLOYEES")# Ask Tyler about what we want to do for these...
+
+municipal_employees <-cw_df_simp %>% filter(organization_name == "AMERICAN FEDERATION OF STATE COUNTY & MUNICIPAL EMPLOYEES")# Ask Tyler about what we want to do for these...
+
+NAACP <- cw_df_simp %>% filter(organization_name %in% c("NATIONAL ASSOCIATION FOR THE ADVANCEMENT OF COLORED PEOPLE","NAACP")) # Ask Tyler about what we want to do for these...
+
+write_csv(municipal_employees, file= "municipal_employees.csv")
+write_csv(NAACP, file = "NAACP.csv")
+
+cw_df_simp<- cw_df_simp %>% filter(organization_name == "AMERICAN FEDERATION OF STATE COUNTY & MUNICIPAL EMPLOYEES")#
+cw_df_simp <- cw_df_simp %>% filter(organization_name == "NATIONAL ASSOCIATION FOR THE ADVANCEMENT OF COLORED PEOPLE")
 
 ```
 
