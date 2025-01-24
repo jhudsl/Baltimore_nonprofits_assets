@@ -16,15 +16,27 @@ library(tidyverse)
 
 990 or not is PF filing req code
 filing req code - don't have to file any forms or not 01 = 990, 02 = 990 but less than 25000 income, 03 = group return (don't know what that means), 06 = church, 07 = gov, 00 = not required to file
- 
+ from here: https://www.irs.gov/downloads/irs-soi - chose Maryland
  direct link: https://www.irs.gov/pub/irs-soi/eo_md.csv
-```{r}
-irs_new<- read_csv("New_version_data/eo_md_downloaded_Aug22.csv") # direct link https://www.irs.gov/pub/irs-soi/eo_md.csv
-```
-# new epostcard
 
+ 
+maybe  New link: https://www.irs.gov/downloads then --> irs-soi (https://www.irs.gov/statistics/soi-tax-stats-business-tax-statistics) then --> https://www.irs.gov/pub/irs-soi/22incdmd.xlsx
+ 
+ 
+Go with: tyler's link: https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf
+  and search for MD - official updated date is 12/10/2024: https://www.irs.gov/pub/irs-soi/eo_md.csv
+ 
+```{r}
+irs_tyler_link<-read_csv("https://www.irs.gov/pub/irs-soi/eo_md.csv")
+irs_my_link
+irs_new <-irs_tylerlink
+# old link irs_new<- read_csv("New_version_data/eo_md_downloaded_Aug22.csv") 
+```
+# new epostcard 990-N
+
+Gies us information about who was an active org and helps save some from removal for revocation otherwise not listed
 link: https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads
-direct link to data: https://apps.irs.gov/pub/epostcard/data-download-epostcard.zip (last data posting Jan 2024)
+direct link to data:  (last data posting Oct 28, 2024) https://apps.irs.gov/pub/epostcard/data-download-epostcard.zip
 dictionary: https://www.irs.gov/pub/irs-tege/990n-data-dictionary.pdf
 
 EIN, Tax Year , Organization Name, Gross receipts not greater than, Organization has terminated, Tax Period Begin Date , Tax Period End Date , Website URL , Principal Officer’s Name , Principal Officer’s Address Line 1, Principal Officer’s Address Line 2, Principal Officer’s Address City , Principal Officer’s Address Province, Principal Officer’s Address State , Principal Officer’s Address Zip Code , Principal Officer’s Address Country ,Organization Mailing Address Line 1 , Organization Mailing Address Line 2 , Organization Mailing Address City , Organization Mailing Address Province , Organization Mailing Address State , Organization Mailing Address Zip Code, Organization Mailing Address Country ,Organization Doing Business as Name 1, Organization Doing Business as Name 2 , Organization Doing Business as Name 3 ,
@@ -35,20 +47,43 @@ epost <- read_delim("New_version_data/data-download-epostcard_2024.txt",
     trim_ws = TRUE, col_types = c("X26" = "c"))
 ```
 
-check problems
+### check problems
 ```{r}
-pepost<-problems(epost)
-count(pepost, col)
+pepost<-problems(epost) #get problem info, looks like some extra columns
+slice(epost, pepost$row) # get problematic rows from epost
+head(epost)#compare with nonproblematic rows
+#column 8 appears to be an email for nonproblematic rows but is a name for problematic rows, then column 9 is the name for non problematic rows  and a city for problematic rows, followed by a name for column 10 for problematic rows, while nonproblematic rows move onto the address. So basically problematic rows have extra address info early on about the city and in one case also state
+```
 
+```{bash}
+# checking the original version of the file for one of the problematic rows
+awk 'FNR>=9294 && FNR<=9294' New_version_data/data-download-epostcard_2024.txt  # first problematic row is actually originally on line 9294
 
+awk 'FNR>=358951 && FNR<=358951' New_version_data/data-download-epostcard_2024.txt  #second problematic row
+
+awk 'FNR>=1 && FNR<=3' New_version_data/data-download-epostcard_2024.txt # checking line 1-3 to ensure that there were some empty lines for the first two lines - yup looks like it!
+```
+
+Get row names:
+```{r}
 colnames(epost) <- c("EIN", "Tax Year" , "Organization Name", "Gross receipts not greater than", "Organization has terminated", "Tax Period Begin Date" , "Tax Period End Date" , "Website URL" , "Principal Officer’s Name" , "Principal Officer’s Address Line 1", "Principal Officer’s Address Line 2", "Principal Officer’s Address City" , "Principal Officer’s Address Province", "Principal Officer’s Address State" , "Principal Officer’s Address Zip Code" , "Principal Officer’s Address Country" ,"Organization Mailing Address Line 1" , "Organization Mailing Address Line 2" , "Organization Mailing Address City" , "Organization Mailing Address Province" , "Organization Mailing Address State" , "Organization Mailing Address Zip Code", "Organization Mailing Address Country" ,"Organization Doing Business as Name 1", "Organization Doing Business as Name 2", "Organization Doing Business as Name 3")
 
 library(janitor)
 
-epost <-clean_names(epost)
+epost <-clean_names(epost)# removing spaces from names
 
 ```
+
 Get problematic rows:
+
+
+
+Todo: How many in epost not in irs_new? filter for md
+
+```{r}
+anti_join(epost,irs_new, by ="ein") %>% nrow()
+
+```
 
 ```{r}
 epost %>% slice(pepost$row[1]: last(pepost$row)) %>% glimpse()# looking at first problematic row # URL is not a url
@@ -59,13 +94,15 @@ epost_prob_rows<-epost %>% slice(pepost$row)
 Check if problematic rows matter to us
 
 ```{r}
-#check for rows with MD in any column
+#check for rows with MD in any column, this data is for the entire us
 unlist(sapply(epost_prob_rows, grep, pattern = "MD"))
 # looks ok!
 ```
 
 
 ## IRS Publication 78 data
+
+Todo: probably can get rid of this
 
 publication 78: https://apps.irs.gov/pub/epostcard/data-download-pub78.zip (direct link)
 
@@ -94,74 +131,272 @@ SO:	A Type I, Type II, or functionally integrated Type III supporting organizati
 SONFI:	A non-functionally integrated Type III supporting organization.	50% (60% for cash contributions)
 SOUNK:	A supporting organization, unspecified type.	50% (60% for cash contributions)
 
-Combine IRS data 
+## Combine IRS data  
+
+### Check names
+
 ```{r}
-irs_new<- rename_with(irs_new, tolower)
+colnames(irs_new) #EIN
+colnames(epost) #ein
+colnames(pub78) #EIN
+```
+
+
+```{r}
+irs_new<- rename_with(irs_new, tolower) #make names lowercase
+nrow(irs_new) #40377 rows for MD data before combining
 
 IRS <-left_join(irs_new, pub78, by = c("ein" = "EIN"), suffix = c("_eo", "_pub78")) # keeps all rows of irs_new and adds info from pub78 where possible as new columns- NA is given for rows not in pub78
-
+nrow(IRS) == nrow(irs_new)# test if dimensions are still the same
 
 IRS <-left_join(IRS, epost, by = "ein") # keeps all rows of IRS and adds info from epost where possible as new columns
-
-IRS %>% count(tax_year) %>% print( 20)
+nrow(IRS) == nrow(irs_new)# test if dimensions are still the same
 ```
 
 
 
+
+
 ## Revocations
+Todo: need to update this so that it is oct14 2024
+
+https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads --> click on automatic revocation or exemption list link
 
 direct link: https://apps.irs.gov/pub/epostcard/data-download-revocation.zip 
 
-Found here: https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads in the Automatic revocation of exemption list section under the bullet: Automatic revocation of exemption list 
+last updated Oct, 14, 2024
+
+Under Internal Revenue Code Section 6033(j)(1)(A), the IRS will revoke the tax-exempt status of nonprofit organizations automatically when organizations with a filing requirement do not file their required Forms 990 for three consecutive years.  When such a revocation occurs, it is effective as of the filing deadline, which is typically May 15 for organizations filing on a calendar year basis.  This year, however, the Form 990 filing deadline was delayed to July 15 due to the COVID-19 pandemic
+
+Organizations that do not file a required annual information return or notice for three consecutive years automatically lose their tax-exempt status by operation of law. An automatic revocation is effective on the original filing due date of the third annual return or notice (the "revocation date"). Due to the COVID-19 emergency, this year the IRS extended the filing dates for these returns and notices due from April 1 through July 14 to July 15, 2020. Organizations eligible for this relief that failed to file for the two previous years and did not file by July 15 have automatically lost their tax-exempt status. Due to systemic limitations, these organizations appear on the auto-revocation list showing a revocation date between April 1 and July 14, 2020. However, the revocation date for these organizations is July 15, 2020. For more information on automatic revocation, including how to request reinstatement, see Automatic revocation - How to have your tax-exempt status reinstated.
+
+more info: https://www.irs.gov/pub/irs-pdf/p4991.pdf
+
+First date column might be the revocation date - goes up through 2024.
+
+
 
 
 ```{r}
 revocations <- read_delim("New_version_data/data-download-revocation.txt",
     delim = "|", escape_double = FALSE, col_names = FALSE,
     trim_ws = TRUE)
-
-IRS_no_revoc<-anti_join(IRS, revocations, by = c("ein" = "X1")) # Removing those in the revocation list based on the EIN
-nrow(IRS) - nrow(IRS_no_revoc) # removes 3157
-dim(IRS_no_revoc)
-IRS<- IRS_no_revoc
+head(revocations)
+colnames(revocations) <- c("ein", "rev_org_name", "address1", "address2", "city", "state", "zip", "country", "some_rev_code", "rev_date1", "rev_date2", "not_sure")
+IRS_with_rev <-left_join(IRS, revocations, suffix = c("irs", "rev"), by = "ein")
 ```
 
+## Checking the revocation matching orgs
+
+So 2020 would be the excluded date. but maybe the revocation list is enough.
+
+So include 21-24, but not 2020 (if you submitted in 2020, there would be a 3 year grace period). Also people didn't have to submit in 2020 for 2 years. If people don't submit for 3 years they lose their exempt status. 
+
+Todo: what should I do about these? let's ignore tax year (maybe it is the first year they submitted?- check on this too) - leave in orgs with newer tax period or tax start date. Todo - just check that tax start date aligns mostly with tax period - (for those were we have both - then we can trust it for choosing orgs to keep)
+
+todo: check that start and end dates match - turns out these have to do with if the when they file based on bylaws... to know when they are supposed to file. if tax year, end, and start line up - that is the last year they submitted (and in the last since June 2021 - 24) - if also on revocation list- don't remove these orgs, otherwise remove orgs on revocation list
+
+```{r}
+IRS_with_revonly <-inner_join(IRS, revocations, by = "ein")
+IRS_with_revonly %>% select(ein, tax_period, tax_year, rev_date1, rev_date2) %>% count(tax_year)
+```
+
+TODO***If the tax filing date is later than the revocation date, then we can assume the organization got reinstated for exemption.***
+
+
+
+```{r}
+# make into date format
+IRS_with_revonly <- IRS_with_revonly %>% mutate(tax_period_asdate = ym(tax_period), # IRS data
+                                                rev_date1_asdate = dmy(rev_date1), # rev data
+                                                rev_date2_asdate = dmy(rev_date2), # rev data
+                                                tax_period_begin_date_asdate = mdy(tax_period_begin_date)) # IRS data (looked at the dates - seems to be myd format)
+                                      
+
+# turns out tax_year variable maybe not that reliable... not sure how we feel about that
+#IRS %>% select(tax_period, tax_year) %>% count(tax_year, tax_period) %>% glimpse()
+
+# check work in doing conversion
+IRS_with_revonly %>% select(tax_period_asdate, tax_period, rev_date1, rev_date1_asdate, rev_date2, rev_date2_asdate, tax_period_begin_date_asdate, tax_period_begin_date)  %>% glimpse()
+
+#compare dates - assuming that tax period date is on first of month
+IRS_with_revonly <-IRS_with_revonly %>% mutate(
+  tax_date_newer = tax_period_asdate > rev_date2_asdate)
+
+# check work - there are many with no tax period info
+set.seed(2321)
+IRS_with_revonly %>%  select(contains("asdate"), tax_date_newer) %>% slice_sample(n = 20) %>% glimpse()
+
+# what about NAs - can maybe use tax_period_begin_date instead
+set.seed(1234)
+IRS_with_revonly %>%  select(contains("asdate"), tax_date_newer) %>% filter(is.na(tax_date_newer)) %>% slice_sample(n = 6)
+                                            
+IRS_with_revonly <- IRS_with_revonly %>% mutate(
+  tax_period_begin_date_newer = tax_period_begin_date_asdate > rev_date2_asdate)
+#checking
+IRS_with_revonly %>% select( contains("asdate"), contains("newer")) %>% filter(is.na(tax_date_newer) & tax_period_begin_date_newer !="NA") %>% glimpse()
+
+# make a column about status of both new columns
+IRS_with_revonly %>% mutate(tax_newer = case_when(tax_date_newer == TRUE | tax_period_begin_date_newer == TRUE ~ TRUE, .default = FALSE))
+
+#check
+IRS_with_revonly %>% select(contains("asdate"), contains("newer")) %>% View()
+```
+
+Was previously removing all orgs in the revocation list:
+```{r, eval = FALSE}
+#IRS_no_revoc<-anti_join(IRS, revocations, by = c("ein" = "X1")) # Removing those in the revocation list based on the EIN
+#nrow(IRS) - nrow(IRS_no_revoc) # removes 3157
+#dim(IRS_no_revoc)
+#IRS<- IRS_no_revoc
+```
+
+
+
+
 ## PO Boxes
+check for addresses of P.O. or PO boxes and keep NA values
+Clean:what about post office road? These are fine - not in baltimore
 
 ```{r}
 #check PO box stuff: IRS %>% filter(str_detect(street, "PO ")) %>% pull(street)
-nrow(IRS)
-IRS <- IRS %>% filter(!str_detect(street, "PO "))
-nrow(IRS) # removed ~5000
+nrow(IRS)#40377
+IRS %>% filter(is.na(street)) %>% nrow() # how many rows are NA - None
+
+
+# first make sure all is uppercase
+IRS <- IRS %>% mutate(street = toupper(street))
+
+## checks
+IRS %>%filter(str_detect(street, "P\\.|PO |POST OFFICE")) %>% head()
+po_check<-IRS %>%filter(str_detect(street, "P\\.|PO |POST OFFICE"))
+po_check_P.<-IRS %>%filter(str_detect(street, "P\\."))
+po_checkPO_BOX<-IRS %>%filter(str_detect(street, "PO BOX"))
+po_checkPOST_OFFICE<-IRS %>%filter(str_detect(street, "POST OFFICE")) # what about post office road? it's ok because not in Baltimore
+
+IRS <- IRS %>% filter(!str_detect(street, "PO |POST OFFICE"))
+nrow(IRS) #34762 # removed 5615
 
 ```
 
 
-<!-- ## Filter by year -->
-<!-- Let's make the new data match the paper statement:  -->
-<!-- ```{r} -->
-<!-- filter(irs_new, year == 2020) %>% count(year, month) # looks like all 2020 data is after Jan -->
-<!-- irs_new_2020<- filter(IRS, tax_year  <= 2020 |is.na(tax_year)) # keep rows where year is less than or equal to 2020 or is na -->
-
-<!-- #Check for jan data from 2020 -->
-<!-- filter(irs_new_2020, year == 2020, month ==1) -->
-
-<!-- #irs_old_2020 <- filter(irs_old, year <2020) # this removes NAs -->
-<!-- year_info <-IRS %>% dplyr::select(contains(c("year","period")))  -->
-
-<!-- print(filter(year_info, rowSums(is.na(year_info)) != ncol(year_info))) # hmm where are there many with no date info... -->
-
-<!-- # what ar the rows with all NA??? -->
-<!-- IRS %>% filter(is.na(year)) -->
-<!-- ``` -->
 
 
 
-Save the data:
+
+# Filtering Orgs
+
+Based on https://www.irs.gov/pub/irs-soi/eo-info.pdf 
+page 3 - we will exclude 00 for foundation code - all orgs except 501c3 to filter down to 501c3
+
+Todo: check that we didn't have NA foundation codes and filter them back in if so
+```{r}
+IRS %>% count(foundation)
+IRS %>% filter(foundation == "00") %>% head()
+IRS_org_rem<- IRS %>% filter(foundation != "00")
+nrow(IRS) - nrow(IRS_org_rem) # drop 4639 # check filtering
+```
+
+Could consider filtering out 04, 17 (because not operating)
+Check if they are all high asset and maybe we keep but look at on their own
+
+https://www.irs.gov/charities-non-profits/exempt-organizations-annual-reporting-requirements-filing-procedures-tax-year 
+
+foundations that provide money 04 granters, 17 boosters- so nonoperational - but not very many .
+let's keep on their own as an aside but remove from main data
+
+ToDO- why are there still orgs with 17 and 04 foundation after filter - make a list for Tyler filter first for city= Baltimore to show what the 17s and 4s are and social clubs etc. But keep all MD in the data - will use shape file to remove non Baltimore
+
+```{r}
+orgs_17_04 <-IRS_org_rem %>% filter(foundation == "17" |foundation == "04")
+orgs_17_04$asset_amt
+IRS_org_rem  <-IRS_org_rem  %>% filter(foundation != "17" |foundation != "04" )
+IRS_org_rem %>% count(foundation)
+```
+
+
+
+## remove NTEE code IX [(IX. Mutual/Membership Benefit - Y)](https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html) - social clubs
+- there only appears to be a small number of membership benefit clubs
+(Keep NA for broad analyses of high of vs low asset but possibly remove for other analyses)
+
+We can do line by line analysis of these - want to keep boys and girls club
+
+Todo: Check on if we have any social clubs - but probably ok cause removed with 00- fix to keep boys and girls club
+
+
+```{r}
+
+social_clubs <- IRS_org_rem %>% filter(str_detect(string = ntee_cd, pattern = "Y|y")) # 49
+social_clubs %>% count(ntee_cd)
+clubs_lodges <- IRS_org_rem %>% filter(str_detect(string = name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")) #867
+clubs_lodges2 <- IRS_org_rem %>% filter(str_detect(string = legal_name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")) #488
+
+
+#first remove for "Y ntee"
+IRS_org_rem <- IRS_org_rem %>% filter(!str_detect(string = ntee_cd, pattern = "Y") |is.na(ntee_cd))
+
+#remove for word club"
+IRS_org_rem <- IRS_org_rem %>% filter(!str_detect(string = name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")|is.na(ntee_cd))
+
+#IRS_org_rem %>% count(ntee_cd)%>% view()
+```
+
+
+
+## Filter by year
+
+Todo: Filter for 10 14, 2021 or newer - because 3 years back from revocation data date of Oct 14 2024
+
+People need to submit every 3 years - if they don't for 3 years then off the exempt list
+
+May 15th is filing deadline
+
+So if submitted Jan 2021 ... they have until May 15th 2025 if they didn't file again in 2022, 2023, 2024.
+
+Revocation happens in may 15th each year (for people filing in that year) - have until May 15 of 2025 to submit for the tax filing year of 2024- 
+
+TODO: Tax year is 2023 that they would review... 2020 would be 3 yrs prior, but covid messed up people submitting. 2018 should be solid. filter for >= 2018. Tyler to determine what year is best
+
+Anyone that would have been up in 2019 or 2020 got 2 years to submit and thus 2022 would be the limit. Leaning towards sticking with 2020 because it has been confusing to read the statement about that... because maybe people 2021 would have had extra time but we arent sure. 
+
+
+2018 would be very solid, but might include people who are on a revocation list
+
+Some orgs that don't have to submit postcard, so would not be in the postcard data. Todo - write as a limit for epost/revocation check
+
+Churches don't have to submit necessarily or if an org is affiliated with a gov unit. 
+
+Tax year 2020 got 6 months extension - which pushes them into 2021 but not within the 3 years (jan 2024- tax year 2023 - goes back to Jan 21)
+
+Currently sold on 2021 being a good option... or maybe backing up into 2020. 
+
+
+Let's make the new data match the paper statement:
+```{r}
+IRS %>% count(tax_year) %>% print( 20)
+
+filter(irs_new, year == 2020) %>% count(year, month) # looks like all 2020 data is after Jan
+irs_new_2020<- filter(IRS, tax_year  <= 2020 |is.na(tax_year)) # keep rows where year is less than or equal to 2020 or is na
+
+#Check for jan data from 2020
+filter(irs_new_2020, year == 2020, month ==1)
+
+#irs_old_2020 <- filter(irs_old, year <2020) # this removes NAs
+year_info <-IRS %>% dplyr::select(contains(c("year","period")))
+
+print(filter(year_info, rowSums(is.na(year_info)) != ncol(year_info))) # hmm where are there many with no date info...
+
+# what are the rows with all NA???
+IRS %>% filter(is.na(year))
+```
+
+
+
+## Save the data
 ```{r}
 #write_rds(IRS, file = "New_version_data/new_IRSdata.rds")
 ```
 
-
-
+TODO Then use shape file to filter for just Baltimore.
 
