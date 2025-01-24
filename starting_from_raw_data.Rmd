@@ -4,7 +4,7 @@ author: "Carrie"
 output: html_document
 ---
 
-# reading in the data in the drive
+# reading in the data already in the drive for comparison
 
 ```{r}
 library(readr)
@@ -12,10 +12,13 @@ library(readxl)
 library(here)
 library(tidyverse)
 df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet = 3)
+```
+
 
 #Different IRS submission forms:
 
-#epostcard form
+## epostcard form
+```{r}
 data_download_epostcard <- read_delim("data-download-epostcard.txt", 
     delim = ",", escape_double = FALSE, trim_ws = TRUE, col_names = FALSE)
 problems(data_download_epostcard)
@@ -281,7 +284,7 @@ unlist(sapply(epost_prob_rows, grep, pattern = "MD"))
 # looks ok!
 ```
 
-### IRS Publication 78 data
+## IRS Publication 78 data
 
 publication 78: https://apps.irs.gov/pub/epostcard/data-download-pub78.zip
 
