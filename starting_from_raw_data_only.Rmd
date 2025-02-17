@@ -37,21 +37,26 @@ dictionary: https://www.irs.gov/pub/irs-tege/990n-data-dictionary.pdf
 EIN, Tax Year , Organization Name, Gross receipts not greater than, Organization has terminated, Tax Period Begin Date , Tax Period End Date , Website URL , Principal Officer’s Name , Principal Officer’s Address Line 1, Principal Officer’s Address Line 2, Principal Officer’s Address City , Principal Officer’s Address Province, Principal Officer’s Address State , Principal Officer’s Address Zip Code , Principal Officer’s Address Country ,Organization Mailing Address Line 1 , Organization Mailing Address Line 2 , Organization Mailing Address City , Organization Mailing Address Province , Organization Mailing Address State , Organization Mailing Address Zip Code, Organization Mailing Address Country ,Organization Doing Business as Name 1, Organization Doing Business as Name 2 , Organization Doing Business as Name 3 ,
 ```{r}
 # specify character for last column
-# epost <- read_delim("New_version_data/data-download-epostcard.txt", 
-#     delim = "|", escape_double = FALSE, col_names = FALSE, 
-#     trim_ws = TRUE, col_types = c("X26" = "c"))
+ epost_old <- read_delim("New_version_data/data-download-epostcard.txt", 
+     delim = "|", escape_double = FALSE, col_names = FALSE, 
+     trim_ws = TRUE, col_types = c("X26" = "c"))
 
 #trying a different way to read in the data with different column leangths
 epost <- read.table("New_version_data/data-download-epostcard.txt",  col.names = paste0("V",seq_len(28)), fill = TRUE, header=FALSE, sep="|")
 
+# checking
+count(epost, na)
+count(epost, na_2)
+count(epost, organization_mailing_address_country)
+ilter(epost, organization_mailing_address_country %in% c("AF", "BR"))
 ```
 
 ### check problems (no longer needed)
 ```{r, include = FALSE}
-# problem_info<-problems(epost) #get problem info, looks like some extra columns
-# problem_rows <-slice(epost, pepost$row) # get problematic rows from epost
-# head(epost)#compare with nonproblematic rows
-# problem_info %>% count(col) #mostly column 20 and 25
+ problem_info<-problems(epost_old) #get problem info, looks like some extra columns
+ problem_rows <-slice(epost_old, problem_info$row) # get problematic rows from epost
+ head(epost_old)#compare with nonproblematic rows
+ problem_info %>% count(col) #mostly column 20 and 25
 # 
 # 
 # #how many problem_rows are Maryland data
@@ -80,83 +85,30 @@ epost <-clean_names(epost)# removing spaces from names
 
 
 
-Todo: How many in epost not in irs_new? filter for md
+### How many in epost not in irs_new? filter for md
 
 ```{r}
-colnames(irs_new)<- tolower(colnames(irs_new)) #getting colnames of irs_new to lowercase
+irs_new<- rename_with(irs_new, tolower) #make names lowercase 
 epost <- epost %>% filter(principal_officer_s_address_state == "MD") #filter for only MD
 
-epost_only <-anti_join(epost,irs_new, by ="ein") %>% nrow() #1567 not in irs_new
+epost_only <-anti_join(epost,irs_new, by ="ein") 
+nrow(epost_only) #1567 not in irs_new
+nrow(irs_new)
+nrow(epost)
 
+library(DT)
 
-
+datatable(epost_only)
 ```
 
-```{r}
-epost %>% slice(pepost$row[1]: last(pepost$row)) %>% glimpse()# looking at first problematic row # URL is not a url
-epost_prob_rows<-epost %>% slice(pepost$row)
-
-```
-
-Check if problematic rows matter to us
-
-```{r}
-#check for rows with MD in any column, this data is for the entire us
-unlist(sapply(epost_prob_rows, grep, pattern = "MD"))
-# looks ok!
-```
-
-
-## IRS Publication 78 data
-
-Todo: probably can get rid of this
-
-publication 78: https://apps.irs.gov/pub/epostcard/data-download-pub78.zip (direct link)
-
-colnames from: https://nccsgit.urban.org/nccs/datasets/pub78/#:~:text=Publication%2078%20is%20an%20example,to%20receive%20tax%2Ddeductible%20donations.
-
-Question: should we do anything with the deductible codes
-```{r}
-pub78 <-  read_delim("New_version_data/data-download-pub78_2024.txt", 
-    delim = "|", escape_double = FALSE, col_names = FALSE, 
-    trim_ws = TRUE)
-
-colnames(pub78) <-c("EIN", "legal_name",	"city",	"state",	"country",	"deductibility_status")
-```
-
-limitations of pub 78: https://nccsgit.urban.org/nccs/datasets/pub78/#:~:text=Publication%2078%20is%20an%20example,to%20receive%20tax%2Ddeductible%20donations.
-
-PC:	A public charity.	50% (60% for cash contributions)
-POF:	A private operating foundation.	50% (60% for cash contributions)
-PF:	A private foundation.	30% (generally)
-GROUP	Generally, a central organization holding a group exemption letter, whose subordinate units covered by the group exemption are also eligible to receive tax-deductible contributions, even though they are not separately listed.	Depends on various factors
-LODGE:	A domestic fraternal society, operating under the lodge system, but only if the contribution is to be used exclusively for charitable purposes.	30%
-UNKWN	A charitable organization whose public charity status has not been determined.	Depends on various factors
-EO:	An organization described in section 170(c) of the Internal Revenue Code other than a public charity or private foundation.	Depends on various factors
-FORGN	A foreign-addressed organization. These are generally organizations formed in the United States that conduct activities in foreign countries. Certain foreign organizations that receive charitable contributions deductible pursuant to treaty are also included, as are organizations created in U.S. possessions.	Depends on various factors
-SO:	A Type I, Type II, or functionally integrated Type III supporting organization.	50% (60% for cash contributions)
-SONFI:	A non-functionally integrated Type III supporting organization.	50% (60% for cash contributions)
-SOUNK:	A supporting organization, unspecified type.	50% (60% for cash contributions)
 
 ## Combine IRS data  
 
-### Check names
-
 ```{r}
-colnames(irs_new) #EIN
-colnames(epost) #ein
-colnames(pub78) #EIN
-```
 
+irs_epost <-full_join(epost, irs_new, by =  "ein")
 
-```{r}
-irs_new<- rename_with(irs_new, tolower) #make names lowercase
-nrow(irs_new) #40377 rows for MD data before combining
-
-IRS <-left_join(irs_new, pub78, by = c("ein" = "EIN"), suffix = c("_eo", "_pub78")) # keeps all rows of irs_new and adds info from pub78 where possible as new columns- NA is given for rows not in pub78
-nrow(IRS) == nrow(irs_new)# test if dimensions are still the same
-
-IRS <-left_join(IRS, epost, by = "ein") # keeps all rows of IRS and adds info from epost where possible as new columns
+IRS <-left_join(irs_new, epost, by = "ein") # keeps all rows of IRS and adds info from epost where possible as new columns
 nrow(IRS) == nrow(irs_new)# test if dimensions are still the same
 ```
 
@@ -165,7 +117,6 @@ nrow(IRS) == nrow(irs_new)# test if dimensions are still the same
 
 
 ## Revocations
-Todo: need to update this so that it is oct14 2024
 
 https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads --> click on automatic revocation or exemption list link
 
@@ -179,13 +130,10 @@ Organizations that do not file a required annual information return or notice fo
 
 more info: https://www.irs.gov/pub/irs-pdf/p4991.pdf
 
-First date column might be the revocation date - goes up through 2024.
-
-
 
 
 ```{r}
-revocations <- read_delim("New_version_data/data-download-revocation.txt",
+revocations <- read_delim("New_version_data/data-download-revocation_3.txt",
     delim = "|", escape_double = FALSE, col_names = FALSE,
     trim_ws = TRUE)
 head(revocations)
@@ -199,37 +147,77 @@ So 2020 would be the excluded date. but maybe the revocation list is enough.
 
 So include 21-24, but not 2020 (if you submitted in 2020, there would be a 3 year grace period). Also people didn't have to submit in 2020 for 2 years. If people don't submit for 3 years they lose their exempt status. 
 
-Todo: what should I do about these? let's ignore tax year (maybe it is the first year they submitted?- check on this too) - leave in orgs with newer tax period or tax start date. Todo - just check that tax start date aligns mostly with tax period - (for those were we have both - then we can trust it for choosing orgs to keep)
+Todo: what should I do about these? let's ignore tax year (maybe it is the first year they submitted?- check on this too) - leave in orgs with newer tax period or tax start date. 
 
-todo: check that start and end dates match - turns out these have to do with if the when they file based on bylaws... to know when they are supposed to file. if tax year, end, and start line up - that is the last year they submitted (and in the last since June 2021 - 24) - if also on revocation list- don't remove these orgs, otherwise remove orgs on revocation list
+Todo - just check that tax start date aligns mostly with tax period - (for those were we have both - then we can trust it for choosing orgs to keep)
 
+todo: check that start and end dates match - turns out these have to do with when they file based on bylaws... to know when they are supposed to file. if tax year, end, and start line up - that is the last year they submitted (and in the last since June 2021 - 24) - if also on revocation list- don't remove these orgs, otherwise remove orgs on revocation list
+
+Combine with revocations 
 ```{r}
 IRS_with_revonly <-inner_join(IRS, revocations, by = "ein")
-IRS_with_revonly %>% select(ein, tax_period, tax_year, rev_date1, rev_date2) %>% count(tax_year)
+nrow(IRS_with_revonly)
+IRS_with_revonly %>% select(ein, tax_period, tax_period_begin_date, tax_period_end_date, rev_date1, rev_date2) 
+
+
+
 ```
 
-TODO***If the tax filing date is later than the revocation date, then we can assume the organization got reinstated for exemption.***
+
 
 
 
 ```{r}
 # make into date format
+IRS_with_revonly  <- IRS_with_revonly %>% mutate(tax_period_year = str_sub(tax_period, start = 1, end = 4)) 
+
 IRS_with_revonly <- IRS_with_revonly %>% mutate(tax_period_asdate = ym(tax_period), # IRS data
                                                 rev_date1_asdate = dmy(rev_date1), # rev data
                                                 rev_date2_asdate = dmy(rev_date2), # rev data
-                                                tax_period_begin_date_asdate = mdy(tax_period_begin_date)) # IRS data (looked at the dates - seems to be myd format)
+                                                tax_period_begin_date_asdate = mdy(tax_period_begin_date),
+                                                tax_period_end_date_asdate = mdy(tax_period_end_date)) # IRS data (looked at the dates - seems to be myd format)
                                       
 
 # turns out tax_year variable maybe not that reliable... not sure how we feel about that
 #IRS %>% select(tax_period, tax_year) %>% count(tax_year, tax_period) %>% glimpse()
 
 # check work in doing conversion
-IRS_with_revonly %>% select(tax_period_asdate, tax_period, rev_date1, rev_date1_asdate, rev_date2, rev_date2_asdate, tax_period_begin_date_asdate, tax_period_begin_date)  %>% glimpse()
+IRS_with_revonly %>% select(tax_period_year, tax_period_asdate, rev_date1_asdate, rev_date2_asdate, tax_period_begin_date_asdate, tax_period_end_date_asdate)  %>% head()
 
+IRS_with_revonly %>% select(tax_period_year, tax_period_asdate,  tax_period_begin_date_asdate, tax_period_end_date_asdate) %>% drop_na() %>% head()
+
+IRS_with_revonly <- IRS_with_revonly %>% mutate(diff_end_date = tax_period_end_date_asdate - tax_period_asdate) 
+
+# show the odd values for tax period and end date to not remove
+odd_values <- filter(IRS_with_revonly, diff_end_date >31 | diff_end_date < (-31)) %>% select(ein, tax_period_year, tax_period_asdate,  tax_period_begin_date_asdate, tax_period_end_date_asdate, diff_end_date)  
+
+datatable(odd_values)
+
+
+```
+
+
+TODO***If the tax filing date is newer than the revocation date, then we can assume the organization got reinstated for exemption and it should not be removed.***
+
+Therefore we want to remove eins with tax_dates that are younger than the revocation date and also if the end date of the tax period matches the tax period date.
+
+```{r}
 #compare dates - assuming that tax period date is on first of month
 IRS_with_revonly <-IRS_with_revonly %>% mutate(
   tax_date_newer = tax_period_asdate > rev_date2_asdate)
 
+ein_to_rem <-IRS_with_revonly %>% filter(tax_date_newer == FALSE & abs(diff_end_date)<= 31)
+
+ein_to_rem %>% select(ein, diff_end_date, tax_date_newer, tax_period, rev_date2_asdate, tax_period_end_date_asdate)
+datatable(ein_to_rem)
+```
+
+
+todo: remove these 9?
+
+
+
+```{r}
 # check work - there are many with no tax period info
 set.seed(2321)
 IRS_with_revonly %>%  select(contains("asdate"), tax_date_newer) %>% slice_sample(n = 20) %>% glimpse()
@@ -257,7 +245,6 @@ Was previously removing all orgs in the revocation list:
 #dim(IRS_no_revoc)
 #IRS<- IRS_no_revoc
 ```
-
 
 
 
