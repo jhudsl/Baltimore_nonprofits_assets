@@ -9,6 +9,7 @@ output: html_document
 library(readxl)
 library(here)
 library(tidyverse)
+library(janitor)
 ```
 
 # New eo_md 
@@ -44,11 +45,7 @@ EIN, Tax Year , Organization Name, Gross receipts not greater than, Organization
 #trying a different way to read in the data with different column leangths
 epost <- read.table("New_version_data/data-download-epostcard.txt",  col.names = paste0("V",seq_len(28)), fill = TRUE, header=FALSE, sep="|")
 
-# checking
-count(epost, na)
-count(epost, na_2)
-count(epost, organization_mailing_address_country)
-ilter(epost, organization_mailing_address_country %in% c("AF", "BR"))
+
 ```
 
 ### check problems (no longer needed)
@@ -63,22 +60,25 @@ ilter(epost, organization_mailing_address_country %in% c("AF", "BR"))
 # MaybeMD_probs <-problem_rows %>% filter(if_any(.cols = everything(), ~ grepl("MD", .)))
 ```
 
-```{bash, include = FALSE}
-# checking the original version of the file for one of the problematic rows
-<!-- awk 'FNR>=9294 && FNR<=9294' New_version_data/data-download-epostcard_2024.txt  # first problematic row is actually originally on line 9294 -->
+<!-- ```{bash, include = FALSE} -->
+<!-- # checking the original version of the file for one of the problematic rows -->
+<!-- <!-- awk 'FNR>=9294 && FNR<=9294' New_version_data/data-download-epostcard_2024.txt  # first problematic row is actually originally on line 9294 --> -->
 
-<!-- awk 'FNR>=358951 && FNR<=358951' New_version_data/data-download-epostcard_2024.txt  #second problematic row -->
+<!-- <!-- awk 'FNR>=358951 && FNR<=358951' New_version_data/data-download-epostcard_2024.txt  #second problematic row --> -->
 
-<!-- awk 'FNR>=1 && FNR<=3' New_version_data/data-download-epostcard_2024.txt # checking line 1-3 to ensure that there were some empty lines for the first two lines - yup looks like it! -->
-```
+<!-- <!-- awk 'FNR>=1 && FNR<=3' New_version_data/data-download-epostcard_2024.txt # checking line 1-3 to ensure that there were some empty lines for the first two lines - yup looks like it! --> -->
+<!-- ``` -->
 
-Get row names:
+### Get row names:
 ```{r}
 colnames(epost) <- c("EIN", "Tax Year" , "Organization Name", "Gross receipts not greater than", "Organization has terminated", "Tax Period Begin Date" , "Tax Period End Date" , "Website URL" , "Principal Officer’s Name" , "Principal Officer’s Address Line 1", "Principal Officer’s Address Line 2", "Principal Officer’s Address City" , "Principal Officer’s Address Province", "Principal Officer’s Address State" , "Principal Officer’s Address Zip Code" , "Principal Officer’s Address Country" ,"Organization Mailing Address Line 1" , "Organization Mailing Address Line 2" , "Organization Mailing Address City" , "Organization Mailing Address Province" , "Organization Mailing Address State" , "Organization Mailing Address Zip Code", "Organization Mailing Address Country" ,"Organization Doing Business as Name 1", "Organization Doing Business as Name 2", "Organization Doing Business as Name 3")
 
-library(janitor)
 
 epost <-clean_names(epost)# removing spaces from names
+
+# checking the rows that have extra columns - only one for MD but will keep it in the dataset
+epost_extra_long <- epost %>% filter(na !="") %>% filter(organization_mailing_address_state == "MD")
+epost_extra_long2 <- epost %>% filter(na_2 !="") %>% filter(organization_mailing_address_state == "MD")
 
 ```
 
@@ -147,18 +147,17 @@ So 2020 would be the excluded date. but maybe the revocation list is enough.
 
 So include 21-24, but not 2020 (if you submitted in 2020, there would be a 3 year grace period). Also people didn't have to submit in 2020 for 2 years. If people don't submit for 3 years they lose their exempt status. 
 
-Todo: what should I do about these? let's ignore tax year (maybe it is the first year they submitted?- check on this too) - leave in orgs with newer tax period or tax start date. 
+done: what should I do about these? let's ignore tax year (maybe it is the first year they submitted?- check on this too) - leave in orgs with newer tax period or tax start date. 
 
-Todo - just check that tax start date aligns mostly with tax period - (for those were we have both - then we can trust it for choosing orgs to keep)
+done: just check that tax start date aligns mostly with tax period - (for those were we have both - then we can trust it for choosing orgs to keep)
 
-todo: check that start and end dates match - turns out these have to do with when they file based on bylaws... to know when they are supposed to file. if tax year, end, and start line up - that is the last year they submitted (and in the last since June 2021 - 24) - if also on revocation list- don't remove these orgs, otherwise remove orgs on revocation list
+done: check that start and end dates match - turns out these have to do with when they file based on bylaws... to know when they are supposed to file. if tax year, end, and start line up - that is the last year they submitted (and in the last since June 2021 - 24) - if also on revocation list- don't remove these orgs, otherwise remove orgs on revocation list
 
 Combine with revocations 
 ```{r}
 IRS_with_revonly <-inner_join(IRS, revocations, by = "ein")
 nrow(IRS_with_revonly)
 IRS_with_revonly %>% select(ein, tax_period, tax_period_begin_date, tax_period_end_date, rev_date1, rev_date2) 
-
 
 
 ```
@@ -197,7 +196,7 @@ datatable(odd_values)
 ```
 
 
-TODO***If the tax filing date is newer than the revocation date, then we can assume the organization got reinstated for exemption and it should not be removed.***
+done:***If the tax filing date is newer than the revocation date, then we can assume the organization got reinstated for exemption and it should not be removed.***
 
 Therefore we want to remove eins with tax_dates that are younger than the revocation date and also if the end date of the tax period matches the tax period date.
 
@@ -213,37 +212,11 @@ datatable(ein_to_rem)
 ```
 
 
-todo: remove these 9?
-
-
+#### Removing these orgs
 
 ```{r}
-# check work - there are many with no tax period info
-set.seed(2321)
-IRS_with_revonly %>%  select(contains("asdate"), tax_date_newer) %>% slice_sample(n = 20) %>% glimpse()
-
-# what about NAs - can maybe use tax_period_begin_date instead
-set.seed(1234)
-IRS_with_revonly %>%  select(contains("asdate"), tax_date_newer) %>% filter(is.na(tax_date_newer)) %>% slice_sample(n = 6)
-                                            
-IRS_with_revonly <- IRS_with_revonly %>% mutate(
-  tax_period_begin_date_newer = tax_period_begin_date_asdate > rev_date2_asdate)
-#checking
-IRS_with_revonly %>% select( contains("asdate"), contains("newer")) %>% filter(is.na(tax_date_newer) & tax_period_begin_date_newer !="NA") %>% glimpse()
-
-# make a column about status of both new columns
-IRS_with_revonly %>% mutate(tax_newer = case_when(tax_date_newer == TRUE | tax_period_begin_date_newer == TRUE ~ TRUE, .default = FALSE))
-
-#check
-IRS_with_revonly %>% select(contains("asdate"), contains("newer")) %>% View()
-```
-
-Was previously removing all orgs in the revocation list:
-```{r, eval = FALSE}
-#IRS_no_revoc<-anti_join(IRS, revocations, by = c("ein" = "X1")) # Removing those in the revocation list based on the EIN
-#nrow(IRS) - nrow(IRS_no_revoc) # removes 3157
-#dim(IRS_no_revoc)
-#IRS<- IRS_no_revoc
+IRS_no_revoc<-anti_join(IRS, ein_to_rem, by = "ein") 
+IRS <-IRS_no_revoc
 ```
 
 
@@ -265,8 +238,12 @@ IRS <- IRS %>% mutate(street = toupper(street))
 IRS %>%filter(str_detect(street, "P\\.|PO |POST OFFICE")) %>% head()
 po_check<-IRS %>%filter(str_detect(street, "P\\.|PO |POST OFFICE"))
 po_check_P.<-IRS %>%filter(str_detect(street, "P\\."))
+nrow(po_check_P.)
 po_checkPO_BOX<-IRS %>%filter(str_detect(street, "PO BOX"))
+nrow(po_checkPO_BOX)
 po_checkPOST_OFFICE<-IRS %>%filter(str_detect(street, "POST OFFICE")) # what about post office road? it's ok because not in Baltimore
+nrow(po_checkPOST_OFFICE)
+
 
 IRS <- IRS %>% filter(!str_detect(street, "PO |POST OFFICE"))
 nrow(IRS) #34762 # removed 5615
@@ -276,19 +253,18 @@ nrow(IRS) #34762 # removed 5615
 
 
 
-
-
 # Filtering Orgs
 
 Based on https://www.irs.gov/pub/irs-soi/eo-info.pdf 
 page 3 - we will exclude 00 for foundation code - all orgs except 501c3 to filter down to 501c3
 
-Todo: check that we didn't have NA foundation codes and filter them back in if so
 ```{r}
-IRS %>% count(foundation)
-IRS %>% filter(foundation == "00") %>% head()
+IRS %>% count(foundation) # No NA foundation codes
+rem_orgs <- IRS %>% filter(foundation == "00")
 IRS_org_rem<- IRS %>% filter(foundation != "00")
 nrow(IRS) - nrow(IRS_org_rem) # drop 4639 # check filtering
+
+write_csv(rem_orgs, file = here("irs_00_rem.csv"))
 ```
 
 Could consider filtering out 04, 17 (because not operating)
@@ -299,12 +275,13 @@ https://www.irs.gov/charities-non-profits/exempt-organizations-annual-reporting-
 foundations that provide money 04 granters, 17 boosters- so nonoperational - but not very many .
 let's keep on their own as an aside but remove from main data
 
-ToDO- why are there still orgs with 17 and 04 foundation after filter - make a list for Tyler filter first for city= Baltimore to show what the 17s and 4s are and social clubs etc. But keep all MD in the data - will use shape file to remove non Baltimore
 
 ```{r}
 orgs_17_04 <-IRS_org_rem %>% filter(foundation == "17" |foundation == "04")
+orgs_17_04 %>% count(foundation)
+write_csv(orgs_17_04, file = here("orgs_17_04.csv"))
 orgs_17_04$asset_amt
-IRS_org_rem  <-IRS_org_rem  %>% filter(foundation != "17" |foundation != "04" )
+IRS_org_rem  <- IRS_org_rem  %>% filter(foundation != "17") %>% filter(foundation != "04")
 IRS_org_rem %>% count(foundation)
 ```
 
@@ -316,23 +293,36 @@ IRS_org_rem %>% count(foundation)
 
 We can do line by line analysis of these - want to keep boys and girls club
 
-Todo: Check on if we have any social clubs - but probably ok cause removed with 00- fix to keep boys and girls club
-
 
 ```{r}
+IRS_org_rem %>% count(ntee_cd)
+```
+
+todo: leave in clubs/lodges but remove social clubs pattern y
+```{r}
+Boys_and_girls <- IRS_org_rem %>% filter(str_detect(string = name , pattern = "BOYS AND GIRLS CLUB"))
 
 social_clubs <- IRS_org_rem %>% filter(str_detect(string = ntee_cd, pattern = "Y|y")) # 49
 social_clubs %>% count(ntee_cd)
-clubs_lodges <- IRS_org_rem %>% filter(str_detect(string = name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")) #867
-clubs_lodges2 <- IRS_org_rem %>% filter(str_detect(string = legal_name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")) #488
+datatable(social_clubs)
+clubs_lodges <- IRS_org_rem %>% filter(str_detect(string = name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")) 
+datatable(clubs_lodges)
 
-
+write_csv(social_clubs, file = here("irs_social_clubs_rem.csv"))
+write_csv(clubs_lodges, file = here("irs_clubs_lodges_rem.csv"))
+write_csv(Boys_and_girls, file = here("irs_boys_girls.csv"))
 #first remove for "Y ntee"
-IRS_org_rem <- IRS_org_rem %>% filter(!str_detect(string = ntee_cd, pattern = "Y") |is.na(ntee_cd))
+IRS_org_rem <- IRS_org_rem %>% filter(!str_detect(string = ntee_cd, pattern = "Y|y") |is.na(ntee_cd))
 
 #remove for word club"
 IRS_org_rem <- IRS_org_rem %>% filter(!str_detect(string = name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")|is.na(ntee_cd))
 
+```
+
+## add boys and girls club back
+```{r}
+IRS_org_rem <- IRS_org_rem %>%rbind(Boys_and_girls)
+IRS_org_rem %>% filter(str_detect(string = name , pattern = "BOYS AND GIRLS CLUB"))
 #IRS_org_rem %>% count(ntee_cd)%>% view()
 ```
 
@@ -340,7 +330,8 @@ IRS_org_rem <- IRS_org_rem %>% filter(!str_detect(string = name, pattern = "club
 
 ## Filter by year
 
-Todo: Filter for 10 14, 2021 or newer - because 3 years back from revocation data date of Oct 14 2024
+Filter for 10 14, 2021 or newer - because 3 years back from revocation data date of Oct 14 2024
+... or actually now last updated Dec,9, 2024... so 12,9,2021
 
 People need to submit every 3 years - if they don't for 3 years then off the exempt list
 
@@ -349,8 +340,6 @@ May 15th is filing deadline
 So if submitted Jan 2021 ... they have until May 15th 2025 if they didn't file again in 2022, 2023, 2024.
 
 Revocation happens in may 15th each year (for people filing in that year) - have until May 15 of 2025 to submit for the tax filing year of 2024- 
-
-TODO: Tax year is 2023 that they would review... 2020 would be 3 yrs prior, but covid messed up people submitting. 2018 should be solid. filter for >= 2018. Tyler to determine what year is best
 
 Anyone that would have been up in 2019 or 2020 got 2 years to submit and thus 2022 would be the limit. Leaning towards sticking with 2020 because it has been confusing to read the statement about that... because maybe people 2021 would have had extra time but we arent sure. 
 
@@ -366,31 +355,37 @@ Tax year 2020 got 6 months extension - which pushes them into 2021 but not withi
 Currently sold on 2021 being a good option... or maybe backing up into 2020. 
 
 
-Let's make the new data match the paper statement:
 ```{r}
-IRS %>% count(tax_year) %>% print( 20)
+nrow(IRS_org_rem)
+IRS_org_rem <- IRS_org_rem %>% mutate(tax_period_asdate = ym(tax_period))
+IRS <- IRS_org_rem %>% filter(tax_period_asdate >= "2021-12-09" |is.na(tax_period_asdate)) # keep rows where year is less than or equal to 2020 or is na
 
-filter(irs_new, year == 2020) %>% count(year, month) # looks like all 2020 data is after Jan
-irs_new_2020<- filter(IRS, tax_year  <= 2020 |is.na(tax_year)) # keep rows where year is less than or equal to 2020 or is na
-
+nrow(IRS)
+#OLD CODE
 #Check for jan data from 2020
-filter(irs_new_2020, year == 2020, month ==1)
-
-#irs_old_2020 <- filter(irs_old, year <2020) # this removes NAs
-year_info <-IRS %>% dplyr::select(contains(c("year","period")))
-
-print(filter(year_info, rowSums(is.na(year_info)) != ncol(year_info))) # hmm where are there many with no date info...
-
-# what are the rows with all NA???
-IRS %>% filter(is.na(year))
+# filter(irs_new_2020, year == 2020, month ==1)
+# 
+# #irs_old_2020 <- filter(irs_old, year <2020) # this removes NAs
+# year_info <-IRS %>% dplyr::select(contains(c("year","period")))
+# 
+# print(filter(year_info, rowSums(is.na(year_info)) != ncol(year_info))) # hmm where are there many with no date info...
+# 
+# # what are the rows with all NA???
+# IRS %>% filter(is.na(year))
 ```
 
 
 
 ## Save the data
 ```{r}
-#write_rds(IRS, file = "New_version_data/new_IRSdata.rds")
+write_rds(IRS, file = "New_version_data/new_IRSdata.rds")
 ```
 
 TODO Then use shape file to filter for just Baltimore.
 
+***KEEP 17 AND 4 LIST SEPERATE FOR MAYBE A MAP BUT WANT THEM OUT FOR OTHER ANALYSES.
+
+keep logdes and clubs
+try filtering for baltimore first.
+
+Send list to tyler... then work on analysis again... then maps (can recruit people).
