@@ -5,6 +5,8 @@ navbar:
   left:
   - text: Analysis
     href: index.html
+  - text: ReAnalysis
+    href: starting_from_raw_data_only.Rmd
 
 
 
