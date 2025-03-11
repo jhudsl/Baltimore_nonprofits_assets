@@ -2,9 +2,6 @@
 
 ## Get lat and long for shape file
 
-https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies-within-polygon
-https://www.statsilk.com/maps/convert-esri-shapefile-map-geojson-format
-
 ```{r}
 # work with spatial data; sp package will load with rgdal.
 library(terra)
@@ -170,8 +167,6 @@ saveRDS(IRS, file = "New_version_data/IRS_data_before_lat_long.rds")
 
 Then ran geocoding on this file using the Geo_coding.R script
 ```{r}
-
-
 #geos<-IRS %>% pull(address) %>% geocode() # this step is slow so commenting out
 #warnings(geos) # check things- relies on previous step that is slow
 #IRS <-cbind(IRS, geos) #relies on previous step that is slow
