@@ -1,0 +1,388 @@
+---
+title: "Raw_data_with_shape_filter_first"
+author: "Carrie"
+date: "2025-03-10"
+output: html_document
+---
+
+
+## combine
+
+```{r}
+warnings(geos) # check things- relies on previous step that is slow
+IRS <-cbind(IRS, geos)
+geo_clean <- IRS %>% dplyr::select(ein, lon, lat) %>% drop_na(lon) # one row - will need to remove form cbos
+CRS <- st_crs(neighborhood_shape3$geometry)
+pnts_sf <- st_as_sf(geo_clean, coords = c('lon', 'lat'), crs = st_crs(4326)) %>% st_set_crs(4326)
+neighborhood_Sf <-neighborhood_shape3$geometry
+neighborhood_Sf <- neighborhood_Sf %>% st_set_crs(4326)
+pnts_trans <- st_transform(pnts_sf, 2163)
+neighborhod_tt <- st_transform(neighborhood_shape3$geometry, 2163)
+test <-st_intersection(pnts_trans, neighborhod_tt)
+intersection <- pnts_sf %>% mutate(
+  intersection = as.integer(st_intersects( pnts_trans, neighborhod_tt )))
+not_in_balt <- intersection %>% filter(is.na(intersection))
+
+# getting an error about crs
+crs_neighborhood <-st_crs(neighborhood_Sf)
+crs_pnts <- st_crs(pnts_sf)
+identical(crs_neighborhood, crs_pnts)
+```
+
+
+Combining the intersection info with original bigger IRS data, to just get the IRS data for the data in the neighborhood data (just places in Baltimore)
+```{r}
+IRS <-left_join(intersection, IRS, by = "ein") #sf version - need to make a version like this without the sf version start here avocado
+```
+
+checking that it worked
+```{r}
+# first row:
+#            ein                   geometry intersection
+# 1  010591773 POINT (-76.69024 39.36632)           43
+
+#neighborhood_shape[43,]$name
+#filter(IRS, ein == "010591773")
+
+#Looks like this is in that location
+
+```
+
+
+Combining it all together:
+```{r}
+neighborhood_shape <-as_tibble(neighborhood_shape)
+neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number())
+cw_df_simp <-left_join(IRS, neighborhood_shape, by = c("intersection" = "id"))
+cw_df_simp[1,] %>% glimpse()
+
+# remove rows where intersection was not found (where intersection is NA) - aka CBO outside Baltimore
+cw_df_simp <-cw_df_simp %>% drop_na(intersection)
+```
+
+
+
+
+## Checking the revocation matching orgs
+
+So 2020 would be the excluded date. but maybe the revocation list is enough.
+
+So include 21-24, but not 2020 (if you submitted in 2020, there would be a 3 year grace period). Also people didn't have to submit in 2020 for 2 years. If people don't submit for 3 years they lose their exempt status. 
+
+done: what should I do about these? let's ignore tax year (maybe it is the first year they submitted?- check on this too) - leave in orgs with newer tax period or tax start date. 
+
+done: just check that tax start date aligns mostly with tax period - (for those were we have both - then we can trust it for choosing orgs to keep)
+
+done: check that start and end dates match - turns out these have to do with when they file based on bylaws... to know when they are supposed to file. if tax year, end, and start line up - that is the last year they submitted (and in the last since June 2021 - 24) - if also on revocation list- don't remove these orgs, otherwise remove orgs on revocation list
+
+Combine with revocations 
+```{r}
+IRS_with_revonly <-inner_join(IRS, revocations, by = "ein")
+nrow(IRS_with_revonly)
+IRS_with_revonly %>% select(ein, tax_period, tax_period_begin_date, tax_period_end_date, rev_date1, rev_date2) 
+
+
+```
+
+
+
+
+
+```{r}
+# make into date format
+IRS_with_revonly  <- IRS_with_revonly %>% mutate(tax_period_year = str_sub(tax_period, start = 1, end = 4)) 
+
+IRS_with_revonly <- IRS_with_revonly %>% mutate(tax_period_asdate = ym(tax_period), # IRS data
+                                                rev_date1_asdate = dmy(rev_date1), # rev data
+                                                rev_date2_asdate = dmy(rev_date2), # rev data
+                                                tax_period_begin_date_asdate = mdy(tax_period_begin_date),
+                                                tax_period_end_date_asdate = mdy(tax_period_end_date)) # IRS data (looked at the dates - seems to be myd format)
+                                      
+
+# turns out tax_year variable maybe not that reliable... not sure how we feel about that
+#IRS %>% select(tax_period, tax_year) %>% count(tax_year, tax_period) %>% glimpse()
+
+# check work in doing conversion
+IRS_with_revonly %>% select(tax_period_year, tax_period_asdate, rev_date1_asdate, rev_date2_asdate, tax_period_begin_date_asdate, tax_period_end_date_asdate)  %>% head()
+
+IRS_with_revonly %>% select(tax_period_year, tax_period_asdate,  tax_period_begin_date_asdate, tax_period_end_date_asdate) %>% drop_na() %>% head()
+
+IRS_with_revonly <- IRS_with_revonly %>% mutate(diff_end_date = tax_period_end_date_asdate - tax_period_asdate) 
+
+# show the odd values for tax period and end date to not remove
+odd_values <- filter(IRS_with_revonly, diff_end_date >31 | diff_end_date < (-31)) %>% select(ein, tax_period_year, tax_period_asdate,  tax_period_begin_date_asdate, tax_period_end_date_asdate, diff_end_date)  
+
+datatable(odd_values)
+
+
+```
+
+
+done:***If the tax filing date is newer than the revocation date, then we can assume the organization got reinstated for exemption and it should not be removed.***
+
+Therefore we want to remove eins with tax_dates that are younger than the revocation date and also if the end date of the tax period matches the tax period date.
+
+```{r}
+#compare dates - assuming that tax period date is on first of month
+IRS_with_revonly <-IRS_with_revonly %>% mutate(
+  tax_date_newer = tax_period_asdate > rev_date2_asdate)
+
+ein_to_rem <-IRS_with_revonly %>% filter(tax_date_newer == FALSE & abs(diff_end_date)<= 31)
+
+ein_to_rem %>% select(ein, diff_end_date, tax_date_newer, tax_period, rev_date2_asdate, tax_period_end_date_asdate)
+datatable(ein_to_rem)
+```
+
+
+#### Removing these orgs
+
+```{r}
+IRS_no_revoc<-anti_join(IRS, ein_to_rem, by = "ein") 
+IRS <-IRS_no_revoc
+```
+
+
+
+## PO Boxes
+check for addresses of P.O. or PO boxes and keep NA values
+Clean:what about post office road? These are fine - not in baltimore
+
+```{r}
+#check PO box stuff: IRS %>% filter(str_detect(street, "PO ")) %>% pull(street)
+nrow(IRS)#40377
+IRS %>% filter(is.na(street)) %>% nrow() # how many rows are NA - None
+
+
+# first make sure all is uppercase
+IRS <- IRS %>% mutate(street = toupper(street))
+
+## checks
+IRS %>%filter(str_detect(street, "P\\.|PO |POST OFFICE")) %>% head()
+po_check<-IRS %>%filter(str_detect(street, "P\\.|PO |POST OFFICE"))
+po_check_P.<-IRS %>%filter(str_detect(street, "P\\."))
+nrow(po_check_P.)
+po_checkPO_BOX<-IRS %>%filter(str_detect(street, "PO BOX"))
+nrow(po_checkPO_BOX)
+po_checkPOST_OFFICE<-IRS %>%filter(str_detect(street, "POST OFFICE")) # what about post office road? it's ok because not in Baltimore
+nrow(po_checkPOST_OFFICE)
+
+
+IRS <- IRS %>% filter(!str_detect(street, "PO |POST OFFICE"))
+nrow(IRS) #34762 # removed 5615
+
+```
+
+
+
+
+# Filtering Orgs
+
+Based on https://www.irs.gov/pub/irs-soi/eo-info.pdf 
+page 3 - we will exclude 00 for foundation code - all orgs except 501c3 to filter down to 501c3
+
+```{r}
+IRS %>% count(foundation) # No NA foundation codes
+rem_orgs <- IRS %>% filter(foundation == "00")
+IRS_org_rem<- IRS %>% filter(foundation != "00")
+nrow(IRS) - nrow(IRS_org_rem) # drop 4639 # check filtering
+
+write_csv(rem_orgs, file = here("irs_00_rem.csv"))
+```
+
+Could consider filtering out 04, 17 (because not operating)
+Check if they are all high asset and maybe we keep but look at on their own
+
+https://www.irs.gov/charities-non-profits/exempt-organizations-annual-reporting-requirements-filing-procedures-tax-year 
+
+foundations that provide money 04 granters, 17 boosters- so nonoperational - but not very many .
+let's keep on their own as an aside but remove from main data
+
+
+```{r}
+orgs_17_04 <-IRS_org_rem %>% filter(foundation == "17" |foundation == "04")
+orgs_17_04 %>% count(foundation)
+write_csv(orgs_17_04, file = here("orgs_17_04.csv"))
+orgs_17_04$asset_amt
+IRS_org_rem  <- IRS_org_rem  %>% filter(foundation != "17") %>% filter(foundation != "04")
+IRS_org_rem %>% count(foundation)
+```
+
+
+
+## remove NTEE code IX [(IX. Mutual/Membership Benefit - Y)](https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html) - social clubs
+- there only appears to be a small number of membership benefit clubs
+(Keep NA for broad analyses of high of vs low asset but possibly remove for other analyses)
+
+We can do line by line analysis of these - want to keep boys and girls club
+
+
+```{r}
+IRS_org_rem %>% count(ntee_cd)
+```
+
+todo: leave in clubs/lodges but remove social clubs pattern y
+```{r}
+Boys_and_girls <- IRS_org_rem %>% filter(str_detect(string = name , pattern = "BOYS AND GIRLS CLUB"))
+
+social_clubs <- IRS_org_rem %>% filter(str_detect(string = ntee_cd, pattern = "Y|y")) # 49
+social_clubs %>% count(ntee_cd)
+datatable(social_clubs)
+clubs_lodges <- IRS_org_rem %>% filter(str_detect(string = name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")) 
+datatable(clubs_lodges)
+
+write_csv(social_clubs, file = here("irs_social_clubs_rem.csv"))
+write_csv(clubs_lodges, file = here("irs_clubs_lodges_rem.csv"))
+write_csv(Boys_and_girls, file = here("irs_boys_girls.csv"))
+#first remove for "Y ntee"
+IRS_org_rem <- IRS_org_rem %>% filter(!str_detect(string = ntee_cd, pattern = "Y|y") |is.na(ntee_cd))
+
+#remove for word club"
+IRS_org_rem <- IRS_org_rem %>% filter(!str_detect(string = name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")|is.na(ntee_cd))
+
+```
+
+## add boys and girls club back
+```{r}
+IRS_org_rem <- IRS_org_rem %>%rbind(Boys_and_girls)
+IRS_org_rem %>% filter(str_detect(string = name , pattern = "BOYS AND GIRLS CLUB"))
+#IRS_org_rem %>% count(ntee_cd)%>% view()
+```
+
+
+
+## Filter by year
+
+Filter for 10 14, 2021 or newer - because 3 years back from revocation data date of Oct 14 2024
+... or actually now last updated Dec,9, 2024... so 12,9,2021
+
+People need to submit every 3 years - if they don't for 3 years then off the exempt list
+
+May 15th is filing deadline
+
+So if submitted Jan 2021 ... they have until May 15th 2025 if they didn't file again in 2022, 2023, 2024.
+
+Revocation happens in may 15th each year (for people filing in that year) - have until May 15 of 2025 to submit for the tax filing year of 2024- 
+
+Anyone that would have been up in 2019 or 2020 got 2 years to submit and thus 2022 would be the limit. Leaning towards sticking with 2020 because it has been confusing to read the statement about that... because maybe people 2021 would have had extra time but we arent sure. 
+
+
+2018 would be very solid, but might include people who are on a revocation list
+
+Some orgs that don't have to submit postcard, so would not be in the postcard data. Todo - write as a limit for epost/revocation check
+
+Churches don't have to submit necessarily or if an org is affiliated with a gov unit. 
+
+Tax year 2020 got 6 months extension - which pushes them into 2021 but not within the 3 years (jan 2024- tax year 2023 - goes back to Jan 21)
+
+Currently sold on 2021 being a good option... or maybe backing up into 2020. 
+
+
+```{r}
+nrow(IRS_org_rem)
+IRS_org_rem <- IRS_org_rem %>% mutate(tax_period_asdate = ym(tax_period))
+IRS <- IRS_org_rem %>% filter(tax_period_asdate >= "2021-12-09" |is.na(tax_period_asdate)) # keep rows where year is less than or equal to 2020 or is na
+
+nrow(IRS)
+#OLD CODE
+#Check for jan data from 2020
+# filter(irs_new_2020, year == 2020, month ==1)
+# 
+# #irs_old_2020 <- filter(irs_old, year <2020) # this removes NAs
+# year_info <-IRS %>% dplyr::select(contains(c("year","period")))
+# 
+# print(filter(year_info, rowSums(is.na(year_info)) != ncol(year_info))) # hmm where are there many with no date info...
+# 
+# # what are the rows with all NA???
+# IRS %>% filter(is.na(year))
+```
+
+
+
+## Save the data
+```{r}
+write_rds(IRS, file = "New_version_data/new_IRSdata.rds")
+```
+
+TODO Then use shape file to filter for just Baltimore.
+
+***KEEP 17 AND 4 LIST SEPERATE FOR MAYBE A MAP BUT WANT THEM OUT FOR OTHER ANALYSES.
+
+keep logdes and clubs
+try filtering for baltimore first.
+
+Send list to tyler... then work on analysis again... then maps (can recruit people).
+
+
+## Get lat and long for shape file
+
+https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies-within-polygon
+https://www.statsilk.com/maps/convert-esri-shapefile-map-geojson-format
+
+```{r}
+# work with spatial data; sp package will load with rgdal.
+library(terra)
+# for metadata/attributes- vectors or rasters
+library(raster)
+library(sf)
+
+#neighborhood_shape <- system.file("Neighborhoods-shp/Neighborhoods.cpg", "Neighborhoods-shp/Neighborhoods.dbf", "Neighborhoods-shp/Neighborhoods.prj", "Neighborhoods-shp/Neighborhoods.shp", "Neighborhoods-shp/Neighborhoods.shx", package = "raster")
+
+#neighborhood_shape_1 <- system.file(here("Neighborhoods-shp/Neighborhoods.shp"), package = "raster")
+neighborhood_shape <-shapefile("Neighborhoods-shp/Neighborhoods.dbf", "Neighborhoods-shp/Neighborhoods.shp", "Neighborhoods-shp/Neighborhoods.shx")
+#identical(neighborhood_shape, neighborhood_shape_1)
+#identical(neighborhood_shape, neighborhood_shape_2)
+neighborhood_shape3 <-st_read("Neighborhoods-shp/Neighborhoods.shp", stringsAsFactors=FALSE)
+```
+https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies-within-polygon
+
+
+```{r}
+geo_clean <- IRS %>% dplyr::select(ein, lon, lat) %>% drop_na(lon) # one row - will need to remove form cbos
+CRS <- st_crs(neighborhood_shape3$geometry)
+pnts_sf <- st_as_sf(geo_clean, coords = c('lon', 'lat'), crs = st_crs(4326)) %>% st_set_crs(4326)
+neighborhood_Sf <-neighborhood_shape3$geometry
+neighborhood_Sf <- neighborhood_Sf %>% st_set_crs(4326)
+pnts_trans <- st_transform(pnts_sf, 2163)
+neighborhod_tt <- st_transform(neighborhood_shape3$geometry, 2163)
+test <-st_intersection(pnts_trans, neighborhod_tt)
+intersection <- pnts_sf %>% mutate(
+  intersection = as.integer(st_intersects( pnts_trans, neighborhod_tt )))
+not_in_balt <- intersection %>% filter(is.na(intersection))
+
+# getting an error about crs
+crs_neighborhood <-st_crs(neighborhood_Sf)
+crs_pnts <- st_crs(pnts_sf)
+identical(crs_neighborhood, crs_pnts)
+```
+
+
+Combining the intersection info with original bigger IRS data, to just get the IRS data for the data in the neighborhood data (just places in Baltimore)
+```{r}
+IRS <-left_join(intersection, IRS, by = "ein") #sf version - need to make a version like this without the sf version start here avocado
+```
+
+checking that it worked
+```{r}
+# first row:
+#            ein                   geometry intersection
+# 1  010591773 POINT (-76.69024 39.36632)           43
+
+#neighborhood_shape[43,]$name
+#filter(IRS, ein == "010591773")
+
+#Looks like this is in that location
+
+```
+
+
+Combining it all together:
+```{r}
+neighborhood_shape <-as_tibble(neighborhood_shape)
+neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number())
+cw_df_simp <-left_join(IRS, neighborhood_shape, by = c("intersection" = "id"))
+cw_df_simp[1,] %>% glimpse()
+
+# remove rows where intersection was not found (where intersection is NA) - aka CBO outside Baltimore
+cw_df_simp <-cw_df_simp %>% drop_na(intersection)
+```
+
