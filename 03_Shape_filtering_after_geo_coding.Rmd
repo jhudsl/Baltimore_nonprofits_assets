@@ -8,21 +8,48 @@ output: html_document
 
 ## combine
 
+## Get lat and long for shape file
+
 ```{r}
-warnings(geos) # check things- relies on previous step that is slow
-IRS <-cbind(IRS, geos)
-geo_clean <- IRS %>% dplyr::select(ein, lon, lat) %>% drop_na(lon) # one row - will need to remove form cbos
+# work with spatial data; sp package will load with rgdal.
+library(terra)
+# for metadata/attributes- vectors or rasters
+library(raster)
+library(sf)
+library(tidyverse)
+
+#neighborhood_shape <- system.file("Neighborhoods-shp/Neighborhoods.cpg", "Neighborhoods-shp/Neighborhoods.dbf", "Neighborhoods-shp/Neighborhoods.prj", "Neighborhoods-shp/Neighborhoods.shp", "Neighborhoods-shp/Neighborhoods.shx", package = "raster")
+
+#neighborhood_shape_1 <- system.file(here("Neighborhoods-shp/Neighborhoods.shp"), package = "raster")
+neighborhood_shape <-shapefile("Neighborhoods-shp/Neighborhoods.dbf", "Neighborhoods-shp/Neighborhoods.shp", "Neighborhoods-shp/Neighborhoods.shx")
+#identical(neighborhood_shape, neighborhood_shape_1)
+#identical(neighborhood_shape, neighborhood_shape_2)
+neighborhood_shape3 <-st_read("Neighborhoods-shp/Neighborhoods.shp", stringsAsFactors=FALSE)
+```
+https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies-within-polygon
+
+
+Load data from step 01 and 02:
+
+```{r}
+IRS <- read_rds("New_version_data/IRS_data_before_lat_long.rds")
+geos <- read_rds("New_version_data/geos.rds")
+```
+
+
+```{r}
+geo_clean <- geos %>% dplyr::select(ein, longitude, latitude) %>% drop_na(longitude) # two rows - will need to remove form cbos
 CRS <- st_crs(neighborhood_shape3$geometry)
-pnts_sf <- st_as_sf(geo_clean, coords = c('lon', 'lat'), crs = st_crs(4326)) %>% st_set_crs(4326)
+pnts_sf <- st_as_sf(geo_clean, coords = c('longitude', 'latitude'), crs = st_crs(4326)) %>% st_set_crs(4326)
 neighborhood_Sf <-neighborhood_shape3$geometry
 neighborhood_Sf <- neighborhood_Sf %>% st_set_crs(4326)
-pnts_trans <- st_transform(pnts_sf, 2163)
-neighborhod_tt <- st_transform(neighborhood_shape3$geometry, 2163)
+pnts_trans <- st_transform(pnts_sf, 9311)
+neighborhod_tt <- st_transform(neighborhood_shape3$geometry, 9311)
 test <-st_intersection(pnts_trans, neighborhod_tt)
 intersection <- pnts_sf %>% mutate(
   intersection = as.integer(st_intersects( pnts_trans, neighborhod_tt )))
 not_in_balt <- intersection %>% filter(is.na(intersection))
-
+in_balt <- intersection %>% drop_na(intersection)
 # getting an error about crs
 crs_neighborhood <-st_crs(neighborhood_Sf)
 crs_pnts <- st_crs(pnts_sf)
@@ -32,7 +59,29 @@ identical(crs_neighborhood, crs_pnts)
 
 Combining the intersection info with original bigger IRS data, to just get the IRS data for the data in the neighborhood data (just places in Baltimore)
 ```{r}
-IRS <-left_join(intersection, IRS, by = "ein") #sf version - need to make a version like this without the sf version start here avocado
+#check about duplicate ein
+any(duplicated(IRS$ein))
+any(duplicated(in_balt$ein))
+
+dups_IRS <- IRS[duplicated(IRS$ein),]
+dups_IRS_rows <- IRS %>% filter(ein %in% dups_IRS$ein)
+
+dups_balt <- in_balt[duplicated(in_balt$ein),]
+dups_balt_rows <- in_balt %>% filter(ein %in% dups_balt$ein)
+filter(in_balt, ein == dups_balt$ein[1])
+checkdup <-filter(IRS, ein == dups_IRS$ein[1]) # the rows look identical
+
+```
+
+## remove duplicated rows in shape file dataframe
+```{r}
+in_balt <- in_balt %>% distinct()
+```
+
+
+```{r}
+IRS_balt <-left_join(in_balt, IRS, by = "ein") #sf version - need to make a version like this without the sf version start here avocado
+
 ```
 
 checking that it worked
@@ -49,20 +98,6 @@ checking that it worked
 ```
 
 
-Combining it all together:
-```{r}
-neighborhood_shape <-as_tibble(neighborhood_shape)
-neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number())
-cw_df_simp <-left_join(IRS, neighborhood_shape, by = c("intersection" = "id"))
-cw_df_simp[1,] %>% glimpse()
-
-# remove rows where intersection was not found (where intersection is NA) - aka CBO outside Baltimore
-cw_df_simp <-cw_df_simp %>% drop_na(intersection)
-```
-
-
-
-
 ## Checking the revocation matching orgs
 
 So 2020 would be the excluded date. but maybe the revocation list is enough.
@@ -77,9 +112,10 @@ done: check that start and end dates match - turns out these have to do with whe
 
 Combine with revocations 
 ```{r}
-IRS_with_revonly <-inner_join(IRS, revocations, by = "ein")
+IRS_with_revonly <-inner_join(in_balt_IRS, revocations, by = "ein")
+IRS_with_revonly  <- as_tibble(IRS_with_revonly)
 nrow(IRS_with_revonly)
-IRS_with_revonly %>% select(ein, tax_period, tax_period_begin_date, tax_period_end_date, rev_date1, rev_date2) 
+#IRS_with_revonly %>% select(ein, tax_period, tax_period_begin_date, tax_period_end_date, rev_date1, rev_date2) 
 
 
 ```
@@ -93,24 +129,26 @@ IRS_with_revonly %>% select(ein, tax_period, tax_period_begin_date, tax_period_e
 IRS_with_revonly  <- IRS_with_revonly %>% mutate(tax_period_year = str_sub(tax_period, start = 1, end = 4)) 
 
 IRS_with_revonly <- IRS_with_revonly %>% mutate(tax_period_asdate = ym(tax_period), # IRS data
-                                                rev_date1_asdate = dmy(rev_date1), # rev data
-                                                rev_date2_asdate = dmy(rev_date2), # rev data
+                                                rev_date1_asdate = dmy(rev_date1.x), # rev data
+                                                rev_date2_asdate = dmy(rev_date2.x), # rev data
                                                 tax_period_begin_date_asdate = mdy(tax_period_begin_date),
                                                 tax_period_end_date_asdate = mdy(tax_period_end_date)) # IRS data (looked at the dates - seems to be myd format)
                                       
+```
 
+```{r}
 # turns out tax_year variable maybe not that reliable... not sure how we feel about that
 #IRS %>% select(tax_period, tax_year) %>% count(tax_year, tax_period) %>% glimpse()
 
 # check work in doing conversion
-IRS_with_revonly %>% select(tax_period_year, tax_period_asdate, rev_date1_asdate, rev_date2_asdate, tax_period_begin_date_asdate, tax_period_end_date_asdate)  %>% head()
+IRS_with_revonly %>% dplyr::select(tax_period_year, tax_period_asdate, rev_date1_asdate, rev_date2_asdate, tax_period_begin_date_asdate, tax_period_end_date_asdate)  %>% head()
 
-IRS_with_revonly %>% select(tax_period_year, tax_period_asdate,  tax_period_begin_date_asdate, tax_period_end_date_asdate) %>% drop_na() %>% head()
+IRS_with_revonly %>% dplyr::select(tax_period_year, tax_period_asdate,  tax_period_begin_date_asdate, tax_period_end_date_asdate) %>% drop_na() %>% head()
 
 IRS_with_revonly <- IRS_with_revonly %>% mutate(diff_end_date = tax_period_end_date_asdate - tax_period_asdate) 
 
 # show the odd values for tax period and end date to not remove
-odd_values <- filter(IRS_with_revonly, diff_end_date >31 | diff_end_date < (-31)) %>% select(ein, tax_period_year, tax_period_asdate,  tax_period_begin_date_asdate, tax_period_end_date_asdate, diff_end_date)  
+odd_values <- filter(IRS_with_revonly, diff_end_date >31 | diff_end_date < (-31)) %>% dplyr::select(ein, tax_period_year, tax_period_asdate,  tax_period_begin_date_asdate, tax_period_end_date_asdate, diff_end_date)  
 
 datatable(odd_values)
 
@@ -129,16 +167,20 @@ IRS_with_revonly <-IRS_with_revonly %>% mutate(
 
 ein_to_rem <-IRS_with_revonly %>% filter(tax_date_newer == FALSE & abs(diff_end_date)<= 31)
 
-ein_to_rem %>% select(ein, diff_end_date, tax_date_newer, tax_period, rev_date2_asdate, tax_period_end_date_asdate)
-datatable(ein_to_rem)
+ein_to_rem %>% dplyr::select(ein, diff_end_date, tax_date_newer, tax_period, rev_date2_asdate, tax_period_end_date_asdate)
+DT::datatable(ein_to_rem)
 ```
 
 
 #### Removing these orgs
 
 ```{r}
-IRS_no_revoc<-anti_join(IRS, ein_to_rem, by = "ein") 
+IRS_no_revoc<-anti_join(in_balt_IRS, ein_to_rem, by = "ein") # same dimensions none to remove
 IRS <-IRS_no_revoc
+
+write_csv(in_balt_IRS, file = "New_version_data/clean_data/balt_irs.csv")
+write_csv(IRS_no_revoc, file = "New_version_data/clean_data/balt_irs_no_revoc.csv")
+
 ```
 
 
@@ -170,6 +212,9 @@ nrow(po_checkPOST_OFFICE)
 IRS <- IRS %>% filter(!str_detect(street, "PO |POST OFFICE"))
 nrow(IRS) #34762 # removed 5615
 
+
+write_csv(IRS, file = "New_version_data/clean_data/balt_irs_no_po.csv")
+
 ```
 
 
@@ -186,7 +231,8 @@ rem_orgs <- IRS %>% filter(foundation == "00")
 IRS_org_rem<- IRS %>% filter(foundation != "00")
 nrow(IRS) - nrow(IRS_org_rem) # drop 4639 # check filtering
 
-write_csv(rem_orgs, file = here("irs_00_rem.csv"))
+write_csv(IRS_org_rem, file = here::here("New_version_data/clean_data/irs_remaining_00_rem.csv"))
+write_csv(rem_orgs, file = here::here("New_version_data/clean_data/irs_00_rem.csv"))
 ```
 
 Could consider filtering out 04, 17 (because not operating)
@@ -198,13 +244,16 @@ foundations that provide money 04 granters, 17 boosters- so nonoperational - but
 let's keep on their own as an aside but remove from main data
 
 
+Decided to keep orgs with foundation coude 17 and 04.
 ```{r}
-orgs_17_04 <-IRS_org_rem %>% filter(foundation == "17" |foundation == "04")
-orgs_17_04 %>% count(foundation)
-write_csv(orgs_17_04, file = here("orgs_17_04.csv"))
-orgs_17_04$asset_amt
-IRS_org_rem  <- IRS_org_rem  %>% filter(foundation != "17") %>% filter(foundation != "04")
-IRS_org_rem %>% count(foundation)
+# orgs_17_04 <-IRS_org_rem %>% filter(foundation == "17" |foundation == "04")
+# orgs_17_04 %>% count(foundation)
+# write_csv(orgs_17_04, file = here::here("New_version_data/clean_data/orgs_17_04.csv"))
+# orgs_17_04$asset_amt
+# IRS_org_rem  <- IRS_org_rem  %>% filter(foundation != "17") %>% filter(foundation != "04")
+# IRS_org_rem %>% count(foundation)
+# 
+# write_csv(IRS_org_rem , file = here::here("New_version_data/clean_data/after_rem_orgs_17_04.csv"))
 ```
 
 
@@ -226,18 +275,22 @@ Boys_and_girls <- IRS_org_rem %>% filter(str_detect(string = name , pattern = "B
 
 social_clubs <- IRS_org_rem %>% filter(str_detect(string = ntee_cd, pattern = "Y|y")) # 49
 social_clubs %>% count(ntee_cd)
-datatable(social_clubs)
-clubs_lodges <- IRS_org_rem %>% filter(str_detect(string = name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")) 
-datatable(clubs_lodges)
 
-write_csv(social_clubs, file = here("irs_social_clubs_rem.csv"))
-write_csv(clubs_lodges, file = here("irs_clubs_lodges_rem.csv"))
-write_csv(Boys_and_girls, file = here("irs_boys_girls.csv"))
+clubs_lodges <- IRS_org_rem %>% filter(str_detect(string = name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")) 
+
+
+write_csv(social_clubs, file = here::here("New_version_data/clean_data/irs_social_clubs_rem.csv"))
+write_csv(clubs_lodges, file = here::here("New_version_data/clean_data/irs_clubs_lodges_rem.csv"))
+write_csv(Boys_and_girls, file = here::here("New_version_data/clean_data/irs_boys_girls.csv"))
 #first remove for "Y ntee"
 IRS_org_rem <- IRS_org_rem %>% filter(!str_detect(string = ntee_cd, pattern = "Y|y") |is.na(ntee_cd))
 
 #remove for word club"
 IRS_org_rem <- IRS_org_rem %>% filter(!str_detect(string = name, pattern = "club|Club|CLUB|lodge|Lodge|LODGE")|is.na(ntee_cd))
+```
+
+```{r}
+write(IRS_org_rem, file = here::here("New_version_data/clean_data/irs_social_clubs_lodges_rem.csv"))
 
 ```
 
