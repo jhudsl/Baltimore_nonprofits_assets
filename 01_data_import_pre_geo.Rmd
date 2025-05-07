@@ -1,25 +1,5 @@
 
 
-## Get lat and long for shape file
-
-```{r}
-# work with spatial data; sp package will load with rgdal.
-library(terra)
-# for metadata/attributes- vectors or rasters
-library(raster)
-library(sf)
-
-#neighborhood_shape <- system.file("Neighborhoods-shp/Neighborhoods.cpg", "Neighborhoods-shp/Neighborhoods.dbf", "Neighborhoods-shp/Neighborhoods.prj", "Neighborhoods-shp/Neighborhoods.shp", "Neighborhoods-shp/Neighborhoods.shx", package = "raster")
-
-#neighborhood_shape_1 <- system.file(here("Neighborhoods-shp/Neighborhoods.shp"), package = "raster")
-neighborhood_shape <-shapefile("Neighborhoods-shp/Neighborhoods.dbf", "Neighborhoods-shp/Neighborhoods.shp", "Neighborhoods-shp/Neighborhoods.shx")
-#identical(neighborhood_shape, neighborhood_shape_1)
-#identical(neighborhood_shape, neighborhood_shape_2)
-neighborhood_shape3 <-st_read("Neighborhoods-shp/Neighborhoods.shp", stringsAsFactors=FALSE)
-```
-https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies-within-polygon
-
-
 
 # Import IRS Data
 ```{r}
@@ -157,7 +137,8 @@ head(revocations)
 colnames(revocations) <- c("ein", "rev_org_name", "address1", "address2", "city", "state", "zip", "country", "some_rev_code", "rev_date1", "rev_date2", "not_sure")
 IRS_with_rev <-left_join(IRS, revocations, suffix = c("irs", "rev"), by = "ein")
 ```
-## get lat and long for addresses of CBOs
+
+# Prepare for Geocoding
 
 ```{r}
 library(ggmap)
@@ -165,10 +146,4 @@ IRS <- IRS_with_rev %>% unite("address",street:zipirs, remove = FALSE, sep = ", 
 saveRDS(IRS, file = "New_version_data/IRS_data_before_lat_long.rds")
 ```
 
-Then ran geocoding on this file using the Geo_coding.R script
-```{r}
-#geos<-IRS %>% pull(address) %>% geocode() # this step is slow so commenting out
-#warnings(geos) # check things- relies on previous step that is slow
-#IRS <-cbind(IRS, geos) #relies on previous step that is slow
 
-```

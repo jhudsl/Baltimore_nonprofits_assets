@@ -6,8 +6,6 @@ output: html_document
 ---
 
 
-## combine
-
 ## Get lat and long for shape file
 
 ```{r}
@@ -80,7 +78,7 @@ in_balt <- in_balt %>% distinct()
 
 
 ```{r}
-IRS_balt <-left_join(in_balt, IRS, by = "ein") #sf version - need to make a version like this without the sf version start here avocado
+in_balt_IRS <-left_join(in_balt, IRS, by = "ein") #sf version - need to make a version like this without the sf version start here avocado
 
 ```
 
@@ -110,27 +108,27 @@ done: just check that tax start date aligns mostly with tax period - (for those 
 
 done: check that start and end dates match - turns out these have to do with when they file based on bylaws... to know when they are supposed to file. if tax year, end, and start line up - that is the last year they submitted (and in the last since June 2021 - 24) - if also on revocation list- don't remove these orgs, otherwise remove orgs on revocation list
 
-Combine with revocations 
-```{r}
-IRS_with_revonly <-inner_join(in_balt_IRS, revocations, by = "ein")
-IRS_with_revonly  <- as_tibble(IRS_with_revonly)
-nrow(IRS_with_revonly)
-#IRS_with_revonly %>% select(ein, tax_period, tax_period_begin_date, tax_period_end_date, rev_date1, rev_date2) 
-
+From 01 RMD
 
 ```
+revocations <- read_delim("New_version_data/data-download-revocation_3.txt",
+    delim = "|", escape_double = FALSE, col_names = FALSE,
+    trim_ws = TRUE)
+head(revocations)
+colnames(revocations) <- c("ein", "rev_org_name", "address1", "address2", "city", "state", "zip", "country", "some_rev_code", "rev_date1", "rev_date2", "not_sure")
 
-
+IRS_with_rev <-left_join(IRS, revocations, suffix = c("irs", "rev"), by = "ein")
+```
 
 
 
 ```{r}
 # make into date format
-IRS_with_revonly  <- IRS_with_revonly %>% mutate(tax_period_year = str_sub(tax_period, start = 1, end = 4)) 
+IRS_with_revonly  <- in_balt_IRS %>% mutate(tax_period_year = str_sub(tax_period, start = 1, end = 4)) 
 
 IRS_with_revonly <- IRS_with_revonly %>% mutate(tax_period_asdate = ym(tax_period), # IRS data
-                                                rev_date1_asdate = dmy(rev_date1.x), # rev data
-                                                rev_date2_asdate = dmy(rev_date2.x), # rev data
+                                                rev_date1_asdate = dmy(rev_date1), # rev data
+                                                rev_date2_asdate = dmy(rev_date2), # rev data
                                                 tax_period_begin_date_asdate = mdy(tax_period_begin_date),
                                                 tax_period_end_date_asdate = mdy(tax_period_end_date)) # IRS data (looked at the dates - seems to be myd format)
                                       
@@ -150,6 +148,7 @@ IRS_with_revonly <- IRS_with_revonly %>% mutate(diff_end_date = tax_period_end_d
 # show the odd values for tax period and end date to not remove
 odd_values <- filter(IRS_with_revonly, diff_end_date >31 | diff_end_date < (-31)) %>% dplyr::select(ein, tax_period_year, tax_period_asdate,  tax_period_begin_date_asdate, tax_period_end_date_asdate, diff_end_date)  
 
+library(DT)
 datatable(odd_values)
 
 
@@ -175,11 +174,9 @@ DT::datatable(ein_to_rem)
 #### Removing these orgs
 
 ```{r}
-IRS_no_revoc<-anti_join(in_balt_IRS, ein_to_rem, by = "ein") # same dimensions none to remove
-IRS <-IRS_no_revoc
+# no orgs to remove
 
 write_csv(in_balt_IRS, file = "New_version_data/clean_data/balt_irs.csv")
-write_csv(IRS_no_revoc, file = "New_version_data/clean_data/balt_irs_no_revoc.csv")
 
 ```
 
