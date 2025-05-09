@@ -1,0 +1,16 @@
+
+```{r, message= FALSE}
+library(readxl)
+library(here)
+library(tidyverse)
+library(stringr)
+library(naniar)
+```
+
+# Data Import
+```{r}
+df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet = 3)
+BMF <- read_csv("New_version_data/MD_BMF_V1.1.csv")
+neighborhoods <- read_csv("New_version_data/Neighborhood_Statistical_Area_(NSA)_Boundaries.csv")
+neighborhoods2 <- read_csv("New_version_data/Neighborhoods(in)_from_tyler_April4_2025.csv") # hmm these are kinda different
+```
