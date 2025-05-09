@@ -36,12 +36,12 @@ This file has code that filters the geocoded IRS data for only those found in Ba
 
 4) index.Rmd
 
-This file imports the nonprofit asset information and the neighborhood information.
+This file imports the nonprofit asset information and the neighborhood information (downloaded May 9th, 2025).
 
 Asset information comes from the BMF data: New_versiondata/MD_BMF_V1.1.csv
 
 Original Link: https://nccs.urban.org/nccs/datasets/bmf/ --> clicked on BMF by state --> searched for MD
-Direct Link:  https://nccsdata.s3.amazonaws.com/harmonized/bmf/unified/MD_BMF_V1.1.csv (downloaded May 9th, 2025) 
+Direct Link:  https://nccsdata.s3.amazonaws.com/harmonized/bmf/unified/MD_BMF_V1.1.csv  
 
 This file takes the data and performs stats analysis and creates plots.
 
@@ -50,5 +50,7 @@ Neighborhood information including the shape file and stats about neighborhood c
 Original link: https://data.baltimorecity.gov/datasets/baltimore::neighborhood-statistical-area-nsa-boundaries/about
 Click on "Download" --> CSV for neighborhood stats 
                     --> Shapefile for neighborhood shapefile
+
+Data was last updated before we downloaded on April 11, 2025.
 
 Please see this link for a rendered report of our analysis and the steps that we took in analyzing the data: https://jhudatascience.org/Baltimore_nonprofits_assets/. 
