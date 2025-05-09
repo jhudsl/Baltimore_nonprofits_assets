@@ -14,16 +14,16 @@ library(janitor)
 990 or not is PF filing req code
 filing req code - don't have to file any forms or not 01 = 990, 02 = 990 but less than 25000 income, 03 = group return (don't know what that means), 06 = church, 07 = gov, 00 = not required to file
 
- - from here: https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf  - chose Maryland
- - direct link: https://www.irs.gov/pub/irs-soi/eo_md.csv
- 
- 
- or maybe new link  https://www.irs.gov/downloads then --> irs-soi (https://www.irs.gov/statistics/soi-tax-stats-business-tax-statistics) then --> https://www.irs.gov/pub/irs-soi/22incdmd.xlsx
 
-updated date is 12/10/2024: 
+updated date is 2025-04-13 00:10:44 
+
+download date 5/5/2025:
+ https://www.irs.gov/downloads/irs-soi -->then search for eo_md.csv
+ more about it: https://www.irs.gov/statistics/soi-tax-stats-about-soi
  
 ```{r}
-irs_new<- read_csv("New_version_data/eo_md.csv") 
+irs_new_old<- read_csv("New_version_data/eo_md.csv") #older
+irs_new<- read_csv("New_version_data/eo_md_5_25.csv") #newer
 ```
 
 
@@ -41,22 +41,16 @@ EIN, Tax Year , Organization Name, Gross receipts not greater than, Organization
      delim = "|", escape_double = FALSE, col_names = FALSE, 
      trim_ws = TRUE, col_types = c("X26" = "c"))
 
-#trying a different way to read in the data with different column leangths
-epost <- read.table("New_version_data/data-download-epostcard.txt",  col.names = paste0("V",seq_len(28)), fill = TRUE, header=FALSE, sep="|")
+#trying a different way to read in the data with different column lengths
+epost <- read.table("New_version_data/data-download-epostcard.txt",  col.names = paste0("V", seq_len(28)), fill = TRUE, header=FALSE, sep="|")
 
-
+epost_new <- read.table("New_version_data/data-download-epostcard_5_8_25.txt",  col.names = paste0("V", seq_len(28)), fill = TRUE, header=FALSE, sep="|")
 ```
 
-### check problems (no longer needed)
+### check for problems
 ```{r, include = FALSE}
- problem_info<-problems(epost_old) #get problem info, looks like some extra columns
- problem_rows <-slice(epost_old, problem_info$row) # get problematic rows from epost
- head(epost_old)#compare with nonproblematic rows
- problem_info %>% count(col) #mostly column 20 and 25
-# 
-# 
-# #how many problem_rows are Maryland data
-# MaybeMD_probs <-problem_rows %>% filter(if_any(.cols = everything(), ~ grepl("MD", .)))
+prbs <- problems(epost)
+dim(prbs)
 ```
 
 <!-- ```{bash, include = FALSE} -->
@@ -89,13 +83,9 @@ irs_new<- rename_with(irs_new, tolower) #make names lowercase
 epost <- epost %>% filter(principal_officer_s_address_state == "MD") #filter for only MD
 
 epost_only <-anti_join(epost,irs_new, by ="ein") 
-nrow(epost_only) #1567 not in irs_new
+nrow(epost_only) # not in irs_new
 nrow(irs_new)
 nrow(epost)
-
-library(DT)
-
-datatable(epost_only)
 ```
 
 
@@ -117,11 +107,11 @@ nrow(IRS) == nrow(irs_new)# test if dimensions are still the same
 
 https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads --> click on automatic revocation or exemption list link
 
-direct link: https://apps.irs.gov/pub/epostcard/data-download-revocation.zip
+Direct link downloaded 5_8_25 (this dataset will change overtime): https://apps.irs.gov/pub/epostcard/data-download-revocation.zip
 
 last updated Dec,9, 2024
 
-Under Internal Revenue Code Section 6033(j)(1)(A), the IRS will revoke the tax-exempt status of nonprofit organizations automatically when organizations with a filing requirement do not file their required Forms 990 for three consecutive years.  When such a revocation occurs, it is effective as of the filing deadline, which is typically May 15 for organizations filing on a calendar year basis.  This year, however, the Form 990 filing deadline was delayed to July 15 due to the COVID-19 pandemic
+Under Internal Revenue Code Section 6033(j)(1)(A), the IRS will revoke the tax-exempt status of nonprofit organizations automatically when organizations with a filing requirement do not file their required Forms 990 for three consecutive years. When such a revocation occurs, it is effective as of the filing deadline, which is typically May 15 for organizations filing on a calendar year basis. This year, however, the Form 990 filing deadline was delayed to July 15 due to the COVID-19 pandemic
 
 Organizations that do not file a required annual information return or notice for three consecutive years automatically lose their tax-exempt status by operation of law. An automatic revocation is effective on the original filing due date of the third annual return or notice (the "revocation date"). Due to the COVID-19 emergency, this year the IRS extended the filing dates for these returns and notices due from April 1 through July 14 to July 15, 2020. Organizations eligible for this relief that failed to file for the two previous years and did not file by July 15 have automatically lost their tax-exempt status. Due to systemic limitations, these organizations appear on the auto-revocation list showing a revocation date between April 1 and July 14, 2020. However, the revocation date for these organizations is July 15, 2020. For more information on automatic revocation, including how to request reinstatement, see Automatic revocation - How to have your tax-exempt status reinstated.
 
@@ -131,6 +121,9 @@ more info: https://www.irs.gov/pub/irs-pdf/p4991.pdf
 
 ```{r}
 revocations <- read_delim("New_version_data/data-download-revocation_3.txt",
+    delim = "|", escape_double = FALSE, col_names = FALSE,
+    trim_ws = TRUE)
+revocations_new <- read_delim("New_version_data/data-download-revocation_5_8_25.txt",
     delim = "|", escape_double = FALSE, col_names = FALSE,
     trim_ws = TRUE)
 head(revocations)
