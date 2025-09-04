@@ -1,0 +1,142 @@
+
+
+
+# Import IRS Data
+```{r}
+library(readxl)
+library(here)
+library(tidyverse)
+library(janitor)
+```
+
+## New eo_md 
+
+990 or not is PF filing req code
+filing req code - don't have to file any forms or not 01 = 990, 02 = 990 but less than 25000 income, 03 = group return (don't know what that means), 06 = church, 07 = gov, 00 = not required to file
+
+
+updated date is 2025-04-13 00:10:44 
+
+download date 5/5/2025:
+ https://www.irs.gov/downloads/irs-soi -->then search for eo_md.csv
+ more about it: https://www.irs.gov/statistics/soi-tax-stats-about-soi
+ 
+```{r}
+irs_new_old<- read_csv("New_version_data/eo_md.csv") #older
+irs_new<- read_csv("New_version_data/eo_md_5_25.csv") #newer
+```
+
+
+# new epostcard 990-N
+
+Gives us information about who was an active org and helps save some from removal for revocation otherwise not listed.
+link: https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads
+direct link to data:  (last data posting Oct 28, 2024) https://apps.irs.gov/pub/epostcard/data-download-epostcard.zip
+dictionary: https://www.irs.gov/pub/irs-tege/990n-data-dictionary.pdf
+
+EIN, Tax Year , Organization Name, Gross receipts not greater than, Organization has terminated, Tax Period Begin Date , Tax Period End Date , Website URL , Principal Officer’s Name , Principal Officer’s Address Line 1, Principal Officer’s Address Line 2, Principal Officer’s Address City , Principal Officer’s Address Province, Principal Officer’s Address State , Principal Officer’s Address Zip Code , Principal Officer’s Address Country ,Organization Mailing Address Line 1 , Organization Mailing Address Line 2 , Organization Mailing Address City , Organization Mailing Address Province , Organization Mailing Address State , Organization Mailing Address Zip Code, Organization Mailing Address Country ,Organization Doing Business as Name 1, Organization Doing Business as Name 2 , Organization Doing Business as Name 3 ,
+```{r}
+# specify character for last column
+ epost_old <- read_delim("New_version_data/data-download-epostcard.txt", 
+     delim = "|", escape_double = FALSE, col_names = FALSE, 
+     trim_ws = TRUE, col_types = c("X26" = "c"))
+
+#trying a different way to read in the data with different column lengths
+epost <- read.table("New_version_data/data-download-epostcard.txt",  col.names = paste0("V", seq_len(28)), fill = TRUE, header=FALSE, sep="|")
+
+epost_new <- read.table("New_version_data/data-download-epostcard_5_8_25.txt",  col.names = paste0("V", seq_len(28)), fill = TRUE, header=FALSE, sep="|")
+```
+
+### check for problems
+```{r, include = FALSE}
+prbs <- problems(epost)
+dim(prbs)
+```
+
+<!-- ```{bash, include = FALSE} -->
+<!-- # checking the original version of the file for one of the problematic rows -->
+<!-- <!-- awk 'FNR>=9294 && FNR<=9294' New_version_data/data-download-epostcard_2024.txt  # first problematic row is actually originally on line 9294 --> -->
+
+<!-- <!-- awk 'FNR>=358951 && FNR<=358951' New_version_data/data-download-epostcard_2024.txt  #second problematic row --> -->
+
+<!-- <!-- awk 'FNR>=1 && FNR<=3' New_version_data/data-download-epostcard_2024.txt # checking line 1-3 to ensure that there were some empty lines for the first two lines - yup looks like it! --> -->
+<!-- ``` -->
+
+### Get row names:
+```{r}
+colnames(epost) <- c("EIN", "Tax Year" , "Organization Name", "Gross receipts not greater than", "Organization has terminated", "Tax Period Begin Date" , "Tax Period End Date" , "Website URL" , "Principal Officer’s Name" , "Principal Officer’s Address Line 1", "Principal Officer’s Address Line 2", "Principal Officer’s Address City" , "Principal Officer’s Address Province", "Principal Officer’s Address State" , "Principal Officer’s Address Zip Code" , "Principal Officer’s Address Country" ,"Organization Mailing Address Line 1" , "Organization Mailing Address Line 2" , "Organization Mailing Address City" , "Organization Mailing Address Province" , "Organization Mailing Address State" , "Organization Mailing Address Zip Code", "Organization Mailing Address Country" ,"Organization Doing Business as Name 1", "Organization Doing Business as Name 2", "Organization Doing Business as Name 3")
+
+
+epost <-clean_names(epost)# removing spaces from names
+
+# checking the rows that have extra columns - only one for MD but will keep it in the dataset
+epost_extra_long <- epost %>% filter(na !="") %>% filter(organization_mailing_address_state == "MD")
+epost_extra_long2 <- epost %>% filter(na_2 !="") %>% filter(organization_mailing_address_state == "MD")
+
+```
+
+
+### How many in epost not in irs_new? filter for md
+
+```{r}
+irs_new<- rename_with(irs_new, tolower) #make names lowercase 
+epost <- epost %>% filter(principal_officer_s_address_state == "MD") #filter for only MD
+
+epost_only <-anti_join(epost,irs_new, by ="ein") 
+nrow(epost_only) # not in irs_new
+nrow(irs_new)
+nrow(epost)
+```
+
+
+## Combine IRS data  
+
+```{r}
+
+irs_epost <-full_join(epost, irs_new, by =  "ein")
+
+IRS <-left_join(irs_new, epost, by = "ein") # keeps all rows of IRS and adds info from epost where possible as new columns
+nrow(IRS) == nrow(irs_new)# test if dimensions are still the same
+```
+
+
+
+
+
+## Revocations
+
+https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads --> click on automatic revocation or exemption list link
+
+Direct link downloaded 5_8_25 (this dataset will change overtime): https://apps.irs.gov/pub/epostcard/data-download-revocation.zip
+
+last updated Dec,9, 2024
+
+Under Internal Revenue Code Section 6033(j)(1)(A), the IRS will revoke the tax-exempt status of nonprofit organizations automatically when organizations with a filing requirement do not file their required Forms 990 for three consecutive years. When such a revocation occurs, it is effective as of the filing deadline, which is typically May 15 for organizations filing on a calendar year basis. This year, however, the Form 990 filing deadline was delayed to July 15 due to the COVID-19 pandemic
+
+Organizations that do not file a required annual information return or notice for three consecutive years automatically lose their tax-exempt status by operation of law. An automatic revocation is effective on the original filing due date of the third annual return or notice (the "revocation date"). Due to the COVID-19 emergency, this year the IRS extended the filing dates for these returns and notices due from April 1 through July 14 to July 15, 2020. Organizations eligible for this relief that failed to file for the two previous years and did not file by July 15 have automatically lost their tax-exempt status. Due to systemic limitations, these organizations appear on the auto-revocation list showing a revocation date between April 1 and July 14, 2020. However, the revocation date for these organizations is July 15, 2020. For more information on automatic revocation, including how to request reinstatement, see Automatic revocation - How to have your tax-exempt status reinstated.
+
+more info: https://www.irs.gov/pub/irs-pdf/p4991.pdf
+
+
+
+```{r}
+revocations <- read_delim("New_version_data/data-download-revocation_3.txt",
+    delim = "|", escape_double = FALSE, col_names = FALSE,
+    trim_ws = TRUE)
+revocations_new <- read_delim("New_version_data/data-download-revocation_5_8_25.txt",
+    delim = "|", escape_double = FALSE, col_names = FALSE,
+    trim_ws = TRUE)
+head(revocations)
+colnames(revocations) <- c("ein", "rev_org_name", "address1", "address2", "city", "state", "zip", "country", "some_rev_code", "rev_date1", "rev_date2", "not_sure")
+IRS_with_rev <-left_join(IRS, revocations, suffix = c("irs", "rev"), by = "ein")
+```
+
+# Prepare for Geocoding
+
+```{r}
+library(ggmap)
+IRS <- IRS_with_rev %>% unite("address",street:zipirs, remove = FALSE, sep = ", ") # this next step is slow so commenting out, making address variable
+saveRDS(IRS, file = "New_version_data/IRS_data_before_lat_long.rds")
+```
+
+
