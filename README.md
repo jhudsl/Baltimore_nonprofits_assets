@@ -6,29 +6,29 @@ There are a few Rmd files/scripts.
 
 1) 01_data_import_pre_geo.Rmd imports all necessary data except the shape file.
 
-This includes the following data downloaded May 8th 2025:
+This includes the following data downloaded September 4th 2025:
 
-- New_version_data/eo_md_5_25.csv
+- data/eo_md_5_25.csv
   - Original link:  https://www.irs.gov/downloads/irs-soi --> then search for eo_md.csv
   - Direct link: https://www.irs.gov/pub/irs-soi/eo_md.csv
-  - The data was posted on the IRS website April 13, 2025
+  - The data was posted on the IRS website August 11, 2025 and downloaded by us on September 4th, 2025
 
-- New_version_data/epostcard/data-download-epostcard_5_8_25.txt
+- data//data-download-epostcard.txt
   - Original link: https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads --> scrolled down to Form 990-N (e-Postcard) section
   - Direct link: https://apps.irs.gov/pub/epostcard/data-download-epostcard.zip 
-  - The data was posted on the IRS website: March 10, 2025
+  - The data was posted on the IRS website: March 10, 2025 and downloaded by us on September 4th, 2025
  
-- revocations in New_version_data/data-download-revocation_5_8_25.txt
+- revocations in data/data-download-revocation.txt
   - Original link: https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads --> click on automatic revocation or exemption list link
-  - Direct link downloaded 5_8_25 (this dataset will change overtime): https://apps.irs.gov/pub/epostcard/data-download-revocation.zip
-  - The data was posted on the IRS website: March 10, 2025
+  - Direct link (this dataset will change overtime): https://apps.irs.gov/pub/epostcard/data-download-revocation.zip
+  - The data was posted on the IRS website: March 10, 2025 and downloaded by us on downloaded September 4th, 2025
 
 
 Note that this data is frequently getting re-posted/updated. The data that was used for the analysis is available in this repository at the path indicated.
 
 2) 02_geo_coding.R 
 
-This file has code that peforms the geocoding to get the latitude and longitude based on the address for the nonprofit orgs
+This file has code that performs the geocoding to get the latitude and longitude based on the address for the nonprofit orgs.
 
 3) 03_Shape_filtering_after_geo_coding.Rmd
 
@@ -36,11 +36,11 @@ This file has code that filters the geocoded IRS data for only those found in Ba
 
 4) 04_prepare_neighborhood_data.Rmd
 
-This file imports the nonprofit asset information and the neighborhood information (downloaded May 9th, 2025).
+This file imports the nonprofit asset information and the neighborhood information (downloaded September 4th, 2025).
 
-Asset information comes from the BMF data: New_versiondata/MD_BMF_V1.1.csv
+Asset information comes from the BMF data: data/MD_BMF_V1.1.csv - this is limited in that churches are not required to file.
 
-Original Link: https://nccs.urban.org/nccs/datasets/bmf/ --> clicked on BMF by state --> searched for MD
+Original Link: https://nccs.urban.org/nccs/datasets/bmf/ --> clicked on BMF by state --> searched for MD, looks like these got posted March 4th 2024
 Direct Link:  https://nccsdata.s3.amazonaws.com/harmonized/bmf/unified/MD_BMF_V1.1.csv  
 
 Neighborhood information including the shape file and stats about neighborhood compositions comes from:

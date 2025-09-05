@@ -1,0 +1,115 @@
+
+# Filtering Orgs
+
+First reading in our data
+
+```{r}
+library(tidyverse)
+library(sf)
+org_data <- read_rds("data/processed/org_data.rds")
+
+```
+
+## Filter out foundation code 00 orgs
+
+Based on https://www.irs.gov/pub/irs-soi/eo-info.pdf 
+page 3 - we will exclude 00 for foundation code - all orgs except 501c3 to filter down to 501c3 - looks like they are coded as 0 instead of 00.
+
+We start with `r nrow(org_data)` rows.
+```{r}
+found_00_orgs <- org_data %>% filter(BMF_FOUNDATION_CODE == "0")  %>% dplyr::select(ORG_NAME_CURRENT) 
+
+found_00_orgs %>% head( n = 10) #show a couple of examples of what will be dropped
+
+org_data <- org_data %>% subset(is.na(BMF_FOUNDATION_CODE)| BMF_FOUNDATION_CODE != "0")# keeping NA values
+```
+
+After filtering out these orgs, we end with `r nrow(org_data)` rows, removing `r nrow(found_00_orgs)` orgs with foundation code 00.
+
+
+## Filter out social_clubs 
+
+We start with `r nrow(org_data)` rows.
+
+See page 16 for more information: https://nccs.urban.org/pubs/nccs-data-guide.pdf and see https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html. 
+
+```{r}
+socialclubs <-org_data %>% filter(str_detect(string = NTEE_IRS, pattern = "Y|y"))
+socialclubs %>% dplyr::select(ORG_NAME_CURRENT)
+
+org_data <- org_data %>% filter(!str_detect(string = NTEE_IRS, pattern = "Y|y")| is.na(NTEE_IRS)) # keeping NA values
+```
+
+
+After filtering out social clubs we end up with `r nrow(org_data)` rows, removing `r nrow(socialclubs)` social club orgs.
+
+## Filter out PO Boxes
+
+```{r}
+Post_offices <- org_data %>% filter(str_detect(F990_ORG_ADDR_STREET, "PO BOX |POST OFFICE"))
+
+Post_offices %>% dplyr::select(F990_ORG_ADDR_STREET)
+
+org_data <- org_data %>% filter(!str_detect(F990_ORG_ADDR_STREET, "PO BOX |POST OFFICE")| is.na(F990_ORG_ADDR_STREET)) # keeping NA values)
+```
+
+After filtering out PO Boxes we end up with `r nrow(org_data)` rows, removing `r nrow(Post_offices)`  orgs with a post office box address.
+
+## Filter out foundation code 04 and 17
+
+
+- 04 = Private non-operating foundation
+- 17 = Organizations operated solely for the benefit of and in conjunction with organizations with code 10 through 16 
+
+We want to remove these and set them aside. 
+
+Let's keep on their own as an aside but remove from main data.
+
+```{r}
+no_oper_orgs<-org_data %>% filter(BMF_FOUNDATION_CODE %in% c("4","17"))  %>% dplyr::select(ORG_NAME_CURRENT)  #show examples of what will be dropped
+no_oper_orgs %>% head( n = 10)
+
+org_data <- org_data %>% subset(is.na(BMF_FOUNDATION_CODE)| ! BMF_FOUNDATION_CODE  %in% c("4","17"))# keeping NA values
+
+```
+
+After filtering out these orgs we end up with `r nrow(org_data)` rows, removing `r nrow(no_oper_orgs)` orgs with foundation code 04 or 17. 
+
+## Filtering for year
+
+Filing is due May 15 each year, since the data is from March 2024, that means it only shows 2023 complete data.
+
+Orgs only need to file every 3 years as well, but this would be a sliding window for orgs at different times as far as I understand it, but we could require that the last filing time be within the last 3 years.
+
+Also might want to remove orgs that didn't file in the last 3 years.
+
+For now I will filter for orgs that filed after May 15, 2023.
+
+According to the [dictionary](https://nccsdata.s3.amazonaws.com/harmonized/harmonized_data_dictionary.xlsx):
+
+- ORG_FISCAL_YEAR	= Fiscal Year of the BMF from which this record was pulled
+- ORG_YEAR_LAST =	Most recent year EIN was recorded in BMF
+
+```{r}
+year_2024 <- org_data %>% filter(ORG_YEAR_LAST == 2024)
+
+org_data <- org_data %>% filter(ORG_YEAR_LAST != 2024)
+```
+
+After filtering out orgs that filed between May 15, 2023 and March 2024, we have `r nrow(org_data)` rows, removing `r nrow(year_2024)` orgs with that filed at that time.
+
+
+If we assume a sliding window and people would need to have filed in the last 3 years, than we can include orgs that filed in 2021, 2022, and 2023.
+
+```{r}
+active_orgs <- org_data %>% filter(ORG_YEAR_LAST %in% c(2023, 2022, 2021))
+
+```
+
+After filtering out orgs that last filed in the last 3 years, we end up with `r nrow(active_orgs)`.
+
+
+```{r}
+write_rds(org_data, file = "data/processed/org_data_filtered.rds")
+write_rds(active_orgs, file = "data/processed/active_orgs.rds")
+```
