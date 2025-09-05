@@ -6,7 +6,7 @@ First reading in our data
 ```{r}
 library(tidyverse)
 library(sf)
-org_data <- read_rds("data/org_data.rds")
+org_data <- read_rds("data/processed/org_data.rds")
 
 ```
 

@@ -72,6 +72,6 @@ neighborhood_shape <-as_tibble(neighborhood_shape)
 neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number())
 org_data <-left_join(in_balt, neighborhood_shape, by = c("intersection" = "id"))
 
-write_rds(org_data, file = "data/org_data.rds")
+write_rds(org_data, file = "data/processed/org_data.rds")
 
 ```
