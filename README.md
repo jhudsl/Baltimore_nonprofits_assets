@@ -8,17 +8,17 @@ There are a few Rmd files/scripts.
 
 This includes the following data downloaded September 4th 2025:
 
-- New_version_data/eo_md_5_25.csv
+- data/eo_md_5_25.csv
   - Original link:  https://www.irs.gov/downloads/irs-soi --> then search for eo_md.csv
   - Direct link: https://www.irs.gov/pub/irs-soi/eo_md.csv
   - The data was posted on the IRS website August 11, 2025 and downloaded by us on September 4th, 2025
 
-- New_version_data/epostcard/data-download-epostcard.txt
+- data//data-download-epostcard.txt
   - Original link: https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads --> scrolled down to Form 990-N (e-Postcard) section
   - Direct link: https://apps.irs.gov/pub/epostcard/data-download-epostcard.zip 
   - The data was posted on the IRS website: March 10, 2025 and downloaded by us on September 4th, 2025
  
-- revocations in New_version_data/data-download-revocation.txt
+- revocations in data/data-download-revocation.txt
   - Original link: https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads --> click on automatic revocation or exemption list link
   - Direct link (this dataset will change overtime): https://apps.irs.gov/pub/epostcard/data-download-revocation.zip
   - The data was posted on the IRS website: March 10, 2025 and downloaded by us on downloaded September 4th, 2025
@@ -38,7 +38,7 @@ This file has code that filters the geocoded IRS data for only those found in Ba
 
 This file imports the nonprofit asset information and the neighborhood information (downloaded September 4th, 2025).
 
-Asset information comes from the BMF data: New_version_data/MD_BMF_V1.1.csv
+Asset information comes from the BMF data: data/MD_BMF_V1.1.csv
 
 Original Link: https://nccs.urban.org/nccs/datasets/bmf/ --> clicked on BMF by state --> searched for MD
 Direct Link:  https://nccsdata.s3.amazonaws.com/harmonized/bmf/unified/MD_BMF_V1.1.csv  
