@@ -28,7 +28,7 @@ irs_new<- read_csv("data/eo_md.csv") #older
 
 Gives us information about who was an active org and helps save some from removal for revocation otherwise not listed.
 link: https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads
-direct link to data:  (last data posting Oct 28, 2024) https://apps.irs.gov/pub/epostcard/data-download-epostcard.zip
+direct link to data:  (last data posting March 10, 2025) https://apps.irs.gov/pub/epostcard/data-download-epostcard.zip
 dictionary: https://www.irs.gov/pub/irs-tege/990n-data-dictionary.pdf
 
 EIN, Tax Year , Organization Name, Gross receipts not greater than, Organization has terminated, Tax Period Begin Date , Tax Period End Date , Website URL , Principal Officer’s Name , Principal Officer’s Address Line 1, Principal Officer’s Address Line 2, Principal Officer’s Address City , Principal Officer’s Address Province, Principal Officer’s Address State , Principal Officer’s Address Zip Code , Principal Officer’s Address Country ,Organization Mailing Address Line 1 , Organization Mailing Address Line 2 , Organization Mailing Address City , Organization Mailing Address Province , Organization Mailing Address State , Organization Mailing Address Zip Code, Organization Mailing Address Country ,Organization Doing Business as Name 1, Organization Doing Business as Name 2 , Organization Doing Business as Name 3
