@@ -99,7 +99,7 @@ org_data <- org_data %>% filter(ORG_YEAR_LAST != 2024)
 After filtering out orgs that filed between May 15, 2023 and March 2024, we have `r nrow(org_data)` rows, removing `r nrow(year_2024)` orgs with that filed at that time.
 
 
-If we assume a sliding window and people would need to have filed in the last 3 years, than we can include orgs that filed in 2021, 2022, and 2023
+If we assume a sliding window and people would need to have filed in the last 3 years, than we can include orgs that filed in 2021, 2022, and 2023.
 
 ```{r}
 active_orgs <- org_data %>% filter(ORG_YEAR_LAST %in% c(2023, 2022, 2021))
@@ -109,3 +109,7 @@ active_orgs <- org_data %>% filter(ORG_YEAR_LAST %in% c(2023, 2022, 2021))
 After filtering out orgs that last filed in the last 3 years, we end up with `r nrow(active_orgs)`.
 
 
+```{r}
+write_rds(org_data, file = "data/processed/org_data_filtered.rds")
+write_rds(active_orgs, file = "data/processed/active_orgs.rds")
+```
