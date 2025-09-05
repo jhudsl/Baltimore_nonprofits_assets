@@ -38,7 +38,7 @@ This file has code that filters the geocoded IRS data for only those found in Ba
 
 This file imports the nonprofit asset information and the neighborhood information (downloaded September 4th, 2025).
 
-Asset information comes from the BMF data: data/MD_BMF_V1.1.csv
+Asset information comes from the BMF data: data/MD_BMF_V1.1.csv - this is limited in that churches are not required to file.
 
 Original Link: https://nccs.urban.org/nccs/datasets/bmf/ --> clicked on BMF by state --> searched for MD
 Direct Link:  https://nccsdata.s3.amazonaws.com/harmonized/bmf/unified/MD_BMF_V1.1.csv  
