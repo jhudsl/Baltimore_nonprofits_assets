@@ -1,0 +1,53 @@
+
+# Filtering Orgs
+
+First reading in our data
+
+```{r}
+library(tidyverse)
+library(sf)
+org_data <- read_rds("data/org_data.rds")
+
+```
+
+## Filter out foundation code 00 orgs
+
+Based on https://www.irs.gov/pub/irs-soi/eo-info.pdf 
+page 3 - we will exclude 00 for foundation code - all orgs except 501c3 to filter down to 501c3 - looks like they are coded as 0 instead of 00
+
+We start with `r nrow(org_data)` rows.
+```{r}
+org_data %>% filter(BMF_FOUNDATION_CODE == "0")  %>% dplyr::select(ORG_NAME_CURRENT) %>% head( n = 10) #show a couple of examples of what will be dropped
+org_data <- org_data %>% subset(is.na(BMF_FOUNDATION_CODE)| BMF_FOUNDATION_CODE != "0")# keeping NA values
+```
+
+We end with `r nrow(org_data)` rows.
+
+## Filter out social_clubs 
+
+We start with `r nrow(org_data)` rows.
+
+
+```{r}
+socialclubs <-org_data %>% filter(str_detect(string = NTEE_IRS, pattern = "Y|y"))
+socialclubs %>% dplyr::select(ORG_NAME_CURRENT)
+
+org_data <- org_data %>% filter(!str_detect(string = NTEE_IRS, pattern = "Y|y")| is.na(NTEE_IRS)) # keeping NA values
+```
+
+
+After filtering out social clubs we end up with `r nrow(org_data)` rows.
+
+## Filter out PO Boxes
+
+```{r}
+Post_offices <- org_data %>% filter(str_detect(F990_ORG_ADDR_STREET, "PO BOX |POST OFFICE"))
+
+Post_offices %>% dplyr::select(F990_ORG_ADDR_STREET)
+
+org_data <- org_data %>% filter(!str_detect(F990_ORG_ADDR_STREET, "PO BOX |POST OFFICE")| is.na(F990_ORG_ADDR_STREET)) # keeping NA values)
+```
+
+After filtering out PO Boxes we end up with `r nrow(org_data)` rows.
+
+
