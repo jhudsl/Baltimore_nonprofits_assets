@@ -41,8 +41,8 @@ any(is.na(BMF_geo$LONGITUDE))
 ```{r}
 CRS <- st_crs(neighborhood_shape$geometry)
 pnts_sf <- st_as_sf(BMF, coords = c('LONGITUDE', 'LATITUDE'), crs = st_crs(4326)) %>% st_set_crs(4326)
-neighborhood_Sf <-neighborhood_shape$geometry
-neighborhood_Sf <- neighborhood_Sf %>% st_set_crs(4326)
+#neighborhood_Sf <-neighborhood_shape$geometry
+#neighborhood_Sf <- neighborhood_Sf %>% st_set_crs(4326)
 pnts_trans <- st_transform(pnts_sf, 2163)
 neighborhood_tt <- st_transform(neighborhood_shape$geometry, 2163)
 intersection <- pnts_sf %>% mutate(
@@ -71,5 +71,7 @@ Combining it all together:
 neighborhood_shape <-as_tibble(neighborhood_shape)
 neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number())
 org_data <-left_join(in_balt, neighborhood_shape, by = c("intersection" = "id"))
+
+write_rds(org_data, file = "data/org_data.rds")
 
 ```
