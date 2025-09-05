@@ -13,15 +13,19 @@ org_data <- read_rds("data/org_data.rds")
 ## Filter out foundation code 00 orgs
 
 Based on https://www.irs.gov/pub/irs-soi/eo-info.pdf 
-page 3 - we will exclude 00 for foundation code - all orgs except 501c3 to filter down to 501c3 - looks like they are coded as 0 instead of 00
+page 3 - we will exclude 00 for foundation code - all orgs except 501c3 to filter down to 501c3 - looks like they are coded as 0 instead of 00.
 
 We start with `r nrow(org_data)` rows.
 ```{r}
-org_data %>% filter(BMF_FOUNDATION_CODE == "0")  %>% dplyr::select(ORG_NAME_CURRENT) %>% head( n = 10) #show a couple of examples of what will be dropped
+found_00_orgs <- org_data %>% filter(BMF_FOUNDATION_CODE == "0")  %>% dplyr::select(ORG_NAME_CURRENT) 
+
+found_00_orgs %>% head( n = 10) #show a couple of examples of what will be dropped
+
 org_data <- org_data %>% subset(is.na(BMF_FOUNDATION_CODE)| BMF_FOUNDATION_CODE != "0")# keeping NA values
 ```
 
-We end with `r nrow(org_data)` rows.
+After filtering out these orgs, we end with `r nrow(org_data)` rows, removing `r nrow(found_00_orgs)` orgs with foundation code 00.
+
 
 ## Filter out social_clubs 
 
@@ -36,7 +40,7 @@ org_data <- org_data %>% filter(!str_detect(string = NTEE_IRS, pattern = "Y|y")|
 ```
 
 
-After filtering out social clubs we end up with `r nrow(org_data)` rows.
+After filtering out social clubs we end up with `r nrow(org_data)` rows, removing `r nrow(socialclubs)` social club orgs.
 
 ## Filter out PO Boxes
 
@@ -48,6 +52,25 @@ Post_offices %>% dplyr::select(F990_ORG_ADDR_STREET)
 org_data <- org_data %>% filter(!str_detect(F990_ORG_ADDR_STREET, "PO BOX |POST OFFICE")| is.na(F990_ORG_ADDR_STREET)) # keeping NA values)
 ```
 
-After filtering out PO Boxes we end up with `r nrow(org_data)` rows.
+After filtering out PO Boxes we end up with `r nrow(org_data)` rows, removing `r nrow(Post_offices)`  orgs with a post office box address.
 
+## Filter out foundation code 04 and 17
+
+
+- 04 = Private non-operating foundation
+- 17 = Organizations operated solely for the benefit of and in conjunction with organizations with code 10 through 16 
+
+We want to remove these and set them aside. 
+
+Let's keep on their own as an aside but remove from main data.
+
+```{r}
+no_oper_orgs<-org_data %>% filter(BMF_FOUNDATION_CODE %in% c("4","17"))  %>% dplyr::select(ORG_NAME_CURRENT)  #show examples of what will be dropped
+no_oper_orgs %>% head( n = 10)
+
+org_data <- org_data %>% subset(is.na(BMF_FOUNDATION_CODE)| ! BMF_FOUNDATION_CODE  %in% c("4","17"))# keeping NA values
+
+```
+
+After filtering out these orgs we end up with `r nrow(org_data)` rows, removing `r nrow(no_oper_orgs)` orgs with foundation code 04 or 17.
 
