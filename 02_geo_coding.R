@@ -1,7 +1,26 @@
 library(tidyverse)
 library(tidygeocoder)
 
-IRS <- readRDS(file = "New_version_data/IRS_data_before_lat_long.rds")
+IRS <- readRDS(file = "data/IRS_data_before_lat_long.rds")
+IRS <- head(IRS, n = 7)
+# Function to geocode a subset of data
+geocode_subset <- function(data_subset) {
+  data_subset %>% geocode(address = address,
+        method = 'arcgis', lat = latitude , long = longitude)
+}
+
+# Split the data into chunks
+num_cores <- detectCores() - 1
+data_chunks <- split(IRS, rep(1:num_cores, length.out = nrow(IRS)))
+
+# Perform parallel geocoding
+results <- mclapply(data_chunks, geocode_subset, mc.cores = num_cores)
+
+# Combine results
+final_results <- bind_rows(results)
+
+# Save the results to a CSV file
+saveRDS(final_results, file = "data/geos_new.rds")
 
 ### example code ###########
 # some_addresses <- tibble::tribble(
@@ -16,8 +35,8 @@ IRS <- readRDS(file = "New_version_data/IRS_data_before_lat_long.rds")
 # lat_longs
 ################
 
-split_vect<- rep(1:10, length.out = nrow(IRS)) # vector to split by
-split_IRS <-IRS %>% split(split_vect)
+#split_vect<- rep(1:10, length.out = nrow(IRS)) # vector to split by
+#split_IRS <-IRS %>% split(split_vect)
 
 # geo_IRS_1<- geocode(split_IRS[[1]], address = address,
 #                           method = 'arcgis', lat = latitude , long = longitude)
@@ -42,43 +61,43 @@ split_IRS <-IRS %>% split(split_vect)
 
 
 
-IRSfirst3rd <- IRS[1:15000,]
-IRSsecond3rd <- IRS[15001:30000,]
-IRSthird3rd <- IRS[30001:(length(IRS$ein)),]
-
-geosfirst3rd <-IRSfirst3rd  %>% geocode(address = address,
-              method = 'arcgis', lat = latitude , long = longitude)
-
-saveRDS(geosfirst3rd, file = "New_version_data/first_geos.rds")
-
-IRSsecond3rd_A <-IRSsecond3rd[1:8000,]
-
-IRSsecond3rd_B <-IRSsecond3rd[8001:length(IRSfirst3rd$ein),]
-beep(1, geossecond3rd_A<-IRSsecond3rd_A  %>% geocode(address = address,
-                 method = 'arcgis', lat = latitude , long = longitude))
-
-beep(1, geossecond3rd_B<-IRSsecond3rd_B  %>% geocode(address = address,
-                                             method = 'arcgis', lat = latitude , long = longitude))
-
-saveRDS(geossecond3rd_A, file = "New_version_data/second_geosA.rds")
-saveRDS(geossecond3rd_B, file = "New_version_data/second_geosB.rds")
-
-beep(1, geoslast3rd<-IRSthird3rd  %>% geocode(address = address,
-                                         method = 'arcgis', lat = latitude , long = longitude))
-
-saveRDS(geoslast3rd, file = "New_version_data/third_geos.rds")
-
-geos <- rbind(first_geos, geossecond3rd_A, geossecond3rd_B, geoslast3rd)
-
-saveRDS(geos, file = "New_version_data/geos.rds")
-
-
-#library(naniar)
-#geos %>%pull(latitude) %>% pct_complete() #~100 %
-
-
-
-
+# IRSfirst3rd <- IRS[1:15000,]
+# IRSsecond3rd <- IRS[15001:30000,]
+# IRSthird3rd <- IRS[30001:(length(IRS$ein)),]
+#
+# geosfirst3rd <-IRSfirst3rd  %>% geocode(address = address,
+#               method = 'arcgis', lat = latitude , long = longitude)
+#
+# saveRDS(geosfirst3rd, file = "data/first_geos.rds")
+#
+# IRSsecond3rd_A <-IRSsecond3rd[1:8000,]
+#
+# IRSsecond3rd_B <-IRSsecond3rd[8001:length(IRSfirst3rd$ein),]
+# beep(1, geossecond3rd_A<-IRSsecond3rd_A  %>% geocode(address = address,
+#                  method = 'arcgis', lat = latitude , long = longitude))
+#
+# beep(1, geossecond3rd_B<-IRSsecond3rd_B  %>% geocode(address = address,
+#                                              method = 'arcgis', lat = latitude , long = longitude))
+#
+# saveRDS(geossecond3rd_A, file = "data/second_geosA.rds")
+# saveRDS(geossecond3rd_B, file = "data/second_geosB.rds")
+#
+# beep(1, geoslast3rd<-IRSthird3rd  %>% geocode(address = address,
+#                                          method = 'arcgis', lat = latitude , long = longitude))
+#
+# saveRDS(geoslast3rd, file = "data/third_geos.rds")
+#
+# geos <- rbind(first_geos, geossecond3rd_A, geossecond3rd_B, geoslast3rd)
+#
+# saveRDS(geos, file = "data/geos.rds")
+#
+#
+# #library(naniar)
+# #geos %>%pull(latitude) %>% pct_complete() #~100 %
+#
+#
+#
+#
 
 #' To cite tidygeocoder use:
 #'
@@ -102,3 +121,7 @@ saveRDS(geos, file = "New_version_data/geos.rds")
 #'   pages = {3544},
 #'   note = {R package version 1.0.5},
 #' }
+#'
+#'
+
+
