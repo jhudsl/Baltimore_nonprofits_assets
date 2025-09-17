@@ -88,7 +88,7 @@ According to the [dictionary](https://nccsdata.s3.amazonaws.com/harmonized/harmo
 
 
 
-If we assume a sliding window and people would need to have filed in the last 3 completeyears, than we can include orgs that filed in 2021, 2022, and 2023 (as well as the incomplete 2024).
+If we assume a sliding window and people would need to have filed in the last 3 complete years, than we can include orgs that filed in 2021, 2022, and 2023 (as well as the incomplete 2024).
 
 ```{r}
 active_orgs <- org_data %>% filter(ORG_YEAR_LAST %in% c(2024, 2023, 2022, 2021))
