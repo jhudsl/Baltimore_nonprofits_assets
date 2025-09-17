@@ -1,7 +1,7 @@
 
 # Filtering Orgs
 
-First reading in our data
+First reading in our data:
 
 ```{r}
 library(tidyverse)
@@ -79,37 +79,29 @@ After filtering out these orgs we end up with `r nrow(org_data)` rows, removing 
 
 Filing is due May 15 each year, since the data is from March 2024, that means it only shows 2023 complete data.
 
-Orgs only need to file every 3 years as well, but this would be a sliding window for orgs at different times as far as I understand it, but we could require that the last filing time be within the last 3 years.
-
-Also might want to remove orgs that didn't file in the last 3 years.
-
-For now I will filter for orgs that filed after May 15, 2023.
+Orgs only need to file every 3 years as well, but this would be a sliding window for orgs at different times as, but we could require that the last filing time be within the last 3 complete years.
 
 According to the [dictionary](https://nccsdata.s3.amazonaws.com/harmonized/harmonized_data_dictionary.xlsx):
 
 - ORG_FISCAL_YEAR	= Fiscal Year of the BMF from which this record was pulled
 - ORG_YEAR_LAST =	Most recent year EIN was recorded in BMF
 
-```{r}
-year_2024 <- org_data %>% filter(ORG_YEAR_LAST == 2024)
-
-org_data <- org_data %>% filter(ORG_YEAR_LAST != 2024)
-```
-
-After filtering out orgs that filed between May 15, 2023 and March 2024, we have `r nrow(org_data)` rows, removing `r nrow(year_2024)` orgs with that filed at that time.
 
 
-If we assume a sliding window and people would need to have filed in the last 3 years, than we can include orgs that filed in 2021, 2022, and 2023.
+If we assume a sliding window and people would need to have filed in the last 3 completeyears, than we can include orgs that filed in 2021, 2022, and 2023 (as well as the incomplete 2024).
 
 ```{r}
-active_orgs <- org_data %>% filter(ORG_YEAR_LAST %in% c(2023, 2022, 2021))
-
+active_orgs <- org_data %>% filter(ORG_YEAR_LAST %in% c(2024, 2023, 2022, 2021))
+non_active_orgs <- org_data %>% filter(! ORG_YEAR_LAST %in% c(2024, 2023, 2022, 2021))
 ```
 
-After filtering out orgs that last filed in the last 3 years, we end up with `r nrow(active_orgs)`.
+After filtering out orgs that filed between May 15, 2023 and March 2024, we have `r nrow(org_data)` rows, removing `r nrow(non_active_orgs)` orgs with that filed at that time.
+
+After filtering out orgs that last filed in the last 3 complete years, we end up with `r nrow(active_orgs)`.
 
 
 ```{r}
 write_rds(org_data, file = "data/processed/org_data_filtered.rds")
 write_rds(active_orgs, file = "data/processed/active_orgs.rds")
+write_csv(non_active_orgs, file = "data/processed/non_active_orgs.csv")
 ```
