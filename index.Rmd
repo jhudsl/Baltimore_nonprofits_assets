@@ -22,11 +22,13 @@ library(here)
 library(tidyverse)
 library(stringr)
 library(naniar)
+library(sf)
 ```
 
 # Data Import
 ```{r}
-df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet = 3)
+df_simplified <- read_rds(here::here("data/processed/active_orgs.rds"))
+#df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet = 3)
 ```
 
 Information about the data: 
@@ -48,7 +50,8 @@ Adding to this NA values can be considered less than 50000, as organizations are
 First let's check how many zero values there are for asset amounts.
 
 ```{r}
-df_simplified %>% filter(ASSET_AMT==0)%>% nrow()
+#df_simplified <-sf::st_as_sf(df_simplified)
+df_simplified %>% filter(F990_TOTAL_ASSETS_RECENT==0)%>% nrow()
 ```
 
 Now we will check if there are `NA` values for asset amounts.
@@ -65,14 +68,13 @@ It is impossible to know however, if a zero is actually a true zero. NA values c
 Thus, we will recode asset amount based on a threshold of greater than or equal to 500,000 as high asset and less than 500,000 (including zero) as not high asset.
 Note we keep our NA values with this recoding.
 
-```{r}
+Note: F990_TOTAL_ASSETS_RECENT was ASSET_AMT with the old files
 
+```{r}
 df_simplified<-df_simplified %>%
-  # modify Asset amount variable to be numeric
-  mutate(ASSET_AMT = as.numeric(ASSET_AMT)) %>%
   #create a variable about high asset amount (threshold being $500,000)
-  mutate(ASSET_High = case_when(ASSET_AMT  >= 500000 ~ TRUE,
-                                ASSET_AMT  < 500000 ~ FALSE))
+  mutate(ASSET_High = case_when(F990_TOTAL_ASSETS_RECENT   >= 500000 ~ TRUE,
+                                F990_TOTAL_ASSETS_RECENT   < 500000 ~ FALSE))
 ```
 
 Here we can see the NA values:
@@ -85,7 +87,7 @@ Now we will replace `NA` values with `False` as well:
 
 ```{r}
  df_simplified <- df_simplified %>%  
-  mutate(ASSET_High = replace_na(ASSET_High, FALSE)) #NA values will be coded as not high asset (if no cases match the other two ASSET_AMT statements then code as FALSE) based on the above logic
+  mutate(ASSET_High = replace_na(ASSET_High, FALSE)) #NA values will be coded as not high asset (if no cases match the other two F990_TOTAL_ASSETS_RECENT statements then code as FALSE) based on the above logic
 ```
 
 Check that this worked and that there are no NA values now:
@@ -101,7 +103,7 @@ Now we will convert these to text as another variable and also create a log vers
   mutate(ASSET_High_text = case_when(ASSET_High  == TRUE ~ "High Asset",
                                      ASSET_High  == FALSE ~ "Low Asset")) %>%
   # we will also create new log of asset amount variable
-  mutate(ASSET_AMT_log = log(ASSET_AMT))
+  mutate(ASSET_AMT_log = log(F990_TOTAL_ASSETS_RECENT))
 ```
 
 ## Neighborhood category
@@ -109,11 +111,13 @@ Now we will convert these to text as another variable and also create a log vers
 Next we will modify the data to include a variable about the percentage of African American/Black people.
 ```{r}
 # create new Percent_AA variable by converting
-#`Normalized African American Population` variable 
-#into a percentage and rounding
+# Blk_Afam (was `Normalized African American Population`) variable 
+# into a percentage and rounding
+#dictionary shows: Blk_AfAm = Black or African American alone population (P3)
+# Population = Total population (P3) https://data.baltimorecity.gov/datasets/baltimore::neighborhood-statistical-area-nsa-boundaries/about
  df_simplified<-df_simplified %>%
   mutate(Percent_AA = 
-           round(`Normalized African American Population`*100, digits = 2))  %>%
+           round(Blk_AfAm/Population*100, digits = 2))  %>%
 
   # create new Majority_AA variable that indicates if Percent_AA is greater than 50% or not
   mutate(Majority_AA = case_when(
@@ -135,10 +139,10 @@ Similarly, NA values could be anything between 0 and less than 50,000. Thus we a
 ```{r}
  # make a new dataframe without zeros and NA asset amounts
 df_simplified_no_zero<-df_simplified %>%
-    drop_na(ASSET_AMT) %>% #redundant but shows we are dropping NA values
-    filter(ASSET_AMT>0) %>% # ASSET_AMT must be greater than zero
+    drop_na(F990_TOTAL_ASSETS_RECENT) %>% #redundant but shows we are dropping NA values
+    filter(F990_TOTAL_ASSETS_RECENT>0) %>% # F990_TOTAL_ASSETS_RECENT must be greater than zero
   # get quartiles
-    mutate(ASSET_quartile = ntile(ASSET_AMT, 4)) %>%
+    mutate(ASSET_quartile = ntile(F990_TOTAL_ASSETS_RECENT, 4)) %>%
   # create new quartile variable that specifies quartiles by text
     mutate(ASSET_quartile_text = case_when(ASSET_quartile == 1 ~ "1st_Quartile",
                                            ASSET_quartile == 2 ~ "2nd_Quartile",
@@ -148,7 +152,7 @@ df_simplified_no_zero<-df_simplified %>%
 #Now check:
 table(df_simplified_no_zero$ASSET_quartile, useNA = "always")
 
-df_simplified_no_zero%>% group_by(ASSET_quartile_text) %>% summarise(range = range(ASSET_AMT))
+df_simplified_no_zero%>% group_by(ASSET_quartile_text) %>% reframe(range = range(F990_TOTAL_ASSETS_RECENT))
 
 ```
 
@@ -157,9 +161,9 @@ Without removal (except NAs)- since these asset amounts might influence quartile
 ```{r}
 
 df_simplified_no_removal<-df_simplified %>%
-    drop_na(ASSET_AMT) %>% #dropping NA values
+    drop_na(F990_TOTAL_ASSETS_RECENT) %>% #dropping NA values
   # get quartiles
-    mutate(ASSET_quartile = ntile(ASSET_AMT, 4)) %>%
+    mutate(ASSET_quartile = ntile(F990_TOTAL_ASSETS_RECENT, 4)) %>%
   # create new quartile variable that specifies quartiles by text
     mutate(ASSET_quartile_text = case_when(ASSET_quartile == 1 ~ "1st_Quartile",
                                            ASSET_quartile == 2 ~ "2nd_Quartile",
@@ -169,7 +173,7 @@ df_simplified_no_removal<-df_simplified %>%
 #Now check:
 table(df_simplified_no_removal$ASSET_quartile, useNA = "always")
 
-df_simplified_no_removal %>% group_by(ASSET_quartile_text) %>% summarise(range = range(ASSET_AMT))
+df_simplified_no_removal %>% group_by(ASSET_quartile_text) %>% reframe(range = range(F990_TOTAL_ASSETS_RECENT))
 ```
 
 Turns out this doesn't really work because the 1st and 2nd quartiles can't be distinguished as we don't know if the values of 0 are actually some number below 50,000 and both quartlies have a max of less than 50,000. So we will stick with our removal.
@@ -178,17 +182,21 @@ Turns out this doesn't really work because the 1st and 2nd quartiles can't be di
 
 To provide more information to readers about what the nonprofits do, we will convert the National Taxonomy of Exempt Entities (NTEE) codes based on [this](https://urbaninstitute.github.io/nccs-legacy/ntee/ntee.html) and [this (see page 15)](https://www.irs.gov/pub/irs-tege/p4838.pdf).
 
+The NTEE_IRS variable appears to be the most complete
+
+NTEE_IRS was NTEE_CD in the older raw files
+
 ```{r}
 df_simplified <-df_simplified %>%
   mutate(NTEE_text = case_when(
-    str_starts(NTEE_CD, pattern = "A")~ "Arts", # if NTEE_CD starts with A make new variable value "Arts" etc.
-    str_starts(NTEE_CD, pattern = "B") ~ "Education",
-    str_starts(NTEE_CD, pattern = "C|D") ~ "Environment/Animals", # if NTEE_CD value starts with C or D make new variable value "Environment/Animals"
-    str_starts(NTEE_CD, pattern = "E|F|G|H") ~ "Health",
-    str_starts(NTEE_CD, pattern = "I|J|K|L|M|N|O|P") ~ "Human Services",
-    str_starts(NTEE_CD, pattern = "Q") ~ "International Affairs",
-    str_starts(NTEE_CD, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
-    str_starts(NTEE_CD, pattern = "X") ~ "Religious",
+    str_starts(NTEE_IRS, pattern = "A")~ "Arts", # if NTEE_IRS starts with A make new variable value "Arts" etc.
+    str_starts(NTEE_IRS, pattern = "B") ~ "Education",
+    str_starts(NTEE_IRS, pattern = "C|D") ~ "Environment/Animals", # if NTEE_IRS value starts with C or D make new variable value "Environment/Animals"
+    str_starts(NTEE_IRS, pattern = "E|F|G|H") ~ "Health",
+    str_starts(NTEE_IRS, pattern = "I|J|K|L|M|N|O|P") ~ "Human Services",
+    str_starts(NTEE_IRS, pattern = "Q") ~ "International Affairs",
+    str_starts(NTEE_IRS, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
+    str_starts(NTEE_IRS, pattern = "X") ~ "Religious",
     TRUE ~ "NA")) # this line is redundant as this would happen automatically - but everything else will be NA
 ```
 
@@ -197,17 +205,23 @@ Also for the quantile data:
 ```{r}
 df_simplified_no_zero <-df_simplified_no_zero %>%
   mutate(NTEE_text = case_when(
-    str_starts(NTEE_CD, pattern = "A")~ "Arts", # if NTEE_CD starts with A make new variable value "Arts" etc.
-    str_starts(NTEE_CD, pattern = "B") ~ "Education",
-    str_starts(NTEE_CD, pattern = "C|D") ~ "Environment/Animals", # if NTEE_CD value starts with C or D make new variable value "Environment/Animals"
-    str_starts(NTEE_CD, pattern = "E|F|G|H") ~ "Health",
-    str_starts(NTEE_CD, pattern = "I|J|K|L|M|N|O|P") ~ "Human Services",
-    str_starts(NTEE_CD, pattern = "Q") ~ "International Affairs",
-    str_starts(NTEE_CD, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
-    str_starts(NTEE_CD, pattern = "X") ~ "Religous",
+    str_starts(NTEE_IRS, pattern = "A")~ "Arts", # if NTEE_IRS starts with A make new variable value "Arts" etc.
+    str_starts(NTEE_IRS, pattern = "B") ~ "Education",
+    str_starts(NTEE_IRS, pattern = "C|D") ~ "Environment/Animals", # if NTEE_IRS value starts with C or D make new variable value "Environment/Animals"
+    str_starts(NTEE_IRS, pattern = "E|F|G|H") ~ "Health",
+    str_starts(NTEE_IRS, pattern = "I|J|K|L|M|N|O|P") ~ "Human Services",
+    str_starts(NTEE_IRS, pattern = "Q") ~ "International Affairs",
+    str_starts(NTEE_IRS, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
+    str_starts(NTEE_IRS, pattern = "X") ~ "Religous",
     TRUE ~ "NA")) # this line is redundant as this would happen automatically - but everything else will be NA
 ```
 
+## Save data for maps
+
+```{r}
+write_rds(df_simplified, file = "data/processed/formaps.rds")
+write_rds(df_simplified_no_zero, file = "data/processed/formaps_nozero.rds")
+```
 
 # Visualizations and Analysis
 
@@ -216,7 +230,7 @@ df_simplified_no_zero <-df_simplified_no_zero %>%
 First without log normalization figure:
 ```{r}
 df_simplified_no_zero %>% 
-ggplot(aes(y = ASSET_AMT, x = Percent_AA)) +
+ggplot(aes(y = F990_TOTAL_ASSETS_RECENT, x = Percent_AA)) +
   geom_point() + geom_smooth(method = "loess")
 
 ```
@@ -250,7 +264,7 @@ ggplot(aes(y = ASSET_AMT_log, x = Percent_AA)) +
 
 
 
-Look at log asset data for each NTEE type- **remember the caveat that there are many organizations that are not included because of NA or zero value ASSET_AMT**. However, still we can see that there is a trend towards lower amount of assets for most categories even with this limited data.
+Look at log asset data for each NTEE type- **remember the caveat that there are many organizations that are not included because of NA or zero value F990_TOTAL_ASSETS_RECENT**. However, still we can see that there is a trend towards lower amount of assets for most categories even with this limited data.
 
 ```{r}
 df_simplified_no_zero %>%
@@ -260,10 +274,10 @@ df_simplified_no_zero %>%
   geom_smooth(method = "lm", se=TRUE, aes(group=1))
 ```
 
-Compare all organizations by neighborhood AA status for log asset data. *remember the caveat that there are many organizations that are not included because of NA or zero value ASSET_AMT*
+Compare all organizations by neighborhood AA status for log asset data. *remember the caveat that there are many organizations that are not included because of NA or zero value F990_TOTAL_ASSETS_RECENT*
 
 ```{r}
-df_simplified_no_zero %>%
+df_simplified_no_zero %>% 
   ggplot(aes(y = ASSET_AMT_log, x = Neighborhood)) +
   geom_boxplot()+ geom_jitter(width = .08) + geom_smooth(method = "lm", se=TRUE, aes(group=1))
 ```
@@ -272,7 +286,7 @@ df_simplified_no_zero %>%
 
 ```{r}
 
-summary(glm(data = df_simplified_no_zero, ASSET_AMT ~Percent_AA)) # for every increase in percent AA of the neighborhood there was a 266,249$ decrease in asset amount of the nonprofits in the neighborhood
+summary(glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA)) # for every increase in percent AA of the neighborhood there was a 266,249$ decrease in asset amount of the nonprofits in the neighborhood
 # there is a less than 5% risk of concluding that an association exists between asset amount a percent AA of neighborhood when there is no actual association.
 
 
@@ -283,12 +297,12 @@ summary(glm(data = df_simplified_no_zero, ASSET_AMT_log~Percent_AA)) # for every
 glm(data = df_simplified_no_zero, ASSET_AMT_log ~ Percent_AA) %>% plot(which = 1:3)
 
 #nonparametric test - because the residiuals looked skewed in the above qqplot
-cor.test(df_simplified_no_zero$ASSET_AMT, df_simplified_no_zero$Percent_AA, method = "spearman", exact = FALSE)
+cor.test(df_simplified_no_zero$F990_TOTAL_ASSETS_RECENT, df_simplified_no_zero$Percent_AA, method = "spearman", exact = FALSE)
 
 ```
 
 Look at quartiles with log asset data:
-*remember the caveat that there are many organizations that are not included because of NA or zero value ASSET_AMT*
+*remember the caveat that there are many organizations that are not included because of NA or zero value F990_TOTAL_ASSETS_RECENT*
 
 ```{r}
 df_simplified_no_zero %>%
@@ -300,7 +314,7 @@ df_simplified_no_zero %>%
 
 
 First create data to make visualization easier
-*caveat for the data:  that there are many organizations that are not included because of NA or zero value ASSET_AMT*
+*caveat for the data:  that there are many organizations that are not included because of NA or zero value F990_TOTAL_ASSETS_RECENT*
 
 ```{r}
 quartile_data <-df_simplified_no_zero %>% 
@@ -434,7 +448,7 @@ df_simplified %>% group_by(NTEE_text) %>%summarize(count = n()) %>%
  mutate(Percentage = round(count/sum(count)*100, digits = 2)) %>%
   arrange(NTEE_text)
 
-Total_NTEE <-df_simplified %>% group_by(NTEE_text) %>%summarize(count = n()) %>% 
+Total_NTEE <-df_simplified %>% group_by(NTEE_text) %>%summarize(total_count = n()) %>% 
   mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified")) %>%
   arrange(NTEE_text)
 ```
@@ -489,7 +503,7 @@ plot2
 
 ### High Asset Orgs
  
-Based on Asset Amount (ASSET_AMT)
+Based on Asset Amount (F990_TOTAL_ASSETS_RECENT)
 
 ```{r}
 High_counts <- df_simplified %>% 
@@ -500,52 +514,58 @@ High_counts <- df_simplified %>%
     mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
 
   
-full_join(Total_NTEE, High_counts, by = "NTEE_text") %>%
-   mutate("Percentage_of_each_code" = round(count.y/count.x *100, digits = 2)) %>%
-  arrange(NTEE_text) 
+st_join(Total_NTEE, High_counts) %>%
+   mutate("Percentage_of_each_code" = round(count/total_count *100, digits = 2)) %>%
+  arrange(NTEE_text.x) 
 ```
 
-Based on ASSET_CD (Where 5 means >=500,000)
+Based on BMF_ASSET_CODE (Where 5 means >=500,000)
 
 ```{r}
 High_counts <- df_simplified %>% 
     mutate(NTEE_text = as_factor(NTEE_text),
         NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "NA" )) %>%
-  mutate(ASSET_CD_High = case_when(ASSET_CD >= 5 ~ "High",
-                                   ASSET_CD < 5 ~ "Low")) %>%
+  mutate(ASSET_CD_High = case_when(BMF_ASSET_CODE >= 5 ~ "High",
+                                   BMF_ASSET_CODE < 5 ~ "Low")) %>%
   group_by(NTEE_text, ASSET_CD_High) %>%
   summarize(count = n()) %>% filter(ASSET_CD_High == "High") %>%
     mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
 
   
-full_join(Total_NTEE, High_counts, by = "NTEE_text") %>%
-   mutate("Percentage_of_each_code" = round(count.y/count.x *100, digits = 2)) %>%
-  arrange(NTEE_text) 
+st_join(Total_NTEE, High_counts) %>%
+   mutate("Percentage_of_each_code" = round(count/total_count *100, digits = 2)) %>%
+  arrange(NTEE_text.x) 
 ```
 
 ### Counts across neighborhood type and NTEE
 
-```{r}
+   BMF_ASSET_CODE was ASSET_CD in older raw files
+   
+   
+ todo: this is misaligned... need to fix
+```{r, include = FALSE}
 Count_by_neighborhood_type <- df_simplified %>% 
     mutate(NTEE_text = as_factor(NTEE_text),
         NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "NA" )) %>%
-  mutate(ASSET_CD_High = case_when(ASSET_CD >= 5 ~ "High",
-                                   ASSET_CD < 5 ~ "Low")) %>%
+  mutate(ASSET_CD_High = case_when(BMF_ASSET_CODE >= 5 ~ "High",
+                                   BMF_ASSET_CODE < 5 ~ "Low")) %>%
   group_by(NTEE_text, Majority_AA) %>%
   summarize(count = n())  %>%
     mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
 
-full_join(Total_NTEE, Count_by_neighborhood_type, by = "NTEE_text") %>%
-   mutate("Percentage_of_each_code" = round(count.y/count.x *100, digits = 2)) %>%
-  arrange(NTEE_text) %>%
-  pivot_wider(names_from = Majority_AA, values_from = count.y:Percentage_of_each_code) %>% 
-  select(NTEE_text, count.x, count.y_Yes, Percentage_of_each_code_Yes,  count.y_No, Percentage_of_each_code_No) %>% 
-pivot_longer(-NTEE_text) %>%
+st_join(Total_NTEE, Count_by_neighborhood_type) %>%
+   mutate("Percentage_of_each_code" = round(count/total_count *100, digits = 2)) %>%
+  arrange(NTEE_text.x) %>%
+  pivot_wider(names_from = Majority_AA, values_from = count:Percentage_of_each_code) %>% 
+  select(NTEE_text.x, total_count, count_Yes, Percentage_of_each_code_Yes,  count_No, Percentage_of_each_code_No) %>% 
+  
+  
+pivot_longer(-NTEE_text.x) %>%
   mutate(name = case_when(
-            name == "count.x" ~ "Total",
-            name == "count.y_Yes" ~"Count_Majority_Black",
+            name == "total_count" ~ "Total",
+            name == "count_Yes" ~"Count_Majority_Black",
             name == "Percentage_of_each_code_Yes" ~ "Perc_Maj_Black",
-            name == "count.y_No" ~ "Count_Non_Black",
+            name == "count_No" ~ "Count_Non_Black",
             name == "Percentage_of_each_code_No" ~ "Perc_Non_Black")) %>%
   pivot_wider(names_from = name, values_from = value) %>%
   mutate(ratio = Count_Majority_Black/Count_Non_Black)
@@ -557,15 +577,17 @@ pivot_longer(-NTEE_text) %>%
 
 Now to take a look at if 50% African American makes sense. What do the neighborhoods look like?
 
+Name was neighborhood name in the old data
+
 ```{r}
 
 # get the neighborhood values if no removing rows for nonprofits with NA or zero assets
 neighborhood_AAperc <- df_simplified %>% 
- distinct(`neighborhood name`, Percent_AA)
+ distinct(Name, Percent_AA)
 
 # get the neighborhood values after removing rows for nonprofits with NA or zero assets
 neighborhood_AAperc_nozero <- df_simplified_no_zero %>% 
- distinct(`neighborhood name`, Percent_AA)
+ distinct(Name, Percent_AA)
 ```
 
 

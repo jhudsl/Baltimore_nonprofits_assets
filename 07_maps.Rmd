@@ -1,0 +1,221 @@
+---
+title: "maps"
+author: "Carrie"
+date: "2025-11-21"
+output: html_document
+---
+# Maps
+
+```{r}
+
+library(RColorBrewer) 
+library(leaflet)
+library(terra)
+# for metadata/attributes- vectors or rasters
+library(raster)
+library(sf)
+library(rnaturalearthdata)
+library(rnaturalearth)
+library(tidyverse)
+
+df_simplified <- read_rds(here::here("data/processed/formaps.rds"))
+neighborhoods <- read_rds(here::here("data/processed/neighborhood_shape_data.rds"))
+
+```
+
+
+```{r}
+# Plotting simple features (sf) with plot 
+plot(df_simplified$geometry.x)
+plot(df_simplified$geometry.y)
+library(sp)
+library(leaflet)
+```
+
+
+
+ggplot2
+```{r}
+multi_polygon_sf <- st_as_sf(df_simplified)
+outline_plot <-ggplot() +
+    geom_sf(data = multi_polygon_sf$geometry.y, fill = "lightblue", color = "blue") +
+    theme_minimal() +
+   labs(title = "Nonprofits and Neighborhood Demographics")
+outline_plot
+
+```
+
+
+```{r}
+
+# make data at neighborhood level to plot maps 
+neighborhoods_sf <- st_as_sf(neighborhoods)
+neighborhoods_sf <- neighborhoods_sf %>% mutate(Percent_AA
+  = round(Blk_AfAm/Population*100, digits = 2))  %>%
+
+  # create new Majority_AA variable that indicates if Percent_AA is greater than 50% or not %>%
+  mutate(Majority_AA = case_when(
+    Percent_AA > 50 ~ "Yes", 
+    Percent_AA <  50 ~ "No")) %>%
+  # create a new variable about this in text
+   mutate(Neighborhood_type = case_when(
+    Percent_AA > 50 ~ "Majority\nBlack", 
+    Percent_AA <  50 ~ "Majority\nNon-Black")) %>% 
+  # make this a factor and order by level appearance in the data
+  mutate(Neighborhood_type = as_factor(Neighborhood_type),
+         Neighborhood_type = forcats::fct_inorder(Neighborhood_type))
+
+
+ neighborhood_dem <- ggplot() +geom_sf(data = neighborhoods_sf, aes(fill = Neighborhood_type))+
+    theme_minimal() +
+   labs(title = "Neighborhood Demographics")
+ neighborhood_dem
+
+```
+
+
+
+
+```{r}
+asset_plot <- neighborhood_dem + 
+    geom_sf(data = multi_polygon_sf, aes(color = ASSET_High_text, alpha = 0.8))+ scale_color_viridis_d() + facet_grid(~ASSET_High_text)+
+    theme_void() 
+
+asset_plot
+
+```
+
+
+```{r}
+multi_polygon_sf <- st_as_sf(df_simplified)
+AA_plot <-ggplot() +
+    geom_sf(data = multi_polygon_sf, aes(color = Majority_AA)) +
+    theme_minimal() +
+   labs(title = "Neighborhood by Demographics")
+AA_plot
+
+#+ facet_grid(~multi_polygon_sf$Majority_AA)+
+
+```
+
+
+```{r}
+outline_plot + 
+    geom_sf(data = multi_polygon_sf, aes(color = Majority_AA)) +
+    theme_void() 
+
+
+```
+
+
+```{r}
+outline_plot + 
+    geom_sf(data = multi_polygon_sf, aes(color = Majority_AA))+
+    facet_grid(~ASSET_High_text)+
+    theme_void() 
+
+
+```
+
+
+
+
+```{r}
+
+points_plot <-outline_plot + 
+    geom_sf(data = multi_polygon_sf$geometry.x, fill = "lightblue", color = "blue", alpha = 0.5) +
+    theme_minimal() +
+   labs(title = "plot example")
+points_plot
+
+```
+
+
+
+
+
+
+```{r}
+coords <- st_coordinates(df_simplified$geometry.x)
+coords_df <- as.data.frame(coords)
+colnames(coords_df) <- c("longitude", "latitude")
+df_simplified <-bind_cols(coords_df, df_simplified)
+#leaflet(coords_df) %>% addMarkers() %>% addTiles()
+```
+
+```{r}
+df_simplified %>% filter(Majority_AA == "Yes") %>%
+ggplot( aes(x = longitude, y = latitude, color = ASSET_High)) + geom_point()+
+    theme_minimal() 
+```
+
+```{r}
+df_simplified %>% 
+ggplot( aes(x = longitude, y = latitude)) +facet_grid(ASSET_High ~ Majority_AA) + geom_point()+
+    theme_minimal()
+```
+
+
+#############old stuff:
+```{r, include = FALSE} 
+#old
+# geo_clean <- df_simplified %>% dplyr::select(ein, lon, lat) %>% drop_na(lon) # one row - will need to remove form cbos
+# coordinates(geo_clean) <- ~lon+lat
+# leaflet(geo_clean) %>% addMarkers() %>% addTiles()
+
+```
+
+```{r, eval = FALSE}
+df_simplified <-bind_cols(coords_df, df_simplified)
+
+library(ggmap)
+library(osmdata) 
+library(devtools)
+
+mad_map <- get_map(getbb("Limete, Kinshasa"), maptype = "terrain", source = "osm")
+ggmap(mad_map)
+```
+
+```{r, eval = FALSE}
+
+
+
+for_plot <-df_simplified %>% dplyr::select(Name, ORG_NAME_CURRENT, longitude, latitude)
+# getting the map
+mapplotarea <- get_map(location = c(lon = mean(for_plot$longitude), lat = mean(for_plot$latitude)), zoom = 11,maptype = "satellite", scale = 2)
+# plotting the map with some points on it
+plot1 <- ggmap(mapplotarea) +
+  geom_point(data =for_plot, aes(x = lon, y = lat, fill = "red", alpha = 0.8), size = 2, shape = 21) +
+  guides(fill=FALSE, alpha=FALSE, size=FALSE)
+
+
+```
+
+```{r, eval = FALSE}
+neighborhoods <-df_simplified$geometry.x
+library(rnaturalearthdata)
+library(rnaturalearth)
+world <- ne_countries(scale = "medium", returnclass = "sf")
+glimpse(world)
+outline_plot<-ggplot(data = world) +
+    geom_sf() +  geom_sf(data = neighborhoods)+
+    coord_sf(xlim = c(-76.74, -76.5), ylim = c(39.19, 39.4), 
+             expand = FALSE)
+
+
+outline <-plot(df_simplified$geometry.y)
+
+
+
+ multi_polygon_sf <- st_as_sf(df_simplified)
+
+
+
+outline +geom_point(data = df_simplified, aes(x = longitude, y = latitude, fill = BMF_ASSET_CODE), size = 2, 
+               shape = 23)
+
+test <-outline + geom_point(data = df_simplified, aes(x = longitude, y = latitude))
+```
+
+
+
