@@ -23,6 +23,17 @@ neighborhoods <- read_rds(here::here("data/processed/neighborhood_shape_data.rds
 
 ```
 
+Todo:
+- Remove orgs in industrial neighborhoods with no population
+- convert "NA" to actual `NA`.
+
+```{r}
+Nieghborhoods_no_pop <-neighborhoods %>% filter(Population == 0) %>% pull(Name)
+df_simplified %>% no
+df_simplified %>% filter(Neighborhood %in% Nieghborhoods_no_pop)
+```
+
+
 
 ```{r}
 # Plotting simple features (sf) with plot 
@@ -83,6 +94,16 @@ asset_plot <- neighborhood_dem +
 
 asset_plot
 
+```
+
+
+todo - drop na for ntee_text and only high asset
+```{r}
+multi_polygon_sf %>% filter(ASSET_High_text == "High Asset") %>% drop_na(NTEE_text)
+
+asset_plot <- neighborhood_dem + 
+    geom_sf(data = (multi_polygon_sf %>% filter(), aes(color = ASSET_High_text, alpha = 0.8))+ scale_color_viridis_d()+ facet_grid(~NTEE_text )+
+    theme_void() 
 ```
 
 
@@ -151,11 +172,12 @@ ggplot( aes(x = longitude, y = latitude, color = ASSET_High)) + geom_point()+
 
 ```{r}
 df_simplified %>% 
-ggplot( aes(x = longitude, y = latitude)) +facet_grid(ASSET_High ~ Majority_AA) + geom_point()+
+ggplot( aes(x = longitude, y = latitude)) +facet_grid(ASSET_High ~ Majority_AA) + geom_point()+ 
     theme_minimal()
 ```
 
-
+- keep high asset overall for online 
+- 
 #############old stuff:
 ```{r, include = FALSE} 
 #old

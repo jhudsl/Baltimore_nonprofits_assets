@@ -28,7 +28,6 @@ library(sf)
 # Data Import
 ```{r}
 df_simplified <- read_rds(here::here("data/processed/active_orgs.rds"))
-#df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet = 3)
 ```
 
 Information about the data: 
@@ -103,7 +102,7 @@ Now we will convert these to text as another variable and also create a log vers
   mutate(ASSET_High_text = case_when(ASSET_High  == TRUE ~ "High Asset",
                                      ASSET_High  == FALSE ~ "Low Asset")) %>%
   # we will also create new log of asset amount variable
-  mutate(ASSET_AMT_log = log(F990_TOTAL_ASSETS_RECENT))
+  mutate(ASSET_AMT_log = log(F990_TOTAL_ASSETS_RECENT)) # for assets of zero will be neg inf- so likely good to filter out if using this
 ```
 
 ## Neighborhood category
@@ -212,8 +211,7 @@ df_simplified_no_zero <-df_simplified_no_zero %>%
     str_starts(NTEE_IRS, pattern = "I|J|K|L|M|N|O|P") ~ "Human Services",
     str_starts(NTEE_IRS, pattern = "Q") ~ "International Affairs",
     str_starts(NTEE_IRS, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
-    str_starts(NTEE_IRS, pattern = "X") ~ "Religous",
-    TRUE ~ "NA")) # this line is redundant as this would happen automatically - but everything else will be NA
+    str_starts(NTEE_IRS, pattern = "X") ~ "Religous")) # everything else will be NA
 ```
 
 ## Save data for maps
@@ -267,7 +265,7 @@ ggplot(aes(y = ASSET_AMT_log, x = Percent_AA)) +
 Look at log asset data for each NTEE type- **remember the caveat that there are many organizations that are not included because of NA or zero value F990_TOTAL_ASSETS_RECENT**. However, still we can see that there is a trend towards lower amount of assets for most categories even with this limited data.
 
 ```{r}
-df_simplified_no_zero %>%
+df_simplified_no_zero %>% drop_na(NTEE_text) %>%
   ggplot(aes(y = ASSET_AMT_log, x = Neighborhood)) +
   geom_boxplot()+ geom_jitter(width = .08) + 
   facet_wrap(~ NTEE_text, scales = "free_y") + 
@@ -311,6 +309,12 @@ df_simplified_no_zero %>%
 
 ```
 
+First we will remove geo data to make it easier to see results:
+
+```{r}
+df_simplified_no_zero <-df_simplified_no_zero %>% st_drop_geometry()
+df_simplified <-df_simplified %>% st_drop_geometry()
+```
 
 
 First create data to make visualization easier
@@ -451,6 +455,7 @@ df_simplified %>% group_by(NTEE_text) %>%summarize(count = n()) %>%
 Total_NTEE <-df_simplified %>% group_by(NTEE_text) %>%summarize(total_count = n()) %>% 
   mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified")) %>%
   arrange(NTEE_text)
+
 ```
 
 
@@ -514,9 +519,9 @@ High_counts <- df_simplified %>%
     mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
 
   
-st_join(Total_NTEE, High_counts) %>%
+full_join(Total_NTEE, High_counts, join_by(NTEE_text)) %>%
    mutate("Percentage_of_each_code" = round(count/total_count *100, digits = 2)) %>%
-  arrange(NTEE_text.x) 
+  arrange(NTEE_text) 
 ```
 
 Based on BMF_ASSET_CODE (Where 5 means >=500,000)
@@ -532,9 +537,9 @@ High_counts <- df_simplified %>%
     mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
 
   
-st_join(Total_NTEE, High_counts) %>%
+full_join(Total_NTEE, High_counts, join_by(NTEE_text)) %>%
    mutate("Percentage_of_each_code" = round(count/total_count *100, digits = 2)) %>%
-  arrange(NTEE_text.x) 
+  arrange(NTEE_text) 
 ```
 
 ### Counts across neighborhood type and NTEE
@@ -543,7 +548,7 @@ st_join(Total_NTEE, High_counts) %>%
    
    
  todo: this is misaligned... need to fix
-```{r, include = FALSE}
+```{r}
 Count_by_neighborhood_type <- df_simplified %>% 
     mutate(NTEE_text = as_factor(NTEE_text),
         NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "NA" )) %>%
@@ -553,20 +558,28 @@ Count_by_neighborhood_type <- df_simplified %>%
   summarize(count = n())  %>%
     mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
 
-st_join(Total_NTEE, Count_by_neighborhood_type) %>%
+```
+
+
+```{r}
+
+renamed_perc_data <-full_join(Total_NTEE, Count_by_neighborhood_type) %>%
    mutate("Percentage_of_each_code" = round(count/total_count *100, digits = 2)) %>%
-  arrange(NTEE_text.x) %>%
+  arrange(NTEE_text) %>%
   pivot_wider(names_from = Majority_AA, values_from = count:Percentage_of_each_code) %>% 
-  select(NTEE_text.x, total_count, count_Yes, Percentage_of_each_code_Yes,  count_No, Percentage_of_each_code_No) %>% 
-  
-  
-pivot_longer(-NTEE_text.x) %>%
+  dplyr::select(NTEE_text, total_count, count_Yes, Percentage_of_each_code_Yes,  count_No, Percentage_of_each_code_No) %>%
+  pivot_longer(-NTEE_text) %>%
   mutate(name = case_when(
             name == "total_count" ~ "Total",
             name == "count_Yes" ~"Count_Majority_Black",
             name == "Percentage_of_each_code_Yes" ~ "Perc_Maj_Black",
             name == "count_No" ~ "Count_Non_Black",
-            name == "Percentage_of_each_code_No" ~ "Perc_Non_Black")) %>%
+            name == "Percentage_of_each_code_No" ~ "Perc_Non_Black"))
+ 
+```
+
+```{r}
+  renamed_perc_data  %>%
   pivot_wider(names_from = name, values_from = value) %>%
   mutate(ratio = Count_Majority_Black/Count_Non_Black)
 
@@ -597,10 +610,10 @@ We can see that there are many neighborhoods that have a more extreme percentage
 
 # get the neighborhood values if no removing rows for nonprofits with NA or zero assets
 
-neighborhood_AAperc%>% pull(Percent_AA) %>% hist(main = "African American Percentage of Neighborhoods for each nonprofit")
+neighborhood_AAperc%>% pull(Percent_AA) %>% hist(main = "Black Percentage of Neighborhoods for each nonprofit")
 
 # get the neighborhood values after removing rows for nonprofits with NA or zero assets
-neighborhood_AAperc_nozero %>% pull(Percent_AA) %>% hist(main = "African American Percentage of Neighborhoods \n (removed neighborhoods with only zero or NA assets)")
+neighborhood_AAperc_nozero %>% pull(Percent_AA) %>% hist(main = "Black Percentage of Neighborhoods \n (removed neighborhoods with only zero or NA assets)")
 
 ```
 

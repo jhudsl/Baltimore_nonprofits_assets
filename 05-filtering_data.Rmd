@@ -100,8 +100,34 @@ After filtering out orgs that filed between May 15, 2023 and March 2024, we have
 After filtering out orgs that last filed in the last 3 complete years, we end up with `r nrow(active_orgs)`.
 
 
+Now let's remove orgs from industrial neighborhoods with Population of 0 or NA.
+
+Let's first check what those neighborhoods are.
+
+
 ```{r}
-write_rds(org_data, file = "data/processed/org_data_filtered.rds")
+active_orgs %>% filter(is.na(Population)) # this is two orgs in a park
+popzero <-active_orgs %>% filter(Population== 0) %>% as.data.frame()
+popzero %>% dplyr::select(Name)
+
+
+```
+
+OK these make sense. Let's remove them.
+
+```{r}
+
+#first dim before removal
+dim(active_orgs)
+active_orgs <-active_orgs %>% filter(Population!= 0) %>% filter(!is.na(Population))
+dim(active_orgs)
+dim(popzero)
+# OK this looks right
+
+```
+
+
+```{r}
 write_rds(active_orgs, file = "data/processed/active_orgs.rds")
 write_csv(non_active_orgs, file = "data/processed/non_active_orgs.csv")
 ```
