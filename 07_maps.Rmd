@@ -23,17 +23,6 @@ neighborhoods <- read_rds(here::here("data/processed/neighborhood_shape_data.rds
 
 ```
 
-Todo:
-- Remove orgs in industrial neighborhoods with no population
-- convert "NA" to actual `NA`.
-
-```{r}
-Nieghborhoods_no_pop <-neighborhoods %>% filter(Population == 0) %>% pull(Name)
-df_simplified %>% no
-df_simplified %>% filter(Neighborhood %in% Nieghborhoods_no_pop)
-```
-
-
 
 ```{r}
 # Plotting simple features (sf) with plot 
@@ -78,8 +67,8 @@ neighborhoods_sf <- neighborhoods_sf %>% mutate(Percent_AA
 
 
  neighborhood_dem <- ggplot() +geom_sf(data = neighborhoods_sf, aes(fill = Neighborhood_type))+
-    theme_minimal() +
-   labs(title = "Neighborhood Demographics")
+   scale_fill_manual(values = c("Majority\nBlack" = "#482677FF", "Majority\nNon-Black" = "#20A387FF"))+
+    theme_minimal()
  neighborhood_dem
 
 ```
@@ -88,22 +77,33 @@ neighborhoods_sf <- neighborhoods_sf %>% mutate(Percent_AA
 
 
 ```{r}
-asset_plot <- neighborhood_dem + 
-    geom_sf(data = multi_polygon_sf, aes(color = ASSET_High_text, alpha = 0.8))+ scale_color_viridis_d() + facet_grid(~ASSET_High_text)+
-    theme_void() 
+asset_plot_high_Vs_low <- neighborhood_dem + 
+    geom_sf(data = multi_polygon_sf, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_grid(~ASSET_High_text)+
+    theme_void() +
+     labs(title = "High vs Low Asset Non-Profits in Baltimore") 
 
-asset_plot
 
+asset_plot_high_Vs_low
+
+```
+```{r}
+
+asset_plot_all_faceted <- neighborhood_dem + 
+    geom_sf(data = multi_polygon_sf, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_wrap(~NTEE_text, ncol = 3 )+
+    theme_void() +
+  labs(title = "Non-Profits in Baltimore by Type") 
+asset_plot_all_faceted
 ```
 
 
-todo - drop na for ntee_text and only high asset
 ```{r}
-multi_polygon_sf %>% filter(ASSET_High_text == "High Asset") %>% drop_na(NTEE_text)
+data_to_map <-multi_polygon_sf %>% filter(ASSET_High_text == "High Asset") 
 
 asset_plot <- neighborhood_dem + 
-    geom_sf(data = (multi_polygon_sf %>% filter(), aes(color = ASSET_High_text, alpha = 0.8))+ scale_color_viridis_d()+ facet_grid(~NTEE_text )+
-    theme_void() 
+    geom_sf(data = data_to_map, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_wrap(~NTEE_text, ncol = 3 )+
+    theme_void() +
+  labs(title = "High Asset Non-Profits in Baltimore by Type") 
+asset_plot
 ```
 
 
