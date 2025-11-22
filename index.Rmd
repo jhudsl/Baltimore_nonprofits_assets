@@ -196,7 +196,7 @@ df_simplified <-df_simplified %>%
     str_starts(NTEE_IRS, pattern = "Q") ~ "International Affairs",
     str_starts(NTEE_IRS, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
     str_starts(NTEE_IRS, pattern = "X") ~ "Religious",
-    TRUE ~ "NA")) # this line is redundant as this would happen automatically - but everything else will be NA
+    TRUE ~ "Other")) #everything else will be Other
 ```
 
 
@@ -211,7 +211,8 @@ df_simplified_no_zero <-df_simplified_no_zero %>%
     str_starts(NTEE_IRS, pattern = "I|J|K|L|M|N|O|P") ~ "Human Services",
     str_starts(NTEE_IRS, pattern = "Q") ~ "International Affairs",
     str_starts(NTEE_IRS, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
-    str_starts(NTEE_IRS, pattern = "X") ~ "Religous")) # everything else will be NA
+    str_starts(NTEE_IRS, pattern = "X") ~ "Religous",
+    TRUE~ "Other")) # everything else will be Other
 ```
 
 ## Save data for maps
