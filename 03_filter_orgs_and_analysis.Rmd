@@ -9,7 +9,9 @@ library(naniar)
 library(sf)
 ```
 
-# Data Import
+# Data Analysis
+
+First let's get our processed data:
 ```{r}
 df_simplified <- read_rds(here::here("data/processed/active_orgs.rds"))
 ```

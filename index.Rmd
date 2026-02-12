@@ -1,18 +1,9 @@
 ---
 title: "Baltimore Nonprofit Analysis"
-output:
-  html_document:
-    self_contained: yes
-    code_download: yes
-    highlight: tango
-    number_sections: no
-    theme: cosmo
-    toc: yes
-    toc_float: yes
-  pdf_document:
-    toc: yes
-  word_document:
-    toc: yes
+
 ---
+
+
+This website shows the code for the analysis to accompany the article by Tyler Derreth et al. "Serving a Segregated City: An Analysis of Nonprofit Locations in Baltimore".
 
 
