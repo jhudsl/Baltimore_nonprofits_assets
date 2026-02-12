@@ -2,7 +2,7 @@
 
 Analysis to accompany article by Tyler Derreth et al. "Serving a Segregated City: An Analysis of Nonprofit Locations in Baltimore "
 
-There are a few Rmd files:.\
+There are a few Rmd files:
 
 01-prepare_neighborhood_data.Rmd
 
