@@ -13,7 +13,7 @@ library(sf)
 
 First let's get our processed data:
 ```{r}
-df_simplified <- read_rds(here::here("data/processed/active_orgs.rds"))
+df_simplified <- read_rds(here::here("data/processed/active_orgs.rds")) # org and shape/location info
 ```
 
 Information about the data: 
