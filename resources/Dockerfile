@@ -5,6 +5,6 @@ LABEL maintainer="cwright2@fredhutch.org"
 
 # Install a package from CRAN
  RUN Rscript -e  "options(warn = 2);install.packages( \
-   c(raster, sf), \
+   c(raster, sf, naniar), \
     repos = 'https://cloud.r-project.org/')"
 
