@@ -10,17 +10,18 @@ library(sf)
 ```
 
 # Data Import
-```{r}
+BMF file from:
+https://nccsdata.s3.amazonaws.com/harmonized/bmf/unified/MD_BMF_V1.1.csv 
+Neighborhood csv file from: https://data.baltimorecity.gov/datasets/baltimore::neighborhood-statistical-area-nsa-boundaries/about 
 
-#IRS <- read_rds("data/IRS_data_before_lat_long.rds") # 41,638 rows from the eo_md.csv
-#any(is.na(IRS$cityirs)) # no na values for city
-#IRS <- filter(IRS, is.na(cityirs) | cityirs == "BALTIMORE") #filter for Baltimore for now to keep small as we test
-#df_simplified<-read_excel(here::here("Nonprofit_Baltimore_Analysis.xlsx"), sheet = 3)
-BMF <- read_csv("data/MD_BMF_V1.1.csv")# much bigger than raw IRS data 73,768 rows (also comes from IRS)
+```{r}
+BMF <- read_csv("data/MD_BMF_V1.1.csv")
 neighborhoods <- read_csv("data/Neighborhood_Statistical_Area_(NSA)_Boundaries.csv")
 ```
 
 # Get lat and long for shape file
+
+Shape file from: https://data.baltimorecity.gov/datasets/baltimore::neighborhood-statistical-area-nsa-boundaries/about
 
 https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies-within-polygon
 https://www.statsilk.com/maps/convert-esri-shapefile-map-geojson-format
@@ -31,46 +32,85 @@ neighborhood_shape <-st_read("data/Neighborhood_Statistical_Area_(NSA)_Boundarie
 ```
 
 
+# Check for missing data
+
 ```{r}
 BMF_geo <- BMF %>% dplyr::select(EIN, LATITUDE, LONGITUDE)
 any(is.na(BMF_geo$LATITUDE)) # no missing location info
 any(is.na(BMF_geo$LONGITUDE))
 ```
 
+
+# Limiting to Just Baltimore based on coordinates
+
 ```{r}
-CRS <- st_crs(neighborhood_shape$geometry)
-pnts_sf <- st_as_sf(BMF, coords = c('LONGITUDE', 'LATITUDE'), crs = st_crs(4326)) %>% st_set_crs(4326)
-#neighborhood_Sf <-neighborhood_shape$geometry
-#neighborhood_Sf <- neighborhood_Sf %>% st_set_crs(4326)
-pnts_trans <- st_transform(pnts_sf, 2163)
-neighborhood_tt <- st_transform(neighborhood_shape$geometry, 2163)
-intersection <- pnts_sf %>% mutate(
-  intersection = as.integer(st_intersects( pnts_trans, neighborhood_tt )))
-in_balt <- intersection %>% filter(!is.na(intersection)) # just baltimore locations
+#CRS <- st_crs(neighborhood_shape$geometry) # get class sf version of coordinates
+BMF_sf <- st_as_sf(BMF, coords = c('LONGITUDE', 'LATITUDE'), crs = st_crs(4326)) %>% st_set_crs(4326) # Use LONGITUDE and LATITUDE columns and convert to sf object (with a geometry column), use coordinate reference system 4326
+BMF_trans <- st_transform(BMF_sf, 2163) #EPSG:2163, convert lat and long to NAD27 / US National Atlas Equal Area for the org data
+neighborhood_tt <- st_transform(neighborhood_shape$geometry, 2163)# convert Baltimore  shape file to NAD27 / US National Atlas Equal Area coordinate reference system
+```
+
+Look for the intersection of orgs with locations within Baltimore
+
+```{r}
+# Make a new column for each org row about if the location is located within the Baltimore shape outline
+intersection <- BMF_sf %>% mutate(
+  intersection = as.integer(st_intersects(BMF_trans, neighborhood_tt )))
+
+# filter for just data within Baltimore dropping other MD orgs
+in_balt <- intersection %>% filter(!is.na(intersection)) # just Baltimore locations
 ```
 
 
 
 checking that it worked
 ```{r}
-# first row:
-#            ein                   geometry intersection
-# 1  010591773 POINT (-76.69024 39.36632)           43
+in_balt[1,]$intersection # row for intersection
+in_balt[1,]$EIN # org id
+in_balt[1,]$ORG_ADDR_FULL # this looks like downtown when you look it up
 
-#neighborhood_shape[43,]$name
-#filter(IRS, ein == "010591773")
+# how does this look in the neighborhood file?
+neighborhood_shape[in_balt[1,]$intersection,]$Name # neighborhood name
+
+#Looks like this is in that location
+
+
+in_balt[43,]$intersection # row for intersection
+in_balt[43,]$EIN # org id
+in_balt[43,]$ORG_ADDR_FULL # this looks like downtown when you look it up
+
+# how does this look in the neighborhood file?
+neighborhood_shape[in_balt[43,]$intersection,]$Name # neighborhood name
+
+#Looks like this is in that location
+
+in_balt[58,]$intersection # row for intersection
+in_balt[58,]$EIN # org id
+in_balt[58,]$ORG_ADDR_FULL # this looks like downtown when you look it up
+
+# how does this look in the neighborhood file?
+neighborhood_shape[in_balt[58,]$intersection,]$Name # neighborhood name
+
+#Looks like this is in that location
+
+in_balt[65,]$intersection # row for intersection
+in_balt[65,]$EIN # org id
+in_balt[65,]$ORG_ADDR_FULL # this looks like downtown when you look it up
+
+# how does this look in the neighborhood file?
+neighborhood_shape[in_balt[65,]$intersection,]$Name # neighborhood name
 
 #Looks like this is in that location
 
 ```
 
 
-# Combining it all together:
+# Combining it all together so that shape information and org data are together:
 
 ```{r}
-neighborhood_shape <-as_tibble(neighborhood_shape)
-neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number())
-org_data <-left_join(in_balt, neighborhood_shape, by = c("intersection" = "id"))
+neighborhood_shape <-as_tibble(neighborhood_shape) # convert to tibble
+neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number()) # add row number column
+org_data <-left_join(in_balt, neighborhood_shape, by = c("intersection" = "id")) # look for what row numbers align with the shape file
 write_rds(neighborhood_shape, file = "data/processed/neighborhood_shape_data.rds")
 write_rds(org_data, file = "data/processed/org_data.rds")
 
