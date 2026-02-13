@@ -41,7 +41,9 @@ any(is.na(BMF_geo$LONGITUDE))
 ```
 
 
-# Limiting to Just Baltimore based on coordinates
+# Limit to just Baltimore
+
+Based on coordinates...
 
 ```{r}
 #CRS <- st_crs(neighborhood_shape$geometry) # get class sf version of coordinates
@@ -62,8 +64,18 @@ in_balt <- intersection %>% filter(!is.na(intersection)) # just Baltimore locati
 ```
 
 
+# Check that it worked
 
-Checking that it worked using this https://commons.wikimedia.org/wiki/File:Baltimore_neighborhoods_map.png file
+
+Checking that it worked using this image: https://commons.wikimedia.org/wiki/File:Baltimore_neighborhoods_map.png
+
+
+```{r include-image, echo=FALSE, out.width="400px"}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/5/57/Baltimore_neighborhoods_map.png")
+```
+
+
+
 ```{r}
 in_balt[1,]$intersection # row for intersection
 in_balt[1,]$EIN # org id
@@ -93,12 +105,16 @@ neighborhood_shape[in_balt[100,]$intersection,]$Name # neighborhood name
 ```
 
 
-# Combining it all together so that shape information and org data are together:
+# Combining it all together 
+
+Want the org info, and neighborhood info and shape information together to enable making maps later.
 
 ```{r}
 neighborhood_shape <-as_tibble(neighborhood_shape) # convert to tibble
 neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number()) # add row number column
 org_data <-left_join(in_balt, neighborhood_shape, by = c("intersection" = "id")) # look for what row numbers align with the shape file
+
+# save neighborhood R file and org data with neighborhood info
 write_rds(neighborhood_shape, file = "data/processed/neighborhood_shape_data.rds")
 write_rds(org_data, file = "data/processed/org_data.rds")
 
