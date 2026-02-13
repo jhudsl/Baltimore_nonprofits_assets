@@ -5,6 +5,8 @@ library(here)
 library(tidyverse)
 library(stringr)
 library(naniar)
+library(raster)
+library(sf)
 ```
 
 # Data Import
@@ -24,9 +26,6 @@ https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies
 https://www.statsilk.com/maps/convert-esri-shapefile-map-geojson-format
 
 ```{r}
-library(raster)
-library(sf)
-
 neighborhood_shape <-st_read("data/Neighborhood_Statistical_Area_(NSA)_Boundaries/Neighborhood_Statistical_Area_(NSA)_Boundaries.shp")
 
 ```
