@@ -63,7 +63,7 @@ in_balt <- intersection %>% filter(!is.na(intersection)) # just Baltimore locati
 
 
 
-checking that it worked
+Checking that it worked using this https://commons.wikimedia.org/wiki/File:Baltimore_neighborhoods_map.png file
 ```{r}
 in_balt[1,]$intersection # row for intersection
 in_balt[1,]$EIN # org id
@@ -74,32 +74,20 @@ neighborhood_shape[in_balt[1,]$intersection,]$Name # neighborhood name
 
 #Looks like this is in that location
 
-
-in_balt[43,]$intersection # row for intersection
-in_balt[43,]$EIN # org id
-in_balt[43,]$ORG_ADDR_FULL # this looks like downtown when you look it up
-
-# how does this look in the neighborhood file?
+in_balt[43,]$ORG_ADDR_FULL 
 neighborhood_shape[in_balt[43,]$intersection,]$Name # neighborhood name
-
 #Looks like this is in that location
 
-in_balt[58,]$intersection # row for intersection
-in_balt[58,]$EIN # org id
-in_balt[58,]$ORG_ADDR_FULL # this looks like downtown when you look it up
-
-# how does this look in the neighborhood file?
+in_balt[58,]$ORG_ADDR_FULL 
 neighborhood_shape[in_balt[58,]$intersection,]$Name # neighborhood name
-
 #Looks like this is in that location
 
-in_balt[65,]$intersection # row for intersection
-in_balt[65,]$EIN # org id
-in_balt[65,]$ORG_ADDR_FULL # this looks like downtown when you look it up
-
-# how does this look in the neighborhood file?
+in_balt[65,]$ORG_ADDR_FULL
 neighborhood_shape[in_balt[65,]$intersection,]$Name # neighborhood name
+#Looks like this is in that location
 
+in_balt[100,]$ORG_ADDR_FULL
+neighborhood_shape[in_balt[100,]$intersection,]$Name # neighborhood name
 #Looks like this is in that location
 
 ```
