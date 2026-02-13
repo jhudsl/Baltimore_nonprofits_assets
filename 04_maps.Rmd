@@ -13,11 +13,13 @@ library(rnaturalearthdata)
 library(rnaturalearth)
 library(tidyverse)
 
-df_simplified <- read_rds(here::here("data/processed/formaps.rds"))
-neighborhoods <- read_rds(here::here("data/processed/neighborhood_shape_data.rds"))
+df_simplified <- read_rds(here::here("data/processed/formaps.rds")) # org and shape data
+neighborhoods <- read_rds(here::here("data/processed/neighborhood_shape_data.rds"))#neighborhood stat data (read into R)
 
 ```
 
+
+# Plot using `plot()` function
 
 ```{r}
 # Plotting simple features (sf) with plot 
@@ -31,8 +33,10 @@ library(leaflet)
 
 # Using ggplot2
 
+Start by building the map area:
+
 ```{r}
-multi_polygon_sf <- st_as_sf(df_simplified)
+multi_polygon_sf <- st_as_sf(df_simplified) #converting to sf object
 outline_plot <-ggplot() +
     geom_sf(data = multi_polygon_sf$geometry.y, fill = "lightblue", color = "blue") +
     theme_minimal() +
@@ -46,9 +50,9 @@ outline_plot
 ```{r}
 
 # make data at neighborhood level to plot maps 
-neighborhoods_sf <- st_as_sf(neighborhoods)
+neighborhoods_sf <- st_as_sf(neighborhoods) # convert to sf object
 neighborhoods_sf <- neighborhoods_sf %>% mutate(Percent_AA
-  = round(Blk_AfAm/Population*100, digits = 2))  %>%
+  = round(Blk_AfAm/Population*100, digits = 2))  %>% # make our variables like before but this time at neighborhood level only
 
   # create new Majority_AA variable that indicates if Percent_AA is greater than 50% or not %>%
   mutate(Majority_AA = case_when(
