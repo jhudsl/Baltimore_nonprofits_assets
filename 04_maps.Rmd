@@ -1,9 +1,4 @@
----
-title: "maps"
-author: "Carrie"
-date: "2025-11-21"
-output: html_document
----
+
 # Maps
 
 ```{r}
@@ -34,7 +29,8 @@ library(leaflet)
 
 
 
-ggplot2
+# Using ggplot2
+
 ```{r}
 multi_polygon_sf <- st_as_sf(df_simplified)
 outline_plot <-ggplot() +
@@ -45,6 +41,7 @@ outline_plot
 
 ```
 
+# Neighborhood Demographics
 
 ```{r}
 
@@ -74,6 +71,7 @@ neighborhoods_sf <- neighborhoods_sf %>% mutate(Percent_AA
 ```
 
 
+# Map of High vs Low Asset Orgs
 
 
 ```{r}
@@ -86,6 +84,9 @@ asset_plot_high_Vs_low <- neighborhood_dem +
 asset_plot_high_Vs_low
 
 ```
+
+
+# Map of different types of orgs by asset
 ```{r}
 
 asset_plot_all_faceted <- neighborhood_dem + 
@@ -95,6 +96,7 @@ asset_plot_all_faceted <- neighborhood_dem +
 asset_plot_all_faceted
 ```
 
+# High Asset Non-Profits in Baltimore by Type
 
 ```{r}
 data_to_map <-multi_polygon_sf %>% filter(ASSET_High_text == "High Asset") 
@@ -106,6 +108,9 @@ asset_plot <- neighborhood_dem +
 asset_plot
 ```
 
+
+
+# Old work 
 
 ```{r}
 multi_polygon_sf <- st_as_sf(df_simplified)

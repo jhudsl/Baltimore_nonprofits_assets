@@ -18,7 +18,7 @@ BMF <- read_csv("data/MD_BMF_V1.1.csv")# much bigger than raw IRS data 73,768 ro
 neighborhoods <- read_csv("data/Neighborhood_Statistical_Area_(NSA)_Boundaries.csv")
 ```
 
-## Get lat and long for shape file
+# Get lat and long for shape file
 
 https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies-within-polygon
 https://www.statsilk.com/maps/convert-esri-shapefile-map-geojson-format
@@ -66,7 +66,8 @@ checking that it worked
 ```
 
 
-Combining it all together:
+# Combining it all together:
+
 ```{r}
 neighborhood_shape <-as_tibble(neighborhood_shape)
 neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number())

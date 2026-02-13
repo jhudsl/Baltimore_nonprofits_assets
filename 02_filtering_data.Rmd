@@ -1,4 +1,5 @@
 
+
 # Filtering Orgs
 
 First reading in our data:
@@ -10,7 +11,7 @@ org_data <- read_rds("data/processed/org_data.rds")
 
 ```
 
-## Filter out foundation code 00 orgs
+# Filter out foundation code 00 orgs
 
 Based on https://www.irs.gov/pub/irs-soi/eo-info.pdf 
 page 3 - we will exclude 00 for foundation code - all orgs except 501c3 to filter down to 501c3 - looks like they are coded as 0 instead of 00.
@@ -27,7 +28,7 @@ org_data <- org_data %>% subset(is.na(BMF_FOUNDATION_CODE)| BMF_FOUNDATION_CODE 
 After filtering out these orgs, we end with `r nrow(org_data)` rows, removing `r nrow(found_00_orgs)` orgs with foundation code 00.
 
 
-## Filter out social_clubs 
+# Filter out social_clubs 
 
 We start with `r nrow(org_data)` rows.
 
@@ -43,7 +44,7 @@ org_data <- org_data %>% filter(!str_detect(string = NTEE_IRS, pattern = "Y|y")|
 
 After filtering out social clubs we end up with `r nrow(org_data)` rows, removing `r nrow(socialclubs)` social club orgs.
 
-## Filter out PO Boxes
+# Filter out PO Boxes
 
 ```{r}
 Post_offices <- org_data %>% filter(str_detect(F990_ORG_ADDR_STREET, "PO BOX |POST OFFICE"))
@@ -55,7 +56,7 @@ org_data <- org_data %>% filter(!str_detect(F990_ORG_ADDR_STREET, "PO BOX |POST 
 
 After filtering out PO Boxes we end up with `r nrow(org_data)` rows, removing `r nrow(Post_offices)`  orgs with a post office box address.
 
-## Filter out foundation code 04 and 17
+# Filter out foundation code 04 and 17
 
 
 - 04 = Private non-operating foundation
@@ -75,7 +76,7 @@ org_data <- org_data %>% subset(is.na(BMF_FOUNDATION_CODE)| ! BMF_FOUNDATION_COD
 
 After filtering out these orgs we end up with `r nrow(org_data)` rows, removing `r nrow(no_oper_orgs)` orgs with foundation code 04 or 17. 
 
-## Filtering for year
+# Filtering for year
 
 Filing is due May 15 each year, since the data is from March 2024, that means it only shows 2023 complete data.
 

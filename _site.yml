@@ -3,16 +3,25 @@ output_dir: '.'
 navbar:
   title: Baltimore nonprofits assets analysis
   left:
-  - text: Analysis
+  - text: Home
     href: index.html
-  - text: ReAnalysis
-    href: starting_from_raw_data_only.Rmd
-
+  - text: Import Data
+    href: 01_prepare_neighborhood_data.html
+  - text: Filtering
+    href: 02_filtering_data.html
+  - text: Variable Generation & Analysis
+    href: 03_filter_orgs_and_analysis.html
+  - text: Maps
+    href: 04_maps.html
 
 
 output:
   html_document:
     theme: cosmo
-    lib_dir: site_libs
-    self_contained: no
-    highlight: textmate
+    highlight: tango
+    toc: yes
+    toc_float: yes
+    code_download: yes
+    number_sections: no
+
+
