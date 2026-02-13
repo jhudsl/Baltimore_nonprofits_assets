@@ -2,7 +2,7 @@
 
 # Filtering Orgs
 
-First reading in our data:
+First reading in our data from our preprocessing steps:
 
 ```{r}
 library(tidyverse)
@@ -127,6 +127,8 @@ dim(popzero)
 
 ```
 
+
+Let's save our files.
 
 ```{r}
 write_rds(active_orgs, file = "data/processed/active_orgs.rds")
