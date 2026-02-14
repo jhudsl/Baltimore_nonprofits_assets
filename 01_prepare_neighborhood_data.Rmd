@@ -6,7 +6,7 @@ library(tidyverse)
 library(stringr)
 remotes::install_github("njtierney/naniar")
 library(naniar)
-remotes::install_github("r-spatial/sf")
+#remotes::install_github("r-spatial/sf")
 library(sf)
 ```
 
