@@ -6,7 +6,7 @@ library(tidyverse)
 library(stringr)
 remotes::install_github("njtierney/naniar")
 library(naniar)
-#remotes::install_github("r-spatial/sf")
+install.packages("sf", repos = "https://cloud.r-project.org")
 library(sf)
 ```
 
