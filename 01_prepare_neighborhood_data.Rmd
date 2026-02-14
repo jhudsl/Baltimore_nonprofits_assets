@@ -4,6 +4,7 @@ library(readxl)
 library(here)
 library(tidyverse)
 library(stringr)
+remotes::install_github("njtierney/naniar")
 library(naniar)
 library(sf)
 ```
