@@ -4,8 +4,12 @@ library(readxl)
 library(here)
 library(tidyverse)
 library(stringr)
+remotes::install_github("njtierney/naniar")
 library(naniar)
+install.packages(c("units","leaflet","s2","sf"), repos = "https://cloud.r-project.org", dependencies = TRUE)
 library(sf)
+#library(s2)
+#library(units)
 ```
 
 # Data Import
