@@ -6,10 +6,10 @@ library(tidyverse)
 library(stringr)
 remotes::install_github("njtierney/naniar")
 library(naniar)
-install.packages("sf", repos = "https://cloud.r-project.org")
+install.packages("sf", repos = "https://cloud.r-project.org", dependencies = TRUE)
 library(sf)
-library(s2)
-library(units)
+#library(s2)
+#library(units)
 ```
 
 # Data Import
