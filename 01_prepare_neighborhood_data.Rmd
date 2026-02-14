@@ -8,6 +8,8 @@ remotes::install_github("njtierney/naniar")
 library(naniar)
 install.packages("sf", repos = "https://cloud.r-project.org")
 library(sf)
+library(s2)
+library(units)
 ```
 
 # Data Import
