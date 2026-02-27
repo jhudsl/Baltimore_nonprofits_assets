@@ -3,6 +3,7 @@ LABEL maintainer="cwright2@fredhutch.org"
 
 WORKDIR /rocker-build/
 
+# System dependencies for R packages
 RUN apt-get update && apt-get install -y \
     cmake \
     xz-utils \
