@@ -22,12 +22,6 @@ RUN apt-get update && apt-get install -y \
     libcairo2-dev \
     libgit2-dev \
 
-
-# Core R infrastructure (pinned versions)
-RUN Rscript -e "install.packages( \
-    c('Rcpp', 'xfun', 'htmltools', 'rmarkdown', 'knitr'), \
-    repos='https://cloud.r-project.org')"
-
 RUN Rscript -e  "options(warn = 2);install.packages('stringr')"
 
 RUN Rscript -e  "options(warn = 2);install.packages('sf')"
@@ -36,9 +30,7 @@ RUN Rscript -e  "options(warn = 2);install.packages('naniar')"
 
 
 RUN Rscript -e  "options(warn = 2);install.packages( \
-    c('RNetCDF',\
-     'ncmeta',\
-     'sf',\
+    c(
      'stars',\
      'areal',\
      'leafem',\
