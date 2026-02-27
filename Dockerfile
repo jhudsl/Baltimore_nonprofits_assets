@@ -4,11 +4,11 @@ LABEL maintainer="cwright2@fredhutch.org"
 WORKDIR /rocker-build/
 
 # Other packages
+
+RUN Rscript -e "options(warn = 2); install.packages(c('naniar', 'here'), dependencies=TRUE, repos='https://cloud.r-project.org/')"
+
 RUN Rscript -e  "options(warn = 2);install.packages( \
-    c('raster', \
-      'here',\
-      'sf', \
-      'naniar',\
+    c('naniar',\
       'RNetCDF',\
       'ncmeta',\
       'sf',\
