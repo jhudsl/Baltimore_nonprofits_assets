@@ -5,11 +5,10 @@ WORKDIR /rocker-build/
 
 # Other packages
 
-RUN Rscript -e "options(warn = 2); install.packages(c('naniar', 'here'), dependencies=TRUE, repos='https://cloud.r-project.org/')"
+RUN Rscript -e "install.packages(naniar, dependencies=TRUE, repos='https://cloud.r-project.org/')"
 
 RUN Rscript -e  "options(warn = 2);install.packages( \
-    c('naniar',\
-      'RNetCDF',\
+    c('RNetCDF',\
       'ncmeta',\
       'sf',\
       'stars',\
