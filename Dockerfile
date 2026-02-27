@@ -30,8 +30,7 @@ RUN Rscript -e  "options(warn = 2);install.packages('naniar')"
 
 
 RUN Rscript -e  "options(warn = 2);install.packages( \
-    c(
-     'stars',\
+    c('stars',\
      'areal',\
      'leafem',\
      'leafgl',\
