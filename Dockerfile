@@ -1,7 +1,6 @@
 FROM rocker/tidyverse:latest
 LABEL maintainer="cwright2@fredhutch.org"
 
-WORKDIR /rocker-build/
 
 # System dependencies for R packages
 RUN apt-get update && apt-get install -y \
@@ -22,11 +21,11 @@ RUN apt-get update && apt-get install -y \
     libcairo2-dev \
     libgit2-dev \
 
-RUN Rscript -e  "options(warn = 2);install.packages('stringr')"
+RUN Rscript -e  "options(warn = 2);install.packages('stringr', repos = 'https://cloud.r-project.org/')"
 
-RUN Rscript -e  "options(warn = 2);install.packages('sf')"
+RUN Rscript -e  "options(warn = 2);install.packages('sf', repos = 'https://cloud.r-project.org/')"
 
-RUN Rscript -e  "options(warn = 2);install.packages('naniar')"
+RUN Rscript -e  "options(warn = 2);install.packages('naniar', repos = 'https://cloud.r-project.org/')"
 
 
 RUN Rscript -e  "options(warn = 2);install.packages( \
