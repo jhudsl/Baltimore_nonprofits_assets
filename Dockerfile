@@ -10,8 +10,9 @@ RUN apt-get update && apt-get install -y \
     libproj-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install naniar from GitHub
-RUN Rscript -e "devtools::install_github('npapier/naniar')"
+RUN Rscript -e  "options(warn = 2);install.packages('sf')"
+
+RUN Rscript -e  "options(warn = 2);install.packages('naniar')"
 
 
 RUN Rscript -e  "options(warn = 2);install.packages( \
