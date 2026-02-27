@@ -6,6 +6,7 @@ WORKDIR /rocker-build/
 # Other packages
 RUN Rscript -e  "options(warn = 2);install.packages( \
     c('raster', \
+      'here',\
       'sf', \
       'naniar',\
       'RNetCDF',\
