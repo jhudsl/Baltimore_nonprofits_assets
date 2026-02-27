@@ -1,12 +1,8 @@
 
 ```{r, message= FALSE}
-library(readxl)
-library(here)
 library(tidyverse)
-library(stringr)
-remotes::install_github("njtierney/naniar")
 library(naniar)
-install.packages(c('s2', 'units','rJava','raster', 'sf','terra', 'sftime','stars', 'gstat','RNetCDF', 'ncmeta', 'areal', 'ncdfgeom', 'leafem', 'leafgl', 'leaflegend', 'leaflet', 'leafsync', 'maptiles', 'tmaptools', 'tmap', 'lwgeom', 'leafpop','satellite', 'mapview'), repos = "https://cloud.r-project.org", dependencies = TRUE)
+#install.packages(c('s2', 'units','rJava','raster', 'sf','terra', 'sftime','stars', 'gstat','RNetCDF', 'ncmeta', 'areal', 'ncdfgeom', 'leafem', 'leafgl', 'leaflegend', 'leaflet', 'leafsync', 'maptiles', 'tmaptools', 'tmap', 'lwgeom', 'leafpop','satellite', 'mapview'), repos = "https://cloud.r-project.org", dependencies = TRUE)
 library(sf)
 #library(s2)
 #library(units)
