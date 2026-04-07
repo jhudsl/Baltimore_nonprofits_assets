@@ -1,5 +1,5 @@
 # Edits from cansavvy to change to littler as well as pinning to a version
-FROM jhudsl/base_ottr_r4.4.0
+FROM jhudsl/base_ottr:main-r4.4.0
 LABEL maintainer="cwright2@fredhutch.org"
 
 # Install R packages via littler (install2.r is included in rocker/tidyverse)
