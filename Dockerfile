@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y \
     libtiff-dev \
     libcairo2-dev \
     libgit2-dev \
-    && rm -rf /var/lib/apt/lists/*
 
 RUN install2.r --error --deps TRUE sf
 
