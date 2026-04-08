@@ -47,3 +47,6 @@ RUN install2.r --error --deps TRUE \
     leafpop \
     satellite \
     mapview
+    
+    HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhost/health || exit 1
+
