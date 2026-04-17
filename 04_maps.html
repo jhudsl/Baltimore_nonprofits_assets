@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>04_maps.knit</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+<style type="text/css">
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Baltimore nonprofits assets analysis</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="01_prepare_neighborhood_data.html">Import Data</a>
+</li>
+<li>
+  <a href="02_filtering_data.html">Filtering</a>
+</li>
+<li>
+  <a href="03_filter_orgs_and_analysis.html">Variable Generation &amp; Analysis</a>
+</li>
+<li>
+  <a href="04_maps.html">Maps</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+
+<div id="maps" class="section level1">
+<h1>Maps</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">#library(RColorBrewer) </span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#library(leaflet)</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#library(terra)</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># for metadata/attributes- vectors or rasters</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#library(raster)</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code></pre></div>
+<pre><code>## Linking to GEOS 3.13.0, GDAL 3.8.5, PROJ 9.5.1; sf_use_s2() is TRUE</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co">#library(rnaturalearthdata)</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#library(rnaturalearth)</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.2
+## ✔ ggplot2   4.0.0     ✔ tibble    3.3.0
+## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+## ✔ purrr     1.1.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co">#library(sp)</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#library(leaflet)</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>df_simplified <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/processed/formaps.rds&quot;</span>)) <span class="co"># org and shape data</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>neighborhoods <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data/processed/neighborhood_shape_data.rds&quot;</span>))<span class="co">#neighborhood stat data (read into R)</span></span></code></pre></div>
+</div>
+<div id="plot-using-plot-function" class="section level1">
+<h1>Plot using <code>plot()</code> function</h1>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Plotting simple features (sf) with plot </span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">plot</span>(df_simplified<span class="sc">$</span>geometry.x)</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">plot</span>(df_simplified<span class="sc">$</span>geometry.y)</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+</div>
+<div id="using-ggplot2" class="section level1">
+<h1>Using ggplot2</h1>
+<p>Start by building the map area:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>multi_polygon_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(df_simplified) <span class="co">#converting to sf object</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>outline_plot <span class="ot">&lt;-</span><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> multi_polygon_sf<span class="sc">$</span>geometry.y, <span class="at">fill =</span> <span class="st">&quot;lightblue&quot;</span>, <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>   <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Nonprofits and Neighborhood Demographics&quot;</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>outline_plot</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="neighborhood-demographics" class="section level1">
+<h1>Neighborhood Demographics</h1>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># make data at neighborhood level to plot maps </span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>neighborhoods_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(neighborhoods) <span class="co"># convert to sf object</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>neighborhoods_sf <span class="ot">&lt;-</span> neighborhoods_sf <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(Percent_AA</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="ot">=</span> <span class="fu">round</span>(Blk_AfAm<span class="sc">/</span>Population<span class="sc">*</span><span class="dv">100</span>, <span class="at">digits =</span> <span class="dv">2</span>))  <span class="sc">%&gt;%</span> <span class="co"># make our variables like before but this time at neighborhood level only</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="co"># create new Majority_AA variable that indicates if Percent_AA is greater than 50% or not %&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Majority_AA =</span> <span class="fu">case_when</span>(</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>    Percent_AA <span class="sc">&gt;</span> <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;Yes&quot;</span>, </span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>    Percent_AA <span class="sc">&lt;</span>  <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;No&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>  <span class="co"># create a new variable about this in text</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">Neighborhood_type =</span> <span class="fu">case_when</span>(</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>    Percent_AA <span class="sc">&gt;</span> <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;Majority</span><span class="sc">\n</span><span class="st">Black&quot;</span>, </span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>    Percent_AA <span class="sc">&lt;</span>  <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;Majority</span><span class="sc">\n</span><span class="st">Non-Black&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>  <span class="co"># make this a factor and order by level appearance in the data</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Neighborhood_type =</span> <span class="fu">as_factor</span>(Neighborhood_type),</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>         <span class="at">Neighborhood_type =</span> forcats<span class="sc">::</span><span class="fu">fct_inorder</span>(Neighborhood_type))</span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a> neighborhood_dem <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span><span class="fu">geom_sf</span>(<span class="at">data =</span> neighborhoods_sf, <span class="fu">aes</span>(<span class="at">fill =</span> Neighborhood_type))<span class="sc">+</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>   <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;Majority</span><span class="sc">\n</span><span class="st">Black&quot;</span> <span class="ot">=</span> <span class="st">&quot;#482677FF&quot;</span>, <span class="st">&quot;Majority</span><span class="sc">\n</span><span class="st">Non-Black&quot;</span> <span class="ot">=</span> <span class="st">&quot;#20A387FF&quot;</span>))<span class="sc">+</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a> neighborhood_dem</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="map-of-high-vs-low-asset-orgs" class="section level1">
+<h1>Map of High vs Low Asset Orgs</h1>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>asset_plot_high_Vs_low <span class="ot">&lt;-</span> neighborhood_dem <span class="sc">+</span> </span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> multi_polygon_sf, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span><span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#DCE319FF&quot;</span>)<span class="sc">+</span> <span class="fu">facet_grid</span>(<span class="sc">~</span>ASSET_High_text)<span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>     <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;High vs Low Asset Non-Profits in Baltimore&quot;</span>) </span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>asset_plot_high_Vs_low</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+<div id="map-of-different-types-of-orgs-by-asset"
+class="section level1">
+<h1>Map of different types of orgs by asset</h1>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>asset_plot_all_faceted <span class="ot">&lt;-</span> neighborhood_dem <span class="sc">+</span> </span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> multi_polygon_sf, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span><span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#DCE319FF&quot;</span>)<span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>NTEE_text, <span class="at">ncol =</span> <span class="dv">3</span> )<span class="sc">+</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Non-Profits in Baltimore by Type&quot;</span>) </span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>asset_plot_all_faceted</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+<div id="high-asset-non-profits-in-baltimore-by-type"
+class="section level1">
+<h1>High Asset Non-Profits in Baltimore by Type</h1>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>data_to_map <span class="ot">&lt;-</span>multi_polygon_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ASSET_High_text <span class="sc">==</span> <span class="st">&quot;High Asset&quot;</span>) </span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>asset_plot <span class="ot">&lt;-</span> neighborhood_dem <span class="sc">+</span> </span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> data_to_map, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span><span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#DCE319FF&quot;</span>)<span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>NTEE_text, <span class="at">ncol =</span> <span class="dv">3</span> )<span class="sc">+</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;High Asset Non-Profits in Baltimore by Type&quot;</span>) </span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>asset_plot</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+
+<div id="rmd-source-code">CiMgTWFwcwoKYGBge3J9CgojbGlicmFyeShSQ29sb3JCcmV3ZXIpIAojbGlicmFyeShsZWFmbGV0KQojbGlicmFyeSh0ZXJyYSkKIyBmb3IgbWV0YWRhdGEvYXR0cmlidXRlcy0gdmVjdG9ycyBvciByYXN0ZXJzCiNsaWJyYXJ5KHJhc3RlcikKbGlicmFyeShzZikKI2xpYnJhcnkocm5hdHVyYWxlYXJ0aGRhdGEpCiNsaWJyYXJ5KHJuYXR1cmFsZWFydGgpCmxpYnJhcnkodGlkeXZlcnNlKQojbGlicmFyeShzcCkKI2xpYnJhcnkobGVhZmxldCkKCmRmX3NpbXBsaWZpZWQgPC0gcmVhZF9yZHMoaGVyZTo6aGVyZSgiZGF0YS9wcm9jZXNzZWQvZm9ybWFwcy5yZHMiKSkgIyBvcmcgYW5kIHNoYXBlIGRhdGEKbmVpZ2hib3Job29kcyA8LSByZWFkX3JkcyhoZXJlOjpoZXJlKCJkYXRhL3Byb2Nlc3NlZC9uZWlnaGJvcmhvb2Rfc2hhcGVfZGF0YS5yZHMiKSkjbmVpZ2hib3Job29kIHN0YXQgZGF0YSAocmVhZCBpbnRvIFIpCgpgYGAKCgojIFBsb3QgdXNpbmcgYHBsb3QoKWAgZnVuY3Rpb24KCmBgYHtyfQojIFBsb3R0aW5nIHNpbXBsZSBmZWF0dXJlcyAoc2YpIHdpdGggcGxvdCAKcGxvdChkZl9zaW1wbGlmaWVkJGdlb21ldHJ5LngpCnBsb3QoZGZfc2ltcGxpZmllZCRnZW9tZXRyeS55KQoKYGBgCgoKCiMgVXNpbmcgZ2dwbG90MgoKU3RhcnQgYnkgYnVpbGRpbmcgdGhlIG1hcCBhcmVhOgoKYGBge3J9Cm11bHRpX3BvbHlnb25fc2YgPC0gc3RfYXNfc2YoZGZfc2ltcGxpZmllZCkgI2NvbnZlcnRpbmcgdG8gc2Ygb2JqZWN0Cm91dGxpbmVfcGxvdCA8LWdncGxvdCgpICsKICAgIGdlb21fc2YoZGF0YSA9IG11bHRpX3BvbHlnb25fc2YkZ2VvbWV0cnkueSwgZmlsbCA9ICJsaWdodGJsdWUiLCBjb2xvciA9ICJibHVlIikgKwogICAgdGhlbWVfbWluaW1hbCgpICsKICAgbGFicyh0aXRsZSA9ICJOb25wcm9maXRzIGFuZCBOZWlnaGJvcmhvb2QgRGVtb2dyYXBoaWNzIikKb3V0bGluZV9wbG90CgpgYGAKCiMgTmVpZ2hib3Job29kIERlbW9ncmFwaGljcwoKYGBge3J9CgojIG1ha2UgZGF0YSBhdCBuZWlnaGJvcmhvb2QgbGV2ZWwgdG8gcGxvdCBtYXBzIApuZWlnaGJvcmhvb2RzX3NmIDwtIHN0X2FzX3NmKG5laWdoYm9yaG9vZHMpICMgY29udmVydCB0byBzZiBvYmplY3QKbmVpZ2hib3Job29kc19zZiA8LSBuZWlnaGJvcmhvb2RzX3NmICU+JSBtdXRhdGUoUGVyY2VudF9BQQogID0gcm91bmQoQmxrX0FmQW0vUG9wdWxhdGlvbioxMDAsIGRpZ2l0cyA9IDIpKSAgJT4lICMgbWFrZSBvdXIgdmFyaWFibGVzIGxpa2UgYmVmb3JlIGJ1dCB0aGlzIHRpbWUgYXQgbmVpZ2hib3Job29kIGxldmVsIG9ubHkKCiAgIyBjcmVhdGUgbmV3IE1ham9yaXR5X0FBIHZhcmlhYmxlIHRoYXQgaW5kaWNhdGVzIGlmIFBlcmNlbnRfQUEgaXMgZ3JlYXRlciB0aGFuIDUwJSBvciBub3QgJT4lCiAgbXV0YXRlKE1ham9yaXR5X0FBID0gY2FzZV93aGVuKAogICAgUGVyY2VudF9BQSA+IDUwIH4gIlllcyIsIAogICAgUGVyY2VudF9BQSA8ICA1MCB+ICJObyIpKSAlPiUKICAjIGNyZWF0ZSBhIG5ldyB2YXJpYWJsZSBhYm91dCB0aGlzIGluIHRleHQKICAgbXV0YXRlKE5laWdoYm9yaG9vZF90eXBlID0gY2FzZV93aGVuKAogICAgUGVyY2VudF9BQSA+IDUwIH4gIk1ham9yaXR5XG5CbGFjayIsIAogICAgUGVyY2VudF9BQSA8ICA1MCB+ICJNYWpvcml0eVxuTm9uLUJsYWNrIikpICU+JSAKICAjIG1ha2UgdGhpcyBhIGZhY3RvciBhbmQgb3JkZXIgYnkgbGV2ZWwgYXBwZWFyYW5jZSBpbiB0aGUgZGF0YQogIG11dGF0ZShOZWlnaGJvcmhvb2RfdHlwZSA9IGFzX2ZhY3RvcihOZWlnaGJvcmhvb2RfdHlwZSksCiAgICAgICAgIE5laWdoYm9yaG9vZF90eXBlID0gZm9yY2F0czo6ZmN0X2lub3JkZXIoTmVpZ2hib3Job29kX3R5cGUpKQoKCiBuZWlnaGJvcmhvb2RfZGVtIDwtIGdncGxvdCgpICtnZW9tX3NmKGRhdGEgPSBuZWlnaGJvcmhvb2RzX3NmLCBhZXMoZmlsbCA9IE5laWdoYm9yaG9vZF90eXBlKSkrCiAgIHNjYWxlX2ZpbGxfbWFudWFsKHZhbHVlcyA9IGMoIk1ham9yaXR5XG5CbGFjayIgPSAiIzQ4MjY3N0ZGIiwgIk1ham9yaXR5XG5Ob24tQmxhY2siID0gIiMyMEEzODdGRiIpKSsKICAgIHRoZW1lX21pbmltYWwoKQogbmVpZ2hib3Job29kX2RlbQoKYGBgCgoKIyBNYXAgb2YgSGlnaCB2cyBMb3cgQXNzZXQgT3JncwoKCmBgYHtyfQphc3NldF9wbG90X2hpZ2hfVnNfbG93IDwtIG5laWdoYm9yaG9vZF9kZW0gKyAKICAgIGdlb21fc2YoZGF0YSA9IG11bHRpX3BvbHlnb25fc2YsIGFscGhhID0gMC44LCBzaGFwZSA9IDIxLCBjb2xvciA9ImJsYWNrIiwgZmlsbCA9ICIjRENFMzE5RkYiKSsgZmFjZXRfZ3JpZCh+QVNTRVRfSGlnaF90ZXh0KSsKICAgIHRoZW1lX3ZvaWQoKSArCiAgICAgbGFicyh0aXRsZSA9ICJIaWdoIHZzIExvdyBBc3NldCBOb24tUHJvZml0cyBpbiBCYWx0aW1vcmUiKSAKCgphc3NldF9wbG90X2hpZ2hfVnNfbG93CgpgYGAKCgojIE1hcCBvZiBkaWZmZXJlbnQgdHlwZXMgb2Ygb3JncyBieSBhc3NldApgYGB7cn0KCmFzc2V0X3Bsb3RfYWxsX2ZhY2V0ZWQgPC0gbmVpZ2hib3Job29kX2RlbSArIAogICAgZ2VvbV9zZihkYXRhID0gbXVsdGlfcG9seWdvbl9zZiwgYWxwaGEgPSAwLjgsIHNoYXBlID0gMjEsIGNvbG9yID0iYmxhY2siLCBmaWxsID0gIiNEQ0UzMTlGRiIpKyBmYWNldF93cmFwKH5OVEVFX3RleHQsIG5jb2wgPSAzICkrCiAgICB0aGVtZV92b2lkKCkgKwogIGxhYnModGl0bGUgPSAiTm9uLVByb2ZpdHMgaW4gQmFsdGltb3JlIGJ5IFR5cGUiKSAKYXNzZXRfcGxvdF9hbGxfZmFjZXRlZApgYGAKCiMgSGlnaCBBc3NldCBOb24tUHJvZml0cyBpbiBCYWx0aW1vcmUgYnkgVHlwZQoKYGBge3J9CmRhdGFfdG9fbWFwIDwtbXVsdGlfcG9seWdvbl9zZiAlPiUgZmlsdGVyKEFTU0VUX0hpZ2hfdGV4dCA9PSAiSGlnaCBBc3NldCIpIAoKYXNzZXRfcGxvdCA8LSBuZWlnaGJvcmhvb2RfZGVtICsgCiAgICBnZW9tX3NmKGRhdGEgPSBkYXRhX3RvX21hcCwgYWxwaGEgPSAwLjgsIHNoYXBlID0gMjEsIGNvbG9yID0iYmxhY2siLCBmaWxsID0gIiNEQ0UzMTlGRiIpKyBmYWNldF93cmFwKH5OVEVFX3RleHQsIG5jb2wgPSAzICkrCiAgICB0aGVtZV92b2lkKCkgKwogIGxhYnModGl0bGUgPSAiSGlnaCBBc3NldCBOb24tUHJvZml0cyBpbiBCYWx0aW1vcmUgYnkgVHlwZSIpIAphc3NldF9wbG90CmBgYAoKCgo=</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("04_maps.Rmd");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

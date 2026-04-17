@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>02_filtering_data.knit</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+<style type="text/css">
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Baltimore nonprofits assets analysis</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="01_prepare_neighborhood_data.html">Import Data</a>
+</li>
+<li>
+  <a href="02_filtering_data.html">Filtering</a>
+</li>
+<li>
+  <a href="03_filter_orgs_and_analysis.html">Variable Generation &amp; Analysis</a>
+</li>
+<li>
+  <a href="04_maps.html">Maps</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+
+<div id="filtering-orgs" class="section level1">
+<h1>Filtering Orgs</h1>
+<p>First reading in our data:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.2
+## ✔ ggplot2   4.0.0     ✔ tibble    3.3.0
+## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+## ✔ purrr     1.1.0     
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code></pre></div>
+<pre><code>## Linking to GEOS 3.13.0, GDAL 3.8.5, PROJ 9.5.1; sf_use_s2() is TRUE</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">&quot;data/processed/org_data.rds&quot;</span>)</span></code></pre></div>
+<div id="filter-out-foundation-code-00-orgs" class="section level2">
+<h2>Filter out foundation code 00 orgs</h2>
+<p>Based on <a href="https://www.irs.gov/pub/irs-soi/eo-info.pdf"
+class="uri">https://www.irs.gov/pub/irs-soi/eo-info.pdf</a> page 3 - we
+will exclude 00 for foundation code - all orgs except 501c3 to filter
+down to 501c3 - looks like they are coded as 0 instead of 00.</p>
+<p>We start with 9997 rows.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>found_00_orgs <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(BMF_FOUNDATION_CODE <span class="sc">==</span> <span class="st">&quot;0&quot;</span>)  <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(ORG_NAME_CURRENT) </span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>found_00_orgs <span class="sc">%&gt;%</span> <span class="fu">head</span>( <span class="at">n =</span> <span class="dv">10</span>) <span class="co">#show a couple of examples of what will be dropped</span></span></code></pre></div>
+<pre><code>## Simple feature collection with 10 features and 1 field
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -76.70965 ymin: 39.26811 xmax: -76.52996 ymax: 39.3452
+## Geodetic CRS:  WGS 84
+## # A tibble: 10 × 2
+##    ORG_NAME_CURRENT                                              geometry.x
+##    &lt;chr&gt;                                                        &lt;POINT [°]&gt;
+##  1 ANCIENT FREE &amp; ACCEPTED MASONS OF MARYLAND 210 BAL… (-76.61526 39.29176)
+##  2 STA OF BALTIMORE-ILA CONTAINER ROYALTY FUND         (-76.52996 39.26811)
+##  3 AMERICAN CRIMINAL JUSTICE ASSOCIATION LAMBDA ALPHA…  (-76.65829 39.3127)
+##  4 MARYLAND SLEEP SOCIETY                              (-76.61849 39.30392)
+##  5 AMERICAN FEDERATION OF STATE COUNTY &amp; MUNICIPAL EM…  (-76.6195 39.27516)
+##  6 NATIONAL ASSOCIATION FOR THE ADVANCEMENT OF COLORE…  (-76.70965 39.3452)
+##  7 NATIONAL ASSOCIATION FOR THE ADVANCEMENT OF COLORE…  (-76.70965 39.3452)
+##  8 KNIGHTS OF COLUMBUS                                 (-76.61726 39.32261)
+##  9 CATON HEALTH CORPORATION                            (-76.67106 39.27302)
+## 10 MYRA GRAND CHAPTER ORDER OF THE EASTERN STARS       (-76.62622 39.30425)</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">subset</span>(<span class="fu">is.na</span>(BMF_FOUNDATION_CODE)<span class="sc">|</span> BMF_FOUNDATION_CODE <span class="sc">!=</span> <span class="st">&quot;0&quot;</span>)<span class="co"># keeping NA values</span></span></code></pre></div>
+<p>After filtering out these orgs, we end with 8150 rows, removing 1847
+orgs with foundation code 00.</p>
+</div>
+<div id="filter-out-social_clubs" class="section level2">
+<h2>Filter out social_clubs</h2>
+<p>We start with 8150 rows.</p>
+<p>See page 16 for more information: <a
+href="https://nccs.urban.org/pubs/nccs-data-guide.pdf"
+class="uri">https://nccs.urban.org/pubs/nccs-data-guide.pdf</a> and see
+<a
+href="https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html"
+class="uri">https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html</a>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>socialclubs <span class="ot">&lt;-</span>org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(<span class="at">string =</span> NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;Y|y&quot;</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>socialclubs <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(ORG_NAME_CURRENT)</span></code></pre></div>
+<pre><code>## Simple feature collection with 21 features and 1 field
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -76.70011 ymin: 39.22858 xmax: -76.53126 ymax: 39.369
+## Geodetic CRS:  WGS 84
+## # A tibble: 21 × 2
+##    ORG_NAME_CURRENT                                              geometry.x
+##    &lt;chr&gt;                                                        &lt;POINT [°]&gt;
+##  1 CATHOLIC DAUGHTERS OF AMERICA 1600 CT ST JOSEPH     (-76.70011 39.27981)
+##  2 CATHOLIC DAUGHTERS OF AMERICA 1034 CT LITTLE FLOWER (-76.57475 39.29161)
+##  3 CATHOLIC DAUGHTERS OF THE AMERICAS                    (-76.60268 39.369)
+##  4 CATHOLIC DAUGHTERS OF THE AMERICAS                  (-76.57505 39.32177)
+##  5 CATHOLIC DAUGHTERS OF AMERICA 1801 CT ST PIUS X     (-76.60525 39.22858)
+##  6 ANCIENT AND ACCEPTED SCOTTISH RITE OF FREE MASONRY… (-76.60412 39.29132)
+##  7 LEADERS WITH INTEGRITY FOCUS AND EDUCATION          (-76.58629 39.35061)
+##  8 GRAND LODGE CESKO SLOVANSKA PODPORUJICI SPOLECNOST… (-76.55258 39.30808)
+##  9 JOURNEY CONTINUES INC                               (-76.58843 39.36335)
+## 10 BOHEMIAN CEMETERY COMPANY                           (-76.55258 39.30808)
+## # ℹ 11 more rows</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_detect</span>(<span class="at">string =</span> NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;Y|y&quot;</span>)<span class="sc">|</span> <span class="fu">is.na</span>(NTEE_IRS)) <span class="co"># keeping NA values</span></span></code></pre></div>
+<p>After filtering out social clubs we end up with 8129 rows, removing
+21 social club orgs.</p>
+</div>
+<div id="filter-out-po-boxes" class="section level2">
+<h2>Filter out PO Boxes</h2>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>Post_offices <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(F990_ORG_ADDR_STREET, <span class="st">&quot;PO BOX |POST OFFICE&quot;</span>))</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>Post_offices <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(F990_ORG_ADDR_STREET)</span></code></pre></div>
+<pre><code>## Simple feature collection with 422 features and 1 field
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -76.69207 ymin: 39.24325 xmax: -76.54166 ymax: 39.36672
+## Geodetic CRS:  WGS 84
+## # A tibble: 422 × 2
+##    F990_ORG_ADDR_STREET           geometry.x
+##    &lt;chr&gt;                         &lt;POINT [°]&gt;
+##  1 PO BOX 66182         (-76.58814 39.36046)
+##  2 PO BOX 27297          (-76.67225 39.3118)
+##  3 PO BOX 11714          (-76.5559 39.33483)
+##  4 PO BOX 67612          (-76.68345 39.3461)
+##  5 PO BOX 66462         (-76.58843 39.36335)
+##  6 PO BOX 2035          (-76.60412 39.29132)
+##  7 PO BOX 1652          (-76.60454 39.29244)
+##  8 PO BOX 79502         (-76.56761 39.29284)
+##  9 PO BOX 39584         (-76.60998 39.36408)
+## 10 PO BOX 2727          (-76.60911 39.24325)
+## # ℹ 412 more rows</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_detect</span>(F990_ORG_ADDR_STREET, <span class="st">&quot;PO BOX |POST OFFICE&quot;</span>)<span class="sc">|</span> <span class="fu">is.na</span>(F990_ORG_ADDR_STREET)) <span class="co"># keeping NA values)</span></span></code></pre></div>
+<p>After filtering out PO Boxes we end up with 7707 rows, removing 422
+orgs with a post office box address.</p>
+</div>
+<div id="filter-out-foundation-code-04-and-17" class="section level2">
+<h2>Filter out foundation code 04 and 17</h2>
+<ul>
+<li>04 = Private non-operating foundation</li>
+<li>17 = Organizations operated solely for the benefit of and in
+conjunction with organizations with code 10 through 16</li>
+</ul>
+<p>We want to remove these and set them aside.</p>
+<p>Let’s keep on their own as an aside but remove from main data.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>no_oper_orgs<span class="ot">&lt;-</span>org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(BMF_FOUNDATION_CODE <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;4&quot;</span>,<span class="st">&quot;17&quot;</span>))  <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(ORG_NAME_CURRENT)  <span class="co">#show examples of what will be dropped</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>no_oper_orgs <span class="sc">%&gt;%</span> <span class="fu">head</span>( <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
+<pre><code>## Simple feature collection with 10 features and 1 field
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -76.70683 ymin: 39.28089 xmax: -76.57429 ymax: 39.35976
+## Geodetic CRS:  WGS 84
+## # A tibble: 10 × 2
+##    ORG_NAME_CURRENT                                           geometry.x
+##    &lt;chr&gt;                                                     &lt;POINT [°]&gt;
+##  1 RESPECT OUTREACH CENTER INC                      (-76.69427 39.33412)
+##  2 JA ART WORK LTD                                  (-76.61015 39.34546)
+##  3 HUMANIZE                                         (-76.60831 39.32435)
+##  4 CREW ENSEMBLE INC                                 (-76.61448 39.2978)
+##  5 BROWN ADVISORY CHARITABLE FOUNDATION INC         (-76.59497 39.28089)
+##  6 SISTERS OF FELLOWSHIP                            (-76.57898 39.35976)
+##  7 WE DO OUR BEST AT RECOVERY INC 12 STEPS          (-76.57429 39.32038)
+##  8 KING MEMORIAL CHILD CARE FAMILY ACADEMY INC      (-76.70683 39.31009)
+##  9 SHILOH RESOURCE COMMUNITY AND DEVELOPMENT CENTER (-76.68396 39.31561)
+## 10 VICE SQUAD MINISTRIES INC                        (-76.66784 39.34583)</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">subset</span>(<span class="fu">is.na</span>(BMF_FOUNDATION_CODE)<span class="sc">|</span> <span class="sc">!</span> BMF_FOUNDATION_CODE  <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;4&quot;</span>,<span class="st">&quot;17&quot;</span>))<span class="co"># keeping NA values</span></span></code></pre></div>
+<p>After filtering out these orgs we end up with 6843 rows, removing 864
+orgs with foundation code 04 or 17.</p>
+</div>
+<div id="filtering-for-year" class="section level2">
+<h2>Filtering for year</h2>
+<p>Filing is due May 15 each year, since the data is from March 2024,
+that means it only shows 2023 complete data.</p>
+<p>Orgs only need to file every 3 years as well, but this would be a
+sliding window for orgs at different times as, but we could require that
+the last filing time be within the last 3 complete years.</p>
+<p>According to the <a
+href="https://nccsdata.s3.amazonaws.com/harmonized/harmonized_data_dictionary.xlsx">dictionary</a>:</p>
+<ul>
+<li>ORG_FISCAL_YEAR = Fiscal Year of the BMF from which this record was
+pulled</li>
+<li>ORG_YEAR_LAST = Most recent year EIN was recorded in BMF</li>
+</ul>
+<p>If we assume a sliding window and people would need to have filed in
+the last 3 complete years, than we can include orgs that filed in 2021,
+2022, and 2023 (as well as the incomplete 2024).</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>active_orgs <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ORG_YEAR_LAST <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">2024</span>, <span class="dv">2023</span>, <span class="dv">2022</span>, <span class="dv">2021</span>))</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>non_active_orgs <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span> ORG_YEAR_LAST <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">2024</span>, <span class="dv">2023</span>, <span class="dv">2022</span>, <span class="dv">2021</span>))</span></code></pre></div>
+<p>After filtering out orgs that filed between May 15, 2023 and March
+2024, we have 6843 rows, removing 3016 orgs with that filed at that
+time.</p>
+<p>After filtering out orgs that last filed in the last 3 complete
+years, we end up with 3827.</p>
+<p>Now let’s remove orgs from industrial neighborhoods with Population
+of 0 or NA.</p>
+<p>Let’s first check what those neighborhoods are.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>active_orgs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">is.na</span>(Population)) <span class="co"># this is two orgs in a park</span></span></code></pre></div>
+<pre><code>## Simple feature collection with 2 features and 108 fields
+## Active geometry column: geometry.x
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -76.62243 ymin: 39.25142 xmax: -76.615 ymax: 39.25437
+## Geodetic CRS:  WGS 84
+## # A tibble: 2 × 110
+##   EIN2      EIN NTEE_IRS NTEE_NCCS NTEEV2 NCCS_LEVEL_1 NCCS_LEVEL_2 NCCS_LEVEL_3
+## * &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt;  &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;       
+## 1 EIN-5… 5.20e8 E220     E220      &lt;NA&gt;   501C3 CHARI… O            HE          
+## 2 EIN-5… 5.21e8 N67      N67       HMS-N… 501C3 CHARI… O            HS          
+## # ℹ 102 more variables: F990_TOTAL_REVENUE_RECENT &lt;dbl&gt;,
+## #   F990_TOTAL_INCOME_RECENT &lt;dbl&gt;, F990_TOTAL_ASSETS_RECENT &lt;dbl&gt;,
+## #   F990_ORG_ADDR_CITY &lt;chr&gt;, F990_ORG_ADDR_STATE &lt;chr&gt;,
+## #   F990_ORG_ADDR_ZIP &lt;chr&gt;, F990_ORG_ADDR_STREET &lt;chr&gt;,
+## #   CENSUS_CBSA_FIPS &lt;dbl&gt;, CENSUS_CBSA_NAME &lt;chr&gt;, CENSUS_BLOCK_FIPS &lt;dbl&gt;,
+## #   CENSUS_URBAN_AREA &lt;chr&gt;, CENSUS_STATE_ABBR &lt;chr&gt;, CENSUS_COUNTY_NAME &lt;chr&gt;,
+## #   ORG_ADDR_FULL &lt;chr&gt;, ORG_ADDR_MATCH &lt;chr&gt;, GEOCODER_SCORE &lt;dbl&gt;, …</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>popzero <span class="ot">&lt;-</span>active_orgs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population<span class="sc">==</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>popzero <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(Name)</span></code></pre></div>
+<pre><code>##                             Name
+## 1               Herring Run Park
+## 2                   Carroll Park
+## 3       Gwynns Falls/Leakin Park
+## 4  Spring Garden Industrial Area
+## 5                   Carroll Park
+## 6                   Carroll Park
+## 7  Spring Garden Industrial Area
+## 8  Spring Garden Industrial Area
+## 9  Spring Garden Industrial Area
+## 10 Spring Garden Industrial Area
+## 11 Spring Garden Industrial Area
+## 12 Spring Garden Industrial Area</code></pre>
+<p>OK these make sense. Let’s remove them.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="co">#first dim before removal</span></span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="fu">dim</span>(active_orgs)</span></code></pre></div>
+<pre><code>## [1] 3827  110</code></pre>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>active_orgs <span class="ot">&lt;-</span>active_orgs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population<span class="sc">!=</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Population))</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="fu">dim</span>(active_orgs)</span></code></pre></div>
+<pre><code>## [1] 3813  110</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="fu">dim</span>(popzero)</span></code></pre></div>
+<pre><code>## [1]  12 110</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="co"># OK this looks right</span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="fu">write_rds</span>(active_orgs, <span class="at">file =</span> <span class="st">&quot;data/processed/active_orgs.rds&quot;</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a><span class="fu">write_csv</span>(non_active_orgs, <span class="at">file =</span> <span class="st">&quot;data/processed/non_active_orgs.csv&quot;</span>)</span></code></pre></div>
+</div>
+</div>
+
+<div id="rmd-source-code">CgojIEZpbHRlcmluZyBPcmdzCgpGaXJzdCByZWFkaW5nIGluIG91ciBkYXRhOgoKYGBge3J9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KHNmKQpvcmdfZGF0YSA8LSByZWFkX3JkcygiZGF0YS9wcm9jZXNzZWQvb3JnX2RhdGEucmRzIikKCmBgYAoKIyMgRmlsdGVyIG91dCBmb3VuZGF0aW9uIGNvZGUgMDAgb3JncwoKQmFzZWQgb24gaHR0cHM6Ly93d3cuaXJzLmdvdi9wdWIvaXJzLXNvaS9lby1pbmZvLnBkZiAKcGFnZSAzIC0gd2Ugd2lsbCBleGNsdWRlIDAwIGZvciBmb3VuZGF0aW9uIGNvZGUgLSBhbGwgb3JncyBleGNlcHQgNTAxYzMgdG8gZmlsdGVyIGRvd24gdG8gNTAxYzMgLSBsb29rcyBsaWtlIHRoZXkgYXJlIGNvZGVkIGFzIDAgaW5zdGVhZCBvZiAwMC4KCldlIHN0YXJ0IHdpdGggYHIgbnJvdyhvcmdfZGF0YSlgIHJvd3MuCmBgYHtyfQpmb3VuZF8wMF9vcmdzIDwtIG9yZ19kYXRhICU+JSBmaWx0ZXIoQk1GX0ZPVU5EQVRJT05fQ09ERSA9PSAiMCIpICAlPiUgZHBseXI6OnNlbGVjdChPUkdfTkFNRV9DVVJSRU5UKSAKCmZvdW5kXzAwX29yZ3MgJT4lIGhlYWQoIG4gPSAxMCkgI3Nob3cgYSBjb3VwbGUgb2YgZXhhbXBsZXMgb2Ygd2hhdCB3aWxsIGJlIGRyb3BwZWQKCm9yZ19kYXRhIDwtIG9yZ19kYXRhICU+JSBzdWJzZXQoaXMubmEoQk1GX0ZPVU5EQVRJT05fQ09ERSl8IEJNRl9GT1VOREFUSU9OX0NPREUgIT0gIjAiKSMga2VlcGluZyBOQSB2YWx1ZXMKYGBgCgpBZnRlciBmaWx0ZXJpbmcgb3V0IHRoZXNlIG9yZ3MsIHdlIGVuZCB3aXRoIGByIG5yb3cob3JnX2RhdGEpYCByb3dzLCByZW1vdmluZyBgciBucm93KGZvdW5kXzAwX29yZ3MpYCBvcmdzIHdpdGggZm91bmRhdGlvbiBjb2RlIDAwLgoKCiMjIEZpbHRlciBvdXQgc29jaWFsX2NsdWJzIAoKV2Ugc3RhcnQgd2l0aCBgciBucm93KG9yZ19kYXRhKWAgcm93cy4KClNlZSBwYWdlIDE2IGZvciBtb3JlIGluZm9ybWF0aW9uOiBodHRwczovL25jY3MudXJiYW4ub3JnL3B1YnMvbmNjcy1kYXRhLWd1aWRlLnBkZiBhbmQgc2VlIGh0dHBzOi8vdXJiYW5pbnN0aXR1dGUuZ2l0aHViLmlvL25jY3MtbGVnYWN5L250ZWUvbnRlZS1oaXN0b3J5Lmh0bWwuIAoKYGBge3J9CnNvY2lhbGNsdWJzIDwtb3JnX2RhdGEgJT4lIGZpbHRlcihzdHJfZGV0ZWN0KHN0cmluZyA9IE5URUVfSVJTLCBwYXR0ZXJuID0gIll8eSIpKQpzb2NpYWxjbHVicyAlPiUgZHBseXI6OnNlbGVjdChPUkdfTkFNRV9DVVJSRU5UKQoKb3JnX2RhdGEgPC0gb3JnX2RhdGEgJT4lIGZpbHRlcighc3RyX2RldGVjdChzdHJpbmcgPSBOVEVFX0lSUywgcGF0dGVybiA9ICJZfHkiKXwgaXMubmEoTlRFRV9JUlMpKSAjIGtlZXBpbmcgTkEgdmFsdWVzCmBgYAoKCkFmdGVyIGZpbHRlcmluZyBvdXQgc29jaWFsIGNsdWJzIHdlIGVuZCB1cCB3aXRoIGByIG5yb3cob3JnX2RhdGEpYCByb3dzLCByZW1vdmluZyBgciBucm93KHNvY2lhbGNsdWJzKWAgc29jaWFsIGNsdWIgb3Jncy4KCiMjIEZpbHRlciBvdXQgUE8gQm94ZXMKCmBgYHtyfQpQb3N0X29mZmljZXMgPC0gb3JnX2RhdGEgJT4lIGZpbHRlcihzdHJfZGV0ZWN0KEY5OTBfT1JHX0FERFJfU1RSRUVULCAiUE8gQk9YIHxQT1NUIE9GRklDRSIpKQoKUG9zdF9vZmZpY2VzICU+JSBkcGx5cjo6c2VsZWN0KEY5OTBfT1JHX0FERFJfU1RSRUVUKQoKb3JnX2RhdGEgPC0gb3JnX2RhdGEgJT4lIGZpbHRlcighc3RyX2RldGVjdChGOTkwX09SR19BRERSX1NUUkVFVCwgIlBPIEJPWCB8UE9TVCBPRkZJQ0UiKXwgaXMubmEoRjk5MF9PUkdfQUREUl9TVFJFRVQpKSAjIGtlZXBpbmcgTkEgdmFsdWVzKQpgYGAKCkFmdGVyIGZpbHRlcmluZyBvdXQgUE8gQm94ZXMgd2UgZW5kIHVwIHdpdGggYHIgbnJvdyhvcmdfZGF0YSlgIHJvd3MsIHJlbW92aW5nIGByIG5yb3coUG9zdF9vZmZpY2VzKWAgIG9yZ3Mgd2l0aCBhIHBvc3Qgb2ZmaWNlIGJveCBhZGRyZXNzLgoKIyMgRmlsdGVyIG91dCBmb3VuZGF0aW9uIGNvZGUgMDQgYW5kIDE3CgoKLSAwNCA9IFByaXZhdGUgbm9uLW9wZXJhdGluZyBmb3VuZGF0aW9uCi0gMTcgPSBPcmdhbml6YXRpb25zIG9wZXJhdGVkIHNvbGVseSBmb3IgdGhlIGJlbmVmaXQgb2YgYW5kIGluIGNvbmp1bmN0aW9uIHdpdGggb3JnYW5pemF0aW9ucyB3aXRoIGNvZGUgMTAgdGhyb3VnaCAxNiAKCldlIHdhbnQgdG8gcmVtb3ZlIHRoZXNlIGFuZCBzZXQgdGhlbSBhc2lkZS4gCgpMZXQncyBrZWVwIG9uIHRoZWlyIG93biBhcyBhbiBhc2lkZSBidXQgcmVtb3ZlIGZyb20gbWFpbiBkYXRhLgoKYGBge3J9Cm5vX29wZXJfb3Jnczwtb3JnX2RhdGEgJT4lIGZpbHRlcihCTUZfRk9VTkRBVElPTl9DT0RFICVpbiUgYygiNCIsIjE3IikpICAlPiUgZHBseXI6OnNlbGVjdChPUkdfTkFNRV9DVVJSRU5UKSAgI3Nob3cgZXhhbXBsZXMgb2Ygd2hhdCB3aWxsIGJlIGRyb3BwZWQKbm9fb3Blcl9vcmdzICU+JSBoZWFkKCBuID0gMTApCgpvcmdfZGF0YSA8LSBvcmdfZGF0YSAlPiUgc3Vic2V0KGlzLm5hKEJNRl9GT1VOREFUSU9OX0NPREUpfCAhIEJNRl9GT1VOREFUSU9OX0NPREUgICVpbiUgYygiNCIsIjE3IikpIyBrZWVwaW5nIE5BIHZhbHVlcwoKYGBgCgpBZnRlciBmaWx0ZXJpbmcgb3V0IHRoZXNlIG9yZ3Mgd2UgZW5kIHVwIHdpdGggYHIgbnJvdyhvcmdfZGF0YSlgIHJvd3MsIHJlbW92aW5nIGByIG5yb3cobm9fb3Blcl9vcmdzKWAgb3JncyB3aXRoIGZvdW5kYXRpb24gY29kZSAwNCBvciAxNy4gCgojIyBGaWx0ZXJpbmcgZm9yIHllYXIKCkZpbGluZyBpcyBkdWUgTWF5IDE1IGVhY2ggeWVhciwgc2luY2UgdGhlIGRhdGEgaXMgZnJvbSBNYXJjaCAyMDI0LCB0aGF0IG1lYW5zIGl0IG9ubHkgc2hvd3MgMjAyMyBjb21wbGV0ZSBkYXRhLgoKT3JncyBvbmx5IG5lZWQgdG8gZmlsZSBldmVyeSAzIHllYXJzIGFzIHdlbGwsIGJ1dCB0aGlzIHdvdWxkIGJlIGEgc2xpZGluZyB3aW5kb3cgZm9yIG9yZ3MgYXQgZGlmZmVyZW50IHRpbWVzIGFzLCBidXQgd2UgY291bGQgcmVxdWlyZSB0aGF0IHRoZSBsYXN0IGZpbGluZyB0aW1lIGJlIHdpdGhpbiB0aGUgbGFzdCAzIGNvbXBsZXRlIHllYXJzLgoKQWNjb3JkaW5nIHRvIHRoZSBbZGljdGlvbmFyeV0oaHR0cHM6Ly9uY2NzZGF0YS5zMy5hbWF6b25hd3MuY29tL2hhcm1vbml6ZWQvaGFybW9uaXplZF9kYXRhX2RpY3Rpb25hcnkueGxzeCk6CgotIE9SR19GSVNDQUxfWUVBUgk9IEZpc2NhbCBZZWFyIG9mIHRoZSBCTUYgZnJvbSB3aGljaCB0aGlzIHJlY29yZCB3YXMgcHVsbGVkCi0gT1JHX1lFQVJfTEFTVCA9CU1vc3QgcmVjZW50IHllYXIgRUlOIHdhcyByZWNvcmRlZCBpbiBCTUYKCgoKSWYgd2UgYXNzdW1lIGEgc2xpZGluZyB3aW5kb3cgYW5kIHBlb3BsZSB3b3VsZCBuZWVkIHRvIGhhdmUgZmlsZWQgaW4gdGhlIGxhc3QgMyBjb21wbGV0ZSB5ZWFycywgdGhhbiB3ZSBjYW4gaW5jbHVkZSBvcmdzIHRoYXQgZmlsZWQgaW4gMjAyMSwgMjAyMiwgYW5kIDIwMjMgKGFzIHdlbGwgYXMgdGhlIGluY29tcGxldGUgMjAyNCkuCgpgYGB7cn0KYWN0aXZlX29yZ3MgPC0gb3JnX2RhdGEgJT4lIGZpbHRlcihPUkdfWUVBUl9MQVNUICVpbiUgYygyMDI0LCAyMDIzLCAyMDIyLCAyMDIxKSkKbm9uX2FjdGl2ZV9vcmdzIDwtIG9yZ19kYXRhICU+JSBmaWx0ZXIoISBPUkdfWUVBUl9MQVNUICVpbiUgYygyMDI0LCAyMDIzLCAyMDIyLCAyMDIxKSkKYGBgCgpBZnRlciBmaWx0ZXJpbmcgb3V0IG9yZ3MgdGhhdCBmaWxlZCBiZXR3ZWVuIE1heSAxNSwgMjAyMyBhbmQgTWFyY2ggMjAyNCwgd2UgaGF2ZSBgciBucm93KG9yZ19kYXRhKWAgcm93cywgcmVtb3ZpbmcgYHIgbnJvdyhub25fYWN0aXZlX29yZ3MpYCBvcmdzIHdpdGggdGhhdCBmaWxlZCBhdCB0aGF0IHRpbWUuCgpBZnRlciBmaWx0ZXJpbmcgb3V0IG9yZ3MgdGhhdCBsYXN0IGZpbGVkIGluIHRoZSBsYXN0IDMgY29tcGxldGUgeWVhcnMsIHdlIGVuZCB1cCB3aXRoIGByIG5yb3coYWN0aXZlX29yZ3MpYC4KCgpOb3cgbGV0J3MgcmVtb3ZlIG9yZ3MgZnJvbSBpbmR1c3RyaWFsIG5laWdoYm9yaG9vZHMgd2l0aCBQb3B1bGF0aW9uIG9mIDAgb3IgTkEuCgpMZXQncyBmaXJzdCBjaGVjayB3aGF0IHRob3NlIG5laWdoYm9yaG9vZHMgYXJlLgoKCmBgYHtyfQphY3RpdmVfb3JncyAlPiUgZmlsdGVyKGlzLm5hKFBvcHVsYXRpb24pKSAjIHRoaXMgaXMgdHdvIG9yZ3MgaW4gYSBwYXJrCnBvcHplcm8gPC1hY3RpdmVfb3JncyAlPiUgZmlsdGVyKFBvcHVsYXRpb249PSAwKSAlPiUgYXMuZGF0YS5mcmFtZSgpCnBvcHplcm8gJT4lIGRwbHlyOjpzZWxlY3QoTmFtZSkKCgpgYGAKCk9LIHRoZXNlIG1ha2Ugc2Vuc2UuIExldCdzIHJlbW92ZSB0aGVtLgoKYGBge3J9CgojZmlyc3QgZGltIGJlZm9yZSByZW1vdmFsCmRpbShhY3RpdmVfb3JncykKYWN0aXZlX29yZ3MgPC1hY3RpdmVfb3JncyAlPiUgZmlsdGVyKFBvcHVsYXRpb24hPSAwKSAlPiUgZmlsdGVyKCFpcy5uYShQb3B1bGF0aW9uKSkKZGltKGFjdGl2ZV9vcmdzKQpkaW0ocG9wemVybykKIyBPSyB0aGlzIGxvb2tzIHJpZ2h0CgpgYGAKCgpgYGB7cn0Kd3JpdGVfcmRzKGFjdGl2ZV9vcmdzLCBmaWxlID0gImRhdGEvcHJvY2Vzc2VkL2FjdGl2ZV9vcmdzLnJkcyIpCndyaXRlX2Nzdihub25fYWN0aXZlX29yZ3MsIGZpbGUgPSAiZGF0YS9wcm9jZXNzZWQvbm9uX2FjdGl2ZV9vcmdzLmNzdiIpCmBgYAo=</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("02_filtering_data.Rmd");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
