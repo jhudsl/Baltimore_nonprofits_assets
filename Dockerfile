@@ -1,8 +1,9 @@
-FROM rocker/tidyverse:latest
+# Edits from cansavvy to change to littler as well as pinning to a version
+FROM jhudsl/base_ottr:main-r4.4.0
 LABEL maintainer="cwright2@fredhutch.org"
 
-RUN Rscript -e  "options(warn = 2);install.packages('stringr', repos = 'https://cloud.r-project.org/')"
-
+# Install R packages via littler (install2.r is included in rocker/tidyverse)
+RUN install2.r --error --deps TRUE stringr
 
 # System dependencies for R packages
 RUN apt-get update && apt-get install -y \
@@ -23,28 +24,28 @@ RUN apt-get update && apt-get install -y \
     libcairo2-dev \
     libgit2-dev \
 
+RUN install2.r --error --deps TRUE sf
 
-RUN Rscript -e  "options(warn = 2);install.packages('sf', repos = 'https://cloud.r-project.org/')"
+RUN install2.r --error --deps TRUE naniar
 
-RUN Rscript -e  "options(warn = 2);install.packages('naniar', repos = 'https://cloud.r-project.org/')"
+RUN install2.r --error --deps TRUE \
+    stars \
+    areal \
+    leafem \
+    leafgl \
+    leaflegend \
+    leaflet \
+    leafsync \
+    maptiles \
+    s2 \
+    tmaptools \
+    units \
+    tmap \
+    raster \
+    lwgeom \
+    leafpop \
+    satellite \
+    mapview
+    
+    HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhost/health || exit 1
 
-
-RUN Rscript -e  "options(warn = 2);install.packages( \
-    c('stars',\
-     'areal',\
-     'leafem',\
-     'leafgl',\
-     'leaflegend',\
-     'leaflet',\
-     'leafsync',\
-     'maptiles', \
-     's2',\
-     'tmaptools',\
-     'units',\
-     'tmap', \
-     'raster',\
-     'lwgeom', \
-     'leafpop',\
-     'satellite',\
-      'mapview), \
-    dependencies=TRUE, repos = 'https://cloud.r-project.org/')"
