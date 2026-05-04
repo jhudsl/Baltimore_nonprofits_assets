@@ -607,19 +607,21 @@ neighborhood_AAperc_nozero %>% pull(Percent_AA) %>% hist(main = "Distribution of
 
 ```{r}
 
-Black_majority_neighborhoods <-neighborhood_AAperc %>% filter(Percent_AA>=50) %>% pull(Name)
+Black_majority_neighborhoods <-neighborhood_shape%>% mutate(Percent_AA = 
+           round(Blk_AfAm/Population*100, digits = 2)) %>%filter(Percent_AA>=50) %>% pull(Name)
 
 length(Black_majority_neighborhoods) # number of black majority neighborhoods
 
-Not_Black_majority_neighborhoods <-neighborhood_AAperc %>% filter(Percent_AA<50) %>% pull(Name)
+Not_Black_majority_neighborhoods <-neighborhood_shape%>% mutate(Percent_AA = 
+           round(Blk_AfAm/Population*100, digits = 2)) %>% filter(Percent_AA<50) %>% pull(Name)
 
 length(Not_Black_majority_neighborhoods)
 
-pop_in_black_neighborhoods <-filter(df_simplified, Name %in% Black_majority_neighborhoods) %>% pull(Population) %>% sum()
+pop_in_black_neighborhoods <-filter(neighborhoods, Name %in% Black_majority_neighborhoods) %>% pull(Population) %>% sum()
 #population living in Black majority neighborhoods
 pop_in_black_neighborhoods
 
-pop_not_in_black_neighborhoods <- filter(df_simplified, !(Name %in% Black_majority_neighborhoods)) %>% pull(Population) %>% sum(na.rm = TRUE)
+pop_not_in_black_neighborhoods <- filter(neighborhoods, !(Name %in% Black_majority_neighborhoods)) %>% pull(Population) %>% sum(na.rm = TRUE)
 #population living in not living in Black majority neighborhoods
 pop_not_in_black_neighborhoods
 
