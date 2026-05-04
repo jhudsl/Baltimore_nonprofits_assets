@@ -106,11 +106,11 @@ Next we will modify the data to include a variable about the percentage of Afric
 
   # create new Majority_AA variable that indicates if Percent_AA is greater than 50% or not
   mutate(Majority_AA = case_when(
-    Percent_AA > 50 ~ "Yes", 
+    Percent_AA >= 50 ~ "Yes", 
     Percent_AA <  50 ~ "No")) %>%
   # create a new variable about this in text
    mutate(Neighborhood = case_when(
-    Percent_AA > 50 ~ "Majority\nBlack", 
+    Percent_AA >= 50 ~ "Majority\nBlack", 
     Percent_AA <  50 ~ "Majority\nNon-Black")) %>% 
   # make this a factor and order by level appearance in the data
   mutate(Neighborhood = as_factor(Neighborhood),
@@ -182,6 +182,7 @@ df_simplified <-df_simplified %>%
     str_starts(NTEE_IRS, pattern = "Q") ~ "International Affairs",
     str_starts(NTEE_IRS, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
     str_starts(NTEE_IRS, pattern = "X") ~ "Religious",
+    is.na(NTEE_IRS) ~ "Unclassified",
     TRUE ~ "Other")) #everything else will be Other
 ```
 
@@ -198,6 +199,7 @@ df_simplified_no_zero <-df_simplified_no_zero %>%
     str_starts(NTEE_IRS, pattern = "Q") ~ "International Affairs",
     str_starts(NTEE_IRS, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
     str_starts(NTEE_IRS, pattern = "X") ~ "Religous",
+    is.na(NTEE_IRS) ~ "Unclassified",
     TRUE~ "Other")) # everything else will be Other
 ```
 
@@ -340,7 +342,7 @@ quart_plot + labs(x = "Quartile based on nonprofit asset amount", y = "Percentag
 
 ```
 
-**this does NOT include all 4,082 organizations**
+**this does NOT include all organizations**
 
 
 ## Overall Percentage Plot
@@ -389,7 +391,7 @@ High_asset_data %>%
   scale_fill_grey() +
   theme(legend.title = element_blank())
 ```
-**this includes all 4,082 organizations**
+**this includes all organizations**
 
 ## High vs non asset by category
 First create data to make visualization easier
@@ -435,12 +437,10 @@ High_asset_data %>%
 ```{r}
 library(forcats)
 df_simplified %>% group_by(NTEE_text) %>%summarize(count = n()) %>% 
-  mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified")) %>%
  mutate(Percentage = round(count/sum(count)*100, digits = 2)) %>%
   arrange(NTEE_text)
 
 Total_NTEE <-df_simplified %>% group_by(NTEE_text) %>%summarize(total_count = n()) %>% 
-  mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified")) %>%
   arrange(NTEE_text)
 
 ```
@@ -473,7 +473,7 @@ df_simplified %>%
 
 plot2 <- df_simplified %>% 
     mutate(NTEE_text = as_factor(NTEE_text),
-         NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "NA" )) %>%
+         NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "Other", "Unclassified" )) %>%
   group_by(NTEE_text, Neighborhood, ASSET_High_text) %>%
   summarize(count = n()) %>% 
   ggplot(aes(x = NTEE_text, y = count , fill = Neighborhood)) + 
@@ -500,11 +500,10 @@ Based on Asset Amount (F990_TOTAL_ASSETS_RECENT)
 ```{r}
 High_counts <- df_simplified %>% 
     mutate(NTEE_text = as_factor(NTEE_text),
-        NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "NA" )) %>%
-  group_by(NTEE_text, ASSET_High_text) %>%
-  summarize(count = n()) %>% filter(ASSET_High_text == "High Asset") %>%
-    mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
+        NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "Other", "Unclassified" )) %>%
+  summarize(count = n(), .by = c(NTEE_text, ASSET_High_text)) %>% filter(ASSET_High_text == "High Asset")
 
+High_counts
   
 full_join(Total_NTEE, High_counts, join_by(NTEE_text)) %>%
    mutate("Percentage_of_each_code" = round(count/total_count *100, digits = 2)) %>%
@@ -523,6 +522,7 @@ High_counts <- df_simplified %>%
   summarize(count = n()) %>% filter(ASSET_CD_High == "High") %>%
     mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
 
+High_counts
   
 full_join(Total_NTEE, High_counts, join_by(NTEE_text)) %>%
    mutate("Percentage_of_each_code" = round(count/total_count *100, digits = 2)) %>%
@@ -533,18 +533,16 @@ full_join(Total_NTEE, High_counts, join_by(NTEE_text)) %>%
 
    BMF_ASSET_CODE was ASSET_CD in older raw files
    
-   
- todo: this is misaligned... need to fix
 ```{r}
 Count_by_neighborhood_type <- df_simplified %>% 
     mutate(NTEE_text = as_factor(NTEE_text),
-        NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "NA" )) %>%
+        NTEE_text = forcats::fct_na_value_to_level(NTEE_text, level = "Unclassified"),   
+        NTEE_text = forcats::fct_relevel(NTEE_text, "International Affairs", "Environment/Animals", "Arts", "Religious", "Health","Education", "Societal Benefit", "Human Services", "Unclassified")) %>%
   mutate(ASSET_CD_High = case_when(BMF_ASSET_CODE >= 5 ~ "High",
                                    BMF_ASSET_CODE < 5 ~ "Low")) %>%
-  group_by(NTEE_text, Majority_AA) %>%
-  summarize(count = n())  %>%
-    mutate(NTEE_text = str_replace(string = NTEE_text, pattern = "NA", replacement = "Unclassified"))
+  summarize(count = n(), .by = c(NTEE_text, Majority_AA)) %>% arrange(NTEE_text)
 
+Count_by_neighborhood_type
 ```
 
 
@@ -597,11 +595,35 @@ We can see that there are many neighborhoods that have a more extreme percentage
 
 # get the neighborhood values if no removing rows for nonprofits with NA or zero assets
 
-neighborhood_AAperc%>% pull(Percent_AA) %>% hist(main = "Black Percentage of Neighborhoods for each nonprofit")
+neighborhood_AAperc%>% pull(Percent_AA) %>% hist(main = "Distribution of Black population percentages across Baltimore neighborhoods")
 
 # get the neighborhood values after removing rows for nonprofits with NA or zero assets
-neighborhood_AAperc_nozero %>% pull(Percent_AA) %>% hist(main = "Black Percentage of Neighborhoods \n (removed neighborhoods with only zero or NA assets)")
+neighborhood_AAperc_nozero %>% pull(Percent_AA) %>% hist(main = "Distribution of Black population percentages across Baltimore neighborhoods\n (removed neighborhoods with only zero or NA assets)")
 
 ```
 
+## What % of the total baltimore population live in majority black neighborhoods
 
+
+```{r}
+
+Black_majority_neighborhoods <-neighborhood_AAperc %>% filter(Percent_AA>=50) %>% pull(Name)
+
+length(Black_majority_neighborhoods) # number of black majority neighborhoods
+
+Not_Black_majority_neighborhoods <-neighborhood_AAperc %>% filter(Percent_AA<50) %>% pull(Name)
+
+length(Not_Black_majority_neighborhoods)
+
+pop_in_black_neighborhoods <-filter(df_simplified, Name %in% Black_majority_neighborhoods) %>% pull(Population) %>% sum()
+#population living in Black majority neighborhoods
+pop_in_black_neighborhoods
+
+pop_not_in_black_neighborhoods <- filter(df_simplified, !(Name %in% Black_majority_neighborhoods)) %>% pull(Population) %>% sum(na.rm = TRUE)
+#population living in not living in Black majority neighborhoods
+pop_not_in_black_neighborhoods
+
+pop_in_black_neighborhoods/(sum(pop_in_black_neighborhoods+pop_not_in_black_neighborhoods))*100
+
+
+```
