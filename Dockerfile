@@ -24,6 +24,8 @@ RUN apt-get update && apt-get install -y \
     libcairo2-dev \
     libgit2-dev \
 
+RUN install2.r --error --deps TRE here
+
 RUN install2.r --error --deps TRUE sf
 
 RUN install2.r --error --deps TRUE naniar
