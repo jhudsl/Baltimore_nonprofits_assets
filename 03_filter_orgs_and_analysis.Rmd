@@ -394,7 +394,7 @@ High_asset_data %>%
 **this includes all organizations**
 
 ## High vs non asset by category
-First create data to make visualization easier
+First create data to make visualization easier.
 
 ```{r}
 High_asset_data <-df_simplified %>%
