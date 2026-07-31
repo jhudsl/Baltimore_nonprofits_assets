@@ -68,7 +68,7 @@ neighborhoods_sf <- neighborhoods_sf %>% mutate(Percent_AA
 
 
  neighborhood_dem <- ggplot() +geom_sf(data = neighborhoods_sf, aes(fill = Neighborhood_type))+
-   scale_fill_manual(values = c("Majority\nBlack" = "#482677FF", "Majority\nNon-Black" = "#20A387FF"))+
+   scale_fill_manual(values = c("Majority\nBlack" = "#482677FF", "Majority\nNon-Black" = "#20A387FF"), na.value = "#D3D3D3")+
     theme_minimal()
  neighborhood_dem
 
