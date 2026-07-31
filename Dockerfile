@@ -5,6 +5,7 @@ FROM rocker/tidyverse:latest AS tidyverse_stage
 FROM rocker/geospatial:latest
 
 
+
 WORKDIR /rocker-build/
 
 # Install apt-getable packages to start
@@ -68,9 +69,9 @@ RUN install2.r --error --deps FALSE \
     testthat \
     webshot2
 
-RUN curl -LO https://quarto.org/download/latest/quarto-linux-arm64.deb
+RUN curl -LO https://quarto.org/download/latest/quarto-linux-$(dpkg --print-architecture).deb
 
-RUN gdebi --non-interactive quarto-linux-arm64.deb
+RUN gdebi --non-interactive quarto-linux-$(dpkg --print-architecture).deb
 
 # cow needs this dependency:
 RUN Rscript -e "pak::pak('gitcreds@0.1.1')"
