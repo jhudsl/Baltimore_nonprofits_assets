@@ -5,7 +5,6 @@ FROM rocker/tidyverse:latest AS tidyverse_stage
 FROM rocker/geospatial:latest
 
 
-
 WORKDIR /rocker-build/
 
 # Install apt-getable packages to start
@@ -89,6 +88,8 @@ RUN echo CHROMOTE_CHROME=/usr/bin/chromium-browser >> .Renviron
 
 # Geospatial packages for your project
 RUN install2.r --error --deps TRUE stringr
+
+RUN install2.r --error --deps TRUE rnaturalearthdata
 
 RUN install2.r --error --deps TRUE naniar
 
