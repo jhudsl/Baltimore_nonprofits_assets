@@ -89,6 +89,8 @@ RUN echo CHROMOTE_CHROME=/usr/bin/chromium-browser >> .Renviron
 # Geospatial packages for your project
 RUN install2.r --error --deps TRUE stringr
 
+RUN install2.r --error --deps TRUE janitor
+
 RUN install2.r --error --deps FALSE rnaturalearth
 
 RUN install2.r --error --deps TRUE rnaturalearthdata
