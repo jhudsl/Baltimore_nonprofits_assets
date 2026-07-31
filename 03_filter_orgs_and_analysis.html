@@ -916,7 +916,9 @@ information. We can drop this neighborhood.</p>
 <pre><code>## Scale for y is already present.
 ## Adding another scale for y, which will replace the existing scale.</code></pre>
 <p><img src="03_filter_orgs_and_analysis_files/figure-html/unnamed-chunk-30-1.png" alt="" width="672" />
+
 <strong>this includes all organizations</strong></p>
+
 </div>
 <div id="high-vs-non-asset-by-category" class="section level2">
 <h2>High vs non asset by category</h2>
@@ -1033,14 +1035,15 @@ what oganizations are in Baltimore.</p>
 <span id="cb73-11"><a href="#cb73-11" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">vjust =</span> .<span class="dv">5</span>),</span>
 <span id="cb73-12"><a href="#cb73-12" tabindex="-1"></a>        <span class="at">axis.title.x =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span></span>
 <span id="cb73-13"><a href="#cb73-13" tabindex="-1"></a>  <span class="fu">scale_fill_grey</span>()</span></code></pre></div>
-<pre><code>## `summarise()` has regrouped the output.
-## ℹ Summaries were computed grouped by NTEE_text, Neighborhood, and
-##   ASSET_High_text.
-## ℹ Output is grouped by NTEE_text and Neighborhood.
-## ℹ Use `summarise(.groups = &quot;drop_last&quot;)` to silence this message.
-## ℹ Use `summarise(.by = c(NTEE_text, Neighborhood, ASSET_High_text))` for
-##   per-operation grouping (`?dplyr::dplyr_by`) instead.</code></pre>
+
+<pre><code>## Warning: There was 1 warning in `mutate()`.
+## ℹ In argument: `NTEE_text = forcats::fct_relevel(...)`.
+## Caused by warning:
+## ! 1 unknown level in `f`: NA</code></pre>
+
+
 <div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" tabindex="-1"></a>plot2</span></code></pre></div>
+
 <p><img src="03_filter_orgs_and_analysis_files/figure-html/unnamed-chunk-35-1.png" alt="" width="672" /></p>
 <p><strong>This includes all 4,082 organizations</strong> There was no
 removal of organizations based on asset amount, just to get a sense of
