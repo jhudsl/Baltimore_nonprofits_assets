@@ -13,7 +13,7 @@
 
 <title>01_prepare_neighborhood_data.knit</title>
 
-<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.31/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -502,7 +502,7 @@ href="https://www.statsilk.com/maps/convert-esri-shapefile-map-geojson-format"
 class="uri">https://www.statsilk.com/maps/convert-esri-shapefile-map-geojson-format</a></p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>neighborhood_shape <span class="ot">&lt;-</span><span class="fu">st_read</span>(<span class="st">&quot;data/Neighborhood_Statistical_Area_(NSA)_Boundaries/Neighborhood_Statistical_Area_(NSA)_Boundaries.shp&quot;</span>)</span></code></pre></div>
 <pre><code>## Reading layer `Neighborhood_Statistical_Area_(NSA)_Boundaries&#39; from data source 
-##   `/Users/carriewright/Documents/GitHub/Baltimore_nonprofits/Baltimore_nonprofits_assets/data/Neighborhood_Statistical_Area_(NSA)_Boundaries/Neighborhood_Statistical_Area_(NSA)_Boundaries.shp&#39; 
+##   `/__w/Baltimore_nonprofits_assets/Baltimore_nonprofits_assets/data/Neighborhood_Statistical_Area_(NSA)_Boundaries/Neighborhood_Statistical_Area_(NSA)_Boundaries.shp&#39; 
 ##   using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 279 features and 60 fields
 ## Geometry type: MULTIPOLYGON
@@ -541,7 +541,7 @@ class="uri">https://www.statsilk.com/maps/convert-esri-shapefile-map-geojson-for
 <p>Checking that it worked using this image: <a
 href="https://commons.wikimedia.org/wiki/File:Baltimore_neighborhoods_map.png"
 class="uri">https://commons.wikimedia.org/wiki/File:Baltimore_neighborhoods_map.png</a></p>
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/5/57/Baltimore_neighborhoods_map.png" width="400px" /></p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/5/57/Baltimore_neighborhoods_map.png" alt="" width="400px" /></p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>in_balt[<span class="dv">1</span>,]<span class="sc">$</span>intersection <span class="co"># row for intersection</span></span></code></pre></div>
 <pre><code>## [1] 108</code></pre>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>in_balt[<span class="dv">1</span>,]<span class="sc">$</span>EIN <span class="co"># org id</span></span></code></pre></div>
