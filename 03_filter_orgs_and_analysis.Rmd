@@ -273,18 +273,89 @@ df_simplified_no_zero %>%
 
 ```{r}
 
-summary(glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA)) # for every increase in percent AA of the neighborhood there was a 266,249$ decrease in asset amount of the nonprofits in the neighborhood
+summary(glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA)) # for every increase in percent AA of the neighborhood there was a $1015262 decrease in asset amount of the nonprofits in the neighborhood
+# there is a less than 5% risk of concluding that an association exists between asset amount a percent AA of neighborhood when there is no actual association.
+glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA + Population) %>% plot(which = 1:3)
+
+summary(glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA))
+
+
+summary(glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA + Population)) # for every increase in percent AA of the neighborhood there was a $944694 decrease in asset amount of the nonprofits in the neighborhood holding population constant, holding percent_AA constant, there was an increase in asset amount of $6082 for every 1 unit increase in population.
+
 # there is a less than 5% risk of concluding that an association exists between asset amount a percent AA of neighborhood when there is no actual association.
 
+summary(glm(data = df_simplified_no_zero, ASSET_AMT_log~Percent_AA * Population)) 
 
 hist(df_simplified_no_zero$ASSET_AMT_log)
-summary(glm(data = df_simplified_no_zero, ASSET_AMT_log~Percent_AA)) # for every increase in percent AA of the neighborhood there was a 266,249$ decrease in asset amount of the nonprofits in the neighborhood
-
+summary(glm(data = df_simplified_no_zero, ASSET_AMT_log~Percent_AA)) 
 
 glm(data = df_simplified_no_zero, ASSET_AMT_log ~ Percent_AA) %>% plot(which = 1:3)
 
-#nonparametric test - because the residiuals looked skewed in the above qqplot
+glm(data = df_simplified_no_zero, ASSET_AMT_log ~ Percent_AA + Population) %>% plot(which = 1:3)
+
+#nonparametric test - because the residuals looked skewed in the above qqplot
 cor.test(df_simplified_no_zero$F990_TOTAL_ASSETS_RECENT, df_simplified_no_zero$Percent_AA, method = "spearman", exact = FALSE)
+
+sorted_data <- arrange(df_simplified_no_zero, desc(F990_TOTAL_ASSETS_RECENT))
+glimpse(sorted_data)
+
+## seem to have many outliers for asset amount
+
+outliers <- boxplot(df_simplified_no_zero$F990_TOTAL_ASSETS_RECENT, plot=FALSE)$out
+df_simplified_no_zero_no_outliers <- filter(df_simplified_no_zero, !F990_TOTAL_ASSETS_RECENT %in% outliers)
+
+plot(log(df_simplified_no_zero_no_outliers$F990_TOTAL_ASSETS_RECENT), df_simplified_no_zero_no_outliers$Percent_AA)
+
+ggplot(df_simplified_no_zero_no_outliers, aes(Percent_AA, log(F990_TOTAL_ASSETS_RECENT))) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "loess")
+
+ggplot(df_simplified_no_zero, aes(Percent_AA, log(F990_TOTAL_ASSETS_RECENT))) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "loess")
+
+lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT)~ Percent_AA, data = df_simplified_no_zero)
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero)
+
+anova(lm1, lm2)
+
+lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT)~ log(Percent_AA), data = df_simplified_no_zero)
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero)
+
+anova(lm1, lm2)
+
+lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT)~ Percent_AA, data = df_simplified_no_zero_no_outliers)
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
+
+anova(lm1, lm2)
+
+lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero)
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
+
+AIC(lm1)
+AIC(lm2)
+
+summary(lm1)
+summary(lm2)
+
+lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ log(Percent_AA +1), data = df_simplified_no_zero_no_outliers)
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
+anova(lm1, lm2)
+AIC(lm1)
+AIC(lm2)
+summary(lm2)
+
+#adding population seems to weaken the model
+lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2) + log(Population), data = df_simplified_no_zero_no_outliers)
+anova(lm1, lm2)
+AIC(lm1)
+AIC(lm2)
+summary(lm2)
+
+ggplot(df_simplified_no_zero_no_outliers, aes(poly(Percent_AA,2), log(F990_TOTAL_ASSETS_RECENT))) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "loess")
 
 ```
 
@@ -401,6 +472,12 @@ High_asset_data <-df_simplified %>%
   group_by(ASSET_High_text, Neighborhood, NTEE_text) %>% 
   count()
 High_asset_data
+
+contingency_table <- table( df_simplified$Majority_AA, df_simplified$ASSET_High_text)
+print(contingency_table)
+
+independence_results <- chisq.test(contingency_table)
+print(independence_results)
 
 #Create percentage variable for each category
 High_asset_data <- High_asset_data %>%
