@@ -22,7 +22,7 @@ found_00_orgs <- org_data %>% filter(BMF_FOUNDATION_CODE == "0")  %>% dplyr::sel
 
 found_00_orgs %>% head( n = 10) #show a couple of examples of what will be dropped
 
-org_data <- org_data %>% subset(is.na(BMF_FOUNDATION_CODE)| BMF_FOUNDATION_CODE != "0")# keeping NA values
+org_data <- org_data %>% filter(is.na(BMF_FOUNDATION_CODE)| BMF_FOUNDATION_CODE != "0")# keeping NA values
 ```
 
 After filtering out these orgs, we end with `r nrow(org_data)` rows, removing `r nrow(found_00_orgs)` orgs with foundation code 00.
@@ -35,10 +35,10 @@ We start with `r nrow(org_data)` rows.
 See page 16 for more information: https://nccs.urban.org/pubs/nccs-data-guide.pdf and see https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html. 
 
 ```{r}
-socialclubs <-org_data %>% filter(str_detect(string = NTEE_IRS, pattern = "Y|y"))
+socialclubs <-org_data %>% filter(str_starts(string = NTEE_IRS, pattern = "Y|y"))
 socialclubs %>% dplyr::select(ORG_NAME_CURRENT)
 
-org_data <- org_data %>% filter(!str_detect(string = NTEE_IRS, pattern = "Y|y")| is.na(NTEE_IRS)) # keeping NA values
+org_data <- org_data %>% filter(!str_starts(string = NTEE_IRS, pattern = "Y|y")| is.na(NTEE_IRS)) # keeping NA values
 ```
 
 
@@ -47,11 +47,23 @@ After filtering out social clubs we end up with `r nrow(org_data)` rows, removin
 # Filter out PO Boxes
 
 ```{r}
-Post_offices <- org_data %>% filter(str_detect(F990_ORG_ADDR_STREET, "PO BOX |POST OFFICE"))
+Post_offices <- org_data %>% filter(str_detect(F990_ORG_ADDR_STREET, "BOX|POST OFFICE"))
+Post_offices_Box <- Post_offices  %>% filter(!str_detect(F990_ORG_ADDR_STREET, "PO"))# let's check the more unusal addresses
+Post_offices_Box$F990_ORG_ADDR_STREET
 
-Post_offices %>% dplyr::select(F990_ORG_ADDR_STREET)
+# based on google AI search on aug20 2026 the following are likely physical addresses and not just mail boxes
+#2901 DRUID PARK DRIVE P O BOX 40
+#1 E CHASE ST STE R3G MAIL BOX 9
+#900 CATON AVENUE BOX 123
 
-org_data <- org_data %>% filter(!str_detect(F990_ORG_ADDR_STREET, "PO BOX |POST OFFICE")| is.na(F990_ORG_ADDR_STREET)) # keeping NA values)
+
+```
+
+Preserving addresses that look like post office boxes but are physical: 
+```{r}
+Post_offices <- org_data %>% filter(str_detect(F990_ORG_ADDR_STREET, "822 GUILFORD AVE BOX 235|3717 BOSTON STREET BOX 345|MAIL BOX|P O BOX|PO BOX|POST OFFICE"))
+
+org_data <- org_data %>% filter(!str_detect(F990_ORG_ADDR_STREET, "822 GUILFORD AVE BOX 235|3717 BOSTON STREET BOX 345|MAIL BOX|P O BOX|PO BOX|POST OFFICE")| is.na(F990_ORG_ADDR_STREET)) # keeping NA values)
 ```
 
 After filtering out PO Boxes we end up with `r nrow(org_data)` rows, removing `r nrow(Post_offices)`  orgs with a post office box address.
@@ -70,7 +82,7 @@ Let's keep on their own as an aside but remove from main data.
 no_oper_orgs<-org_data %>% filter(BMF_FOUNDATION_CODE %in% c("4","17"))  %>% dplyr::select(ORG_NAME_CURRENT)  #show examples of what will be dropped
 no_oper_orgs %>% head( n = 10)
 
-org_data <- org_data %>% subset(is.na(BMF_FOUNDATION_CODE)| ! BMF_FOUNDATION_CODE  %in% c("4","17"))# keeping NA values
+org_data <- org_data %>% filter(is.na(BMF_FOUNDATION_CODE)| ! BMF_FOUNDATION_CODE  %in% c("4","17"))# keeping NA values
 
 ```
 
@@ -96,9 +108,7 @@ active_orgs <- org_data %>% filter(ORG_YEAR_LAST %in% c(2024, 2023, 2022, 2021))
 non_active_orgs <- org_data %>% filter(! ORG_YEAR_LAST %in% c(2024, 2023, 2022, 2021))
 ```
 
-After filtering out orgs that filed between May 15, 2023 and March 2024, we have `r nrow(org_data)` rows, removing `r nrow(non_active_orgs)` orgs with that filed at that time.
-
-After filtering out orgs that last filed in the last 3 complete years, we end up with `r nrow(active_orgs)`.
+Filtering from the total `r nrow(org_data)` orgs, we have  `r nrow(active_orgs)` active orgs, removing `r nrow(non_active_orgs)` orgs with thatlast filed before 2021.
 
 
 Now let's remove orgs from industrial neighborhoods with Population of 0 or NA.
