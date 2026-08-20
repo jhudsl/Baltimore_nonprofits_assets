@@ -4,14 +4,6 @@
 ```{r}
 library(sf)
 library(tidyverse)
-#library(RColorBrewer) 
-#library(leaflet)
-#library(terra)
-# for metadata/attributes- vectors or rasters
-#library(raster)
-
-#library(rnaturalearthdata)
-#library(rnaturalearth)
 
 
 df_simplified <- read_rds(here::here("data/processed/formaps.rds")) # org and shape data
@@ -82,7 +74,7 @@ asset_plot_high_Vs_low
 ```{r}
 
 asset_plot_all_faceted <- neighborhood_dem + 
-    geom_sf(data = multi_polygon_sf, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_wrap(~NTEE_text, ncol = 3 )+
+    geom_sf(data = multi_polygon_sf, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_wrap(~NTEE_text, ncol = 4 )+
     theme_void() +
   labs(title = "Non-Profits in Baltimore by Type") 
 asset_plot_all_faceted
@@ -90,11 +82,11 @@ asset_plot_all_faceted
 
 # High Asset Non-Profits in Baltimore by Type
 
-```{r, fig.width= 4}
+```{r}
 data_to_map <-multi_polygon_sf %>% filter(ASSET_High_text == "High Asset") 
 
 asset_plot <- neighborhood_dem + 
-    geom_sf(data = data_to_map, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_wrap(~NTEE_text, ncol = 3 )+
+    geom_sf(data = data_to_map, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_wrap(~NTEE_text, ncol = 4 )+
     theme_void() +
   labs(title = "High Asset Non-Profits in Baltimore by Type") 
 asset_plot
