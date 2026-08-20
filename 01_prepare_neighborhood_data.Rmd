@@ -1,37 +1,32 @@
 
 ```{r, message= FALSE}
 library(tidyverse)
-library(naniar)
-#install.packages(c('s2', 'units','rJava','raster', 'sf','terra', 'sftime','stars', 'gstat','RNetCDF', 'ncmeta', 'areal', 'ncdfgeom', 'leafem', 'leafgl', 'leaflegend', 'leaflet', 'leafsync', 'maptiles', 'tmaptools', 'tmap', 'lwgeom', 'leafpop','satellite', 'mapview'), repos = "https://cloud.r-project.org", dependencies = TRUE)
 library(sf)
-#library(s2)
-#library(units)
+library(here)
 ```
 
 # Data Import
+
+
 BMF file from:
 https://nccsdata.s3.amazonaws.com/harmonized/bmf/unified/MD_BMF_V1.1.csv 
-Neighborhood csv file from: https://data.baltimorecity.gov/datasets/baltimore::neighborhood-statistical-area-nsa-boundaries/about 
+Neighborhood csv file from (copy and paste full url): https://data.baltimorecity.gov/datasets/baltimore::neighborhood-statistical-area-nsa-boundaries/about 
 
 ```{r}
-BMF <- read_csv("data/MD_BMF_V1.1.csv")
-neighborhoods <- read_csv("data/Neighborhood_Statistical_Area_(NSA)_Boundaries.csv")
+BMF <- read_csv(here::here("data","MD_BMF_V1.1.csv"))
+neighborhoods <- read_csv(here::here("data", "Neighborhood_Statistical_Area_(NSA)_Boundaries.csv"))
 ```
 
-# Get lat and long for shape file
+## Get lat and long for shape file
 
 Shape file from: https://data.baltimorecity.gov/datasets/baltimore::neighborhood-statistical-area-nsa-boundaries/about
 
-https://stackoverflow.com/questions/66381795/check-whether-point-coordinate-lies-within-polygon
-https://www.statsilk.com/maps/convert-esri-shapefile-map-geojson-format
-
 ```{r}
 neighborhood_shape <-st_read("data/Neighborhood_Statistical_Area_(NSA)_Boundaries/Neighborhood_Statistical_Area_(NSA)_Boundaries.shp")
-
 ```
 
 
-# Check for missing data
+## Check for missing data
 
 ```{r}
 BMF_geo <- BMF %>% dplyr::select(EIN, LATITUDE, LONGITUDE)
@@ -40,15 +35,14 @@ any(is.na(BMF_geo$LONGITUDE))
 ```
 
 
-# Limit to just Baltimore
+## Limit to just Baltimore
 
 Based on coordinates...
 
 ```{r}
-#CRS <- st_crs(neighborhood_shape$geometry) # get class sf version of coordinates
-BMF_sf <- st_as_sf(BMF, coords = c('LONGITUDE', 'LATITUDE'), crs = st_crs(4326)) %>% st_set_crs(4326) # Use LONGITUDE and LATITUDE columns and convert to sf object (with a geometry column), use coordinate reference system 4326
-BMF_trans <- st_transform(BMF_sf, 2163) #EPSG:2163, convert lat and long to NAD27 / US National Atlas Equal Area for the org data
-neighborhood_tt <- st_transform(neighborhood_shape$geometry, 2163)# convert Baltimore  shape file to NAD27 / US National Atlas Equal Area coordinate reference system
+BMF_sf <- st_as_sf(BMF, coords = c('LONGITUDE', 'LATITUDE'), crs = 4326)  # Use LONGITUDE and LATITUDE columns and convert to sf object (with a geometry column), use coordinate reference system 4326
+BMF_trans <- st_transform(BMF_sf, 9311) #EPSG:9311, convert lat and long to NAD27 / US National Atlas Equal Area for the org data
+neighborhood_tt <- st_transform(neighborhood_shape$geometry, 9311)# convert Baltimore shape file to NAD27 / US National Atlas Equal Area coordinate reference system
 ```
 
 Look for the intersection of orgs with locations within Baltimore
@@ -56,10 +50,10 @@ Look for the intersection of orgs with locations within Baltimore
 ```{r}
 # Make a new column for each org row about if the location is located within the Baltimore shape outline
 intersection <- BMF_sf %>% mutate(
-  intersection = as.integer(st_intersects(BMF_trans, neighborhood_tt )))
+  intersection_row = as.integer(st_intersects(BMF_trans, neighborhood_tt )))
 
-# filter for just data within Baltimore dropping other MD orgs
-in_balt <- intersection %>% filter(!is.na(intersection)) # just Baltimore locations
+# filter for just data within Baltimore dropping other MD orgs (in other words dropping orgs that have an NA value for the intersection)
+in_balt <- intersection %>% drop_na(intersection_row) # just Baltimore locations
 ```
 
 
@@ -68,53 +62,55 @@ in_balt <- intersection %>% filter(!is.na(intersection)) # just Baltimore locati
 
 Checking that it worked using this image: https://commons.wikimedia.org/wiki/File:Baltimore_neighborhoods_map.png
 
-
 ```{r include-image, echo=FALSE, out.width="400px"}
 knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/5/57/Baltimore_neighborhoods_map.png")
 ```
 
 
+Checking particular rows:
+
+(selected just some random rows to look at)
 
 ```{r}
-in_balt[1,]$intersection # row for intersection
+in_balt[1,]$intersection_row # row for intersection
 in_balt[1,]$EIN # org id
 in_balt[1,]$ORG_ADDR_FULL # this looks like downtown when you look it up
 
 # how does this look in the neighborhood file?
-neighborhood_shape[in_balt[1,]$intersection,]$Name # neighborhood name
+neighborhood_shape[in_balt[1,]$intersection_row,]$Name # neighborhood name
 
 #Looks like this is in that location
 
 in_balt[43,]$ORG_ADDR_FULL 
-neighborhood_shape[in_balt[43,]$intersection,]$Name # neighborhood name
+neighborhood_shape[in_balt[43,]$intersection_row,]$Name # neighborhood name
 #Looks like this is in that location
 
 in_balt[58,]$ORG_ADDR_FULL 
-neighborhood_shape[in_balt[58,]$intersection,]$Name # neighborhood name
+neighborhood_shape[in_balt[58,]$intersection_row,]$Name # neighborhood name
 #Looks like this is in that location
 
 in_balt[65,]$ORG_ADDR_FULL
-neighborhood_shape[in_balt[65,]$intersection,]$Name # neighborhood name
+neighborhood_shape[in_balt[65,]$intersection_row,]$Name # neighborhood name
 #Looks like this is in that location
 
 in_balt[100,]$ORG_ADDR_FULL
-neighborhood_shape[in_balt[100,]$intersection,]$Name # neighborhood name
+neighborhood_shape[in_balt[100,]$intersection_row,]$Name # neighborhood name
 #Looks like this is in that location
 
 ```
 
 
-# Combining it all together 
+## Combining it all together 
 
-Want the org info, and neighborhood info and shape information together to enable making maps later.
+Want the org info, and neighborhood info, and shape information together to enable making maps later.
 
 ```{r}
-neighborhood_shape <-as_tibble(neighborhood_shape) # convert to tibble
+neighborhood_shape <-as_tibble(neighborhood_shape) # convert to tibble to work with later
 neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number()) # add row number column
-org_data <-left_join(in_balt, neighborhood_shape, by = c("intersection" = "id")) # look for what row numbers align with the shape file
+org_data <-left_join(in_balt, neighborhood_shape, by = c("intersection_row" = "id")) # look for what row numbers align with the shape file
 
 # save neighborhood R file and org data with neighborhood info
-write_rds(neighborhood_shape, file = "data/processed/neighborhood_shape_data.rds")
-write_rds(org_data, file = "data/processed/org_data.rds")
+write_rds(neighborhood_shape, file = here::here("data", "processed", "neighborhood_shape_data.rds"))
+write_rds(org_data, file = here::here("data", "processed", "org_data.rds"))
 
 ```
