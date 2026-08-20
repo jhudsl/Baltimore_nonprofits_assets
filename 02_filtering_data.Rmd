@@ -51,7 +51,7 @@ Post_offices <- org_data %>% filter(str_detect(F990_ORG_ADDR_STREET, "BOX|POST O
 Post_offices_Box <- Post_offices  %>% filter(!str_detect(F990_ORG_ADDR_STREET, "PO"))# let's check the more unusal addresses
 Post_offices_Box$F990_ORG_ADDR_STREET
 
-# based on google AI search on aug20 2026 the following are likely physical addresses and not just mail boxes
+# based on Gemina 1.5 Pro AI search on aug20 2026 the following are likely physical addresses and not just mail boxes
 #2901 DRUID PARK DRIVE P O BOX 40
 #1 E CHASE ST STE R3G MAIL BOX 9
 #900 CATON AVENUE BOX 123
