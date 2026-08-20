@@ -272,29 +272,27 @@ df_simplified_no_zero %>%
 ## Association Tests
 
 ```{r}
+#recall that we can't differentiate not submitting as a zero value vs zero assets (true zero assets is also unlikely, solikely means they didn't submit)
+#starting with a more basic model and checking assumptions
+summary(glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA)) 
+glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA) %>% plot(which = 1:3)
+glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA + Population) %>% plot(which = 1:3) # plots indicate that there are outliers
 
-summary(glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA)) # for every increase in percent AA of the neighborhood there was a $1015262 decrease in asset amount of the nonprofits in the neighborhood
-# there is a less than 5% risk of concluding that an association exists between asset amount a percent AA of neighborhood when there is no actual association.
-glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA + Population) %>% plot(which = 1:3)
-
-summary(glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA))
-
-
-summary(glm(data = df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT ~Percent_AA + Population)) # for every increase in percent AA of the neighborhood there was a $944694 decrease in asset amount of the nonprofits in the neighborhood holding population constant, holding percent_AA constant, there was an increase in asset amount of $6082 for every 1 unit increase in population.
-
-# there is a less than 5% risk of concluding that an association exists between asset amount a percent AA of neighborhood when there is no actual association.
-
-summary(glm(data = df_simplified_no_zero, ASSET_AMT_log~Percent_AA * Population)) 
-
+# now try with log version of asset amount
 hist(df_simplified_no_zero$ASSET_AMT_log)
 summary(glm(data = df_simplified_no_zero, ASSET_AMT_log~Percent_AA)) 
+glm(data = df_simplified_no_zero, ASSET_AMT_log ~ Percent_AA) %>% plot(which = 1:3) # looks much better
 
-glm(data = df_simplified_no_zero, ASSET_AMT_log ~ Percent_AA) %>% plot(which = 1:3)
+# now with population
+glm(data = df_simplified_no_zero, ASSET_AMT_log ~ Percent_AA + Population) %>% plot(which = 1:3) # looks similar
 
-glm(data = df_simplified_no_zero, ASSET_AMT_log ~ Percent_AA + Population) %>% plot(which = 1:3)
+```
 
-#nonparametric test - because the residuals looked skewed in the above qqplot
-cor.test(df_simplified_no_zero$F990_TOTAL_ASSETS_RECENT, df_simplified_no_zero$Percent_AA, method = "spearman", exact = FALSE)
+
+
+```{r}
+#nonparametric test - because the residuals looked skewed in the above qqplots
+cor.test(df_simplified_no_zero$ASSET_AMT_log, df_simplified_no_zero$Percent_AA, method = "spearman", exact = FALSE)
 
 sorted_data <- arrange(df_simplified_no_zero, desc(F990_TOTAL_ASSETS_RECENT))
 glimpse(sorted_data)
@@ -304,60 +302,93 @@ glimpse(sorted_data)
 outliers <- boxplot(df_simplified_no_zero$F990_TOTAL_ASSETS_RECENT, plot=FALSE)$out
 df_simplified_no_zero_no_outliers <- filter(df_simplified_no_zero, !F990_TOTAL_ASSETS_RECENT %in% outliers)
 
-plot(log(df_simplified_no_zero_no_outliers$F990_TOTAL_ASSETS_RECENT), df_simplified_no_zero_no_outliers$Percent_AA)
+plot(df_simplified_no_zero_no_outliers$ASSET_AMT_log, df_simplified_no_zero_no_outliers$Percent_AA)
 
-ggplot(df_simplified_no_zero_no_outliers, aes(Percent_AA, log(F990_TOTAL_ASSETS_RECENT))) +
+ggplot(df_simplified_no_zero_no_outliers, aes(Percent_AA, ASSET_AMT_log)) +
   geom_point(alpha = 0.2) +
-  geom_smooth(method = "loess")
+  geom_smooth(method = "loess") # without outliers
 
-ggplot(df_simplified_no_zero, aes(Percent_AA, log(F990_TOTAL_ASSETS_RECENT))) +
+ggplot(df_simplified_no_zero, aes(Percent_AA, ASSET_AMT_log)) +
   geom_point(alpha = 0.2) +
-  geom_smooth(method = "loess")
+  geom_smooth(method = "loess") # with outliers
 
-lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT)~ Percent_AA, data = df_simplified_no_zero)
-lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero)
+# notice a similar pattern with and without outliers
+```
 
-anova(lm1, lm2)
 
-lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT)~ log(Percent_AA), data = df_simplified_no_zero)
-lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero)
+```{r}
+# Check different models for scaling percent_AA, including or not including population and removing outliers
 
-anova(lm1, lm2)
 
-lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT)~ Percent_AA, data = df_simplified_no_zero_no_outliers)
-lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
+lm1 <- lm(ASSET_AMT_log~ Percent_AA, data = df_simplified_no_zero)
+lm2 <- lm(ASSET_AMT_log ~ poly(Percent_AA, 2), data = df_simplified_no_zero)
 
 anova(lm1, lm2)
+AIC(lm1)
+AIC(lm2) # slightly lower and therefore possibly better model
+summary(lm1)$adj.r.squared
+summary(lm2)$adj.r.squared # slightly higher so possibly better model
+
+# try again with outlier removal
 
 lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero)
 lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
 
+
 AIC(lm1)
-AIC(lm2)
+AIC(lm2) # much lower so possibly better
+summary(lm1)$adj.r.squared # slightly higher so possibly better model
+summary(lm2)$adj.r.squared 
 
-summary(lm1)
-summary(lm2)
+#hard to conclude but can use in sensitivity analysis
 
-lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ log(Percent_AA +1), data = df_simplified_no_zero_no_outliers)
-lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
-anova(lm1, lm2)
+# now log scale of Percent_AA vs poly_AA
+
+lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ log(Percent_AA +1), data = df_simplified_no_zero)
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero)
+anova(lm1, lm2) # significant, poly scaling of Percent_AA seems to be better than log
 AIC(lm1)
-AIC(lm2)
-summary(lm2)
+AIC(lm2) # lower and therefore suggests this model is better
 
-#adding population seems to weaken the model
-lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
-lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2) + log(Population), data = df_simplified_no_zero_no_outliers)
-anova(lm1, lm2)
+summary(lm1)$adj.r.squared
+summary(lm2)$adj.r.squared # higher so possibly better model
+
+#adding population seems to weaken the model 
+lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero)
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2) + log(Population), data = df_simplified_no_zero)
+anova(lm1, lm2) # not significant - adding population does not appear to be better
 AIC(lm1)
-AIC(lm2)
-summary(lm2)
+AIC(lm2) # slightly higher, does not seem to be a better model
+summary(lm1)$adj.r.squared
+summary(lm2)$adj.r.squared # this is slightly higher than above
 
-ggplot(df_simplified_no_zero_no_outliers, aes(poly(Percent_AA,2), log(F990_TOTAL_ASSETS_RECENT))) +
+ggplot(df_simplified_no_zero, aes(poly(Percent_AA,2), log(F990_TOTAL_ASSETS_RECENT))) +
   geom_point(alpha = 0.2) +
   geom_smooth(method = "loess")
 
 ```
+
+
+### Sensitivity analysis 
+
+To compare with and without outliers and with and without zeros
+```{r}
+# trying again without outliers
+
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
+summary(lm2)
+ggplot(df_simplified_no_zero_no_outliers, aes(poly(Percent_AA,2), log(F990_TOTAL_ASSETS_RECENT))) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "loess")
+
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT +1) ~ poly(Percent_AA, 2) , data = df_simplified)
+summary(lm2) #need plus 1 for log of zero
+ggplot(df_simplified, aes(poly(Percent_AA,2), log(F990_TOTAL_ASSETS_RECENT))) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "loess")
+
+```
+
 
 Look at quartiles with log asset data:
 *remember the caveat that there are many organizations that are not included because of NA or zero value F990_TOTAL_ASSETS_RECENT*
