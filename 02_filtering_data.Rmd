@@ -7,7 +7,7 @@ First reading in our data from our preprocessing steps:
 ```{r}
 library(tidyverse)
 library(sf)
-org_data <- read_rds("data/processed/org_data.rds")
+org_data <- read_rds(here::here("data", "processed", "org_data.rds"))
 
 ```
 
@@ -131,6 +131,6 @@ dim(popzero)
 Let's save our files.
 
 ```{r}
-write_rds(active_orgs, file = "data/processed/active_orgs.rds")
-write_csv(non_active_orgs, file = "data/processed/non_active_orgs.csv")
+write_rds(active_orgs, file = here::here("data", "processed", "active_orgs.rds"))
+write_csv(non_active_orgs, file = here::here("data", "processed", "non_active_orgs.csv"))
 ```
