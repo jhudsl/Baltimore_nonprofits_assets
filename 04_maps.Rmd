@@ -12,19 +12,6 @@ neighborhoods <- read_rds(here::here("data/processed/neighborhood_shape_data.rds
 ```
 
 
-# Using ggplot2
-
-Start by building the map area:
-
-```{r}
-multi_polygon_sf <- st_as_sf(df_simplified) #converting to sf object
-outline_plot <-ggplot() +
-    geom_sf(data = multi_polygon_sf$geometry.y, fill = "lightblue", color = "blue") +
-    theme_minimal() 
-outline_plot
-
-```
-
 # Neighborhood Demographics
 
 ```{r}
@@ -60,7 +47,7 @@ neighborhoods_sf <- neighborhoods_sf %>% mutate(Percent_AA
 
 ```{r}
 asset_plot_high_Vs_low <- neighborhood_dem + 
-    geom_sf(data = multi_polygon_sf, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_grid(~ASSET_High_text)+
+    geom_sf(data = df_simplified, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_grid(~ASSET_High_text)+
     theme_void() +
      labs(title = "High vs Low Asset Non-Profits in Baltimore") 
 
@@ -74,7 +61,7 @@ asset_plot_high_Vs_low
 ```{r}
 
 asset_plot_all_faceted <- neighborhood_dem + 
-    geom_sf(data = multi_polygon_sf, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_wrap(~NTEE_text, ncol = 4 )+
+    geom_sf(data = df_simplified, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_wrap(~NTEE_text, ncol = 4 )+
     theme_void() +
   labs(title = "Non-Profits in Baltimore by Type") 
 asset_plot_all_faceted
@@ -83,7 +70,7 @@ asset_plot_all_faceted
 # High Asset Non-Profits in Baltimore by Type
 
 ```{r}
-data_to_map <-multi_polygon_sf %>% filter(ASSET_High_text == "High Asset") 
+data_to_map <-df_simplified %>% filter(ASSET_High_text == "High Asset") 
 
 asset_plot <- neighborhood_dem + 
     geom_sf(data = data_to_map, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")+ facet_wrap(~NTEE_text, ncol = 4 )+
