@@ -1,10 +1,8 @@
 
 
 ```{r, message= FALSE}
-library(readxl)
 library(here)
 library(tidyverse)
-library(stringr)
 library(naniar)
 library(sf)
 ```
@@ -13,7 +11,7 @@ library(sf)
 
 First let's get our processed data:
 ```{r}
-df_simplified <- read_rds(here::here("data/processed/active_orgs.rds")) # org and shape/location info
+df_simplified <- read_rds(here::here("data", "processed", "active_orgs.rds")) # org and shape/location info
 ```
 
 Information about the data: 
@@ -543,7 +541,7 @@ High_asset_data %>%
 ### Different kinds of orgs
 
 ```{r}
-library(forcats)
+
 df_simplified %>% group_by(NTEE_text) %>%summarize(count = n()) %>% 
  mutate(Percentage = round(count/sum(count)*100, digits = 2)) %>%
   arrange(NTEE_text)
@@ -737,3 +735,4 @@ pop_in_black_neighborhoods/(sum(pop_in_black_neighborhoods+pop_not_in_black_neig
 
 
 ```
+
