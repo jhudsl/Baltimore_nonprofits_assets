@@ -50,10 +50,10 @@ Look for the intersection of orgs with locations within Baltimore
 ```{r}
 # Make a new column for each org row about if the location is located within the Baltimore shape outline
 intersection <- BMF_sf %>% mutate(
-  intersection = as.integer(st_intersects(BMF_trans, neighborhood_tt )))
+  intersection_row = as.integer(st_intersects(BMF_trans, neighborhood_tt )))
 
-# filter for just data within Baltimore dropping other MD orgs
-in_balt <- intersection %>% filter(!is.na(intersection)) # just Baltimore locations
+# filter for just data within Baltimore dropping other MD orgs (in other words dropping orgs that have an NA value for the intersection)
+in_balt <- intersection %>% drop_na(intersection_row) # just Baltimore locations
 ```
 
 
@@ -69,30 +69,32 @@ knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/5/57/Bal
 
 Checking particular rows:
 
+(selected just some random rows to look at)
+
 ```{r}
-in_balt[1,]$intersection # row for intersection
+in_balt[1,]$intersection_row # row for intersection
 in_balt[1,]$EIN # org id
 in_balt[1,]$ORG_ADDR_FULL # this looks like downtown when you look it up
 
 # how does this look in the neighborhood file?
-neighborhood_shape[in_balt[1,]$intersection,]$Name # neighborhood name
+neighborhood_shape[in_balt[1,]$intersection_row,]$Name # neighborhood name
 
 #Looks like this is in that location
 
 in_balt[43,]$ORG_ADDR_FULL 
-neighborhood_shape[in_balt[43,]$intersection,]$Name # neighborhood name
+neighborhood_shape[in_balt[43,]$intersection_row,]$Name # neighborhood name
 #Looks like this is in that location
 
 in_balt[58,]$ORG_ADDR_FULL 
-neighborhood_shape[in_balt[58,]$intersection,]$Name # neighborhood name
+neighborhood_shape[in_balt[58,]$intersection_row,]$Name # neighborhood name
 #Looks like this is in that location
 
 in_balt[65,]$ORG_ADDR_FULL
-neighborhood_shape[in_balt[65,]$intersection,]$Name # neighborhood name
+neighborhood_shape[in_balt[65,]$intersection_row,]$Name # neighborhood name
 #Looks like this is in that location
 
 in_balt[100,]$ORG_ADDR_FULL
-neighborhood_shape[in_balt[100,]$intersection,]$Name # neighborhood name
+neighborhood_shape[in_balt[100,]$intersection_row,]$Name # neighborhood name
 #Looks like this is in that location
 
 ```
@@ -105,7 +107,7 @@ Want the org info, and neighborhood info, and shape information together to enab
 ```{r}
 neighborhood_shape <-as_tibble(neighborhood_shape) # convert to tibble to work with later
 neighborhood_shape<-neighborhood_shape %>%  mutate(id = row_number()) # add row number column
-org_data <-left_join(in_balt, neighborhood_shape, by = c("intersection" = "id")) # look for what row numbers align with the shape file
+org_data <-left_join(in_balt, neighborhood_shape, by = c("intersection_row" = "id")) # look for what row numbers align with the shape file
 
 # save neighborhood R file and org data with neighborhood info
 write_rds(neighborhood_shape, file = here::here("data", "processed", "neighborhood_shape_data.rds"))
