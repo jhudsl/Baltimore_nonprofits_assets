@@ -7,7 +7,7 @@ library(tidyverse)
 
 
 df_simplified <- read_rds(here::here("data/processed/formaps.rds")) # org and shape data
-neighborhoods <- read_rds(here::here("data/processed/neighborhood_shape_data.rds"))#neighborhood stat data (read into R)
+neighborhoods_shape <- read_rds(here::here("data/processed/neighborhood_shape_data.rds"))#neighborhood stat data (read into R)
 
 ```
 
@@ -17,7 +17,7 @@ neighborhoods <- read_rds(here::here("data/processed/neighborhood_shape_data.rds
 ```{r}
 
 # make data at neighborhood level to plot maps 
-neighborhoods_sf <- st_as_sf(neighborhoods) # convert to sf object
+neighborhoods_sf <- st_as_sf(neighborhoods_shape) # convert to sf object
 neighborhoods_sf <- neighborhoods_sf %>% mutate(Percent_AA
   = round(Blk_AfAm/Population*100, digits = 2))  %>% # make our variables like before but this time at neighborhood level only
 
