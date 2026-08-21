@@ -428,7 +428,7 @@ div.tocify {
   <a href="02_filtering_data.html">Filtering</a>
 </li>
 <li>
-  <a href="03_filter_orgs_and_analysis.html">Variable Generation &amp; Analysis</a>
+  <a href="03_analysis.html">Variable Generation &amp; Analysis</a>
 </li>
 <li>
   <a href="04_maps.html">Maps</a>
@@ -460,8 +460,8 @@ div.tocify {
 <h1>Filtering Orgs</h1>
 <p>First reading in our data from our preprocessing steps:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">&quot;data/processed/org_data.rds&quot;</span>)</span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#library(sf)</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;processed&quot;</span>, <span class="st">&quot;org_data.rds&quot;</span>))</span></code></pre></div>
 </div>
 <div id="filter-out-foundation-code-00-orgs" class="section level1">
 <h1>Filter out foundation code 00 orgs</h1>
@@ -491,7 +491,7 @@ down to 501c3 - looks like they are coded as 0 instead of 00.</p>
 ##  8 KNIGHTS OF COLUMBUS                                 (-76.61726 39.32261)
 ##  9 CATON HEALTH CORPORATION                            (-76.67106 39.27302)
 ## 10 MYRA GRAND CHAPTER ORDER OF THE EASTERN STARS       (-76.62622 39.30425)</code></pre>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">subset</span>(<span class="fu">is.na</span>(BMF_FOUNDATION_CODE)<span class="sc">|</span> BMF_FOUNDATION_CODE <span class="sc">!=</span> <span class="st">&quot;0&quot;</span>)<span class="co"># keeping NA values</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">is.na</span>(BMF_FOUNDATION_CODE)<span class="sc">|</span> BMF_FOUNDATION_CODE <span class="sc">!=</span> <span class="st">&quot;0&quot;</span>)<span class="co"># keeping NA values</span></span></code></pre></div>
 <p>After filtering out these orgs, we end with 8150 rows, removing 1847
 orgs with foundation code 00.</p>
 </div>
@@ -504,7 +504,7 @@ class="uri">https://nccs.urban.org/pubs/nccs-data-guide.pdf</a> and see
 <a
 href="https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html"
 class="uri">https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html</a>.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>socialclubs <span class="ot">&lt;-</span>org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(<span class="at">string =</span> NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;Y|y&quot;</span>))</span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>socialclubs <span class="ot">&lt;-</span>org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_starts</span>(<span class="at">string =</span> NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;Y|y&quot;</span>))</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>socialclubs <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(ORG_NAME_CURRENT)</span></code></pre></div>
 <pre><code>## Simple feature collection with 21 features and 1 field
 ## Geometry type: POINT
@@ -525,36 +525,30 @@ class="uri">https://urbaninstitute.github.io/nccs-legacy/ntee/ntee-history.html<
 ##  9 JOURNEY CONTINUES INC                               (-76.58843 39.36335)
 ## 10 BOHEMIAN CEMETERY COMPANY                           (-76.55258 39.30808)
 ## # ℹ 11 more rows</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_detect</span>(<span class="at">string =</span> NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;Y|y&quot;</span>)<span class="sc">|</span> <span class="fu">is.na</span>(NTEE_IRS)) <span class="co"># keeping NA values</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_starts</span>(<span class="at">string =</span> NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;Y|y&quot;</span>)<span class="sc">|</span> <span class="fu">is.na</span>(NTEE_IRS)) <span class="co"># keeping NA values</span></span></code></pre></div>
 <p>After filtering out social clubs we end up with 8129 rows, removing
 21 social club orgs.</p>
 </div>
 <div id="filter-out-po-boxes" class="section level1">
 <h1>Filter out PO Boxes</h1>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>Post_offices <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(F990_ORG_ADDR_STREET, <span class="st">&quot;PO BOX |POST OFFICE&quot;</span>))</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>Post_offices <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(F990_ORG_ADDR_STREET)</span></code></pre></div>
-<pre><code>## Simple feature collection with 422 features and 1 field
-## Geometry type: POINT
-## Dimension:     XY
-## Bounding box:  xmin: -76.69207 ymin: 39.24325 xmax: -76.54166 ymax: 39.36672
-## Geodetic CRS:  WGS 84
-## # A tibble: 422 × 2
-##    F990_ORG_ADDR_STREET           geometry.x
-##    &lt;chr&gt;                         &lt;POINT [°]&gt;
-##  1 PO BOX 66182         (-76.58814 39.36046)
-##  2 PO BOX 27297          (-76.67225 39.3118)
-##  3 PO BOX 11714          (-76.5559 39.33483)
-##  4 PO BOX 67612          (-76.68345 39.3461)
-##  5 PO BOX 66462         (-76.58843 39.36335)
-##  6 PO BOX 2035          (-76.60412 39.29132)
-##  7 PO BOX 1652          (-76.60454 39.29244)
-##  8 PO BOX 79502         (-76.56761 39.29284)
-##  9 PO BOX 39584         (-76.60998 39.36408)
-## 10 PO BOX 2727          (-76.60911 39.24325)
-## # ℹ 412 more rows</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_detect</span>(F990_ORG_ADDR_STREET, <span class="st">&quot;PO BOX |POST OFFICE&quot;</span>)<span class="sc">|</span> <span class="fu">is.na</span>(F990_ORG_ADDR_STREET)) <span class="co"># keeping NA values)</span></span></code></pre></div>
-<p>After filtering out PO Boxes we end up with 7707 rows, removing 422
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>Post_offices <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(F990_ORG_ADDR_STREET, <span class="st">&quot;BOX|POST OFFICE&quot;</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>Post_offices_Box <span class="ot">&lt;-</span> Post_offices  <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_detect</span>(F990_ORG_ADDR_STREET, <span class="st">&quot;PO&quot;</span>))<span class="co"># let&#39;s check the more unusal addresses</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>Post_offices_Box<span class="sc">$</span>F990_ORG_ADDR_STREET</span></code></pre></div>
+<pre><code>##  [1] &quot;1 E CHASE ST STE R3G MAIL BOX 9&quot;     &quot;900 CATON AVENUE BOX 123&quot;           
+##  [3] &quot;2901 DRUID PARK DRIVE P O BOX 40&quot;    &quot;P O BOX 22989&quot;                      
+##  [5] &quot;P O BOX 41234&quot;                       &quot;P O BOX 3760&quot;                       
+##  [7] &quot;3717 BOSTON STREET BOX 345&quot;          &quot;P O BOX 66028&quot;                      
+##  [9] &quot;822 GUILFORD AVE BOX 235&quot;            &quot;900 E FAYETTE STREET BOX NUMBER2055&quot;</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># based on Gemina 1.5 Pro AI search on aug20 2026 the following are likely physical addresses and not just mail boxes</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#2901 DRUID PARK DRIVE P O BOX 40</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#1 E CHASE ST STE R3G MAIL BOX 9</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#900 CATON AVENUE BOX 123</span></span></code></pre></div>
+<p>Preserving addresses that look like post office boxes but are
+physical:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>Post_offices <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(F990_ORG_ADDR_STREET, <span class="st">&quot;822 GUILFORD AVE BOX 235|3717 BOSTON STREET BOX 345|MAIL BOX|P O BOX|PO BOX|POST OFFICE&quot;</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_detect</span>(F990_ORG_ADDR_STREET, <span class="st">&quot;822 GUILFORD AVE BOX 235|3717 BOSTON STREET BOX 345|MAIL BOX|P O BOX|PO BOX|POST OFFICE&quot;</span>)<span class="sc">|</span> <span class="fu">is.na</span>(F990_ORG_ADDR_STREET)) <span class="co"># keeping NA values)</span></span></code></pre></div>
+<p>After filtering out PO Boxes we end up with 7698 rows, removing 431
 orgs with a post office box address.</p>
 </div>
 <div id="filter-out-foundation-code-04-and-17" class="section level1">
@@ -566,8 +560,8 @@ conjunction with organizations with code 10 through 16</li>
 </ul>
 <p>We want to remove these and set them aside.</p>
 <p>Let’s keep on their own as an aside but remove from main data.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>no_oper_orgs<span class="ot">&lt;-</span>org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(BMF_FOUNDATION_CODE <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;4&quot;</span>,<span class="st">&quot;17&quot;</span>))  <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(ORG_NAME_CURRENT)  <span class="co">#show examples of what will be dropped</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>no_oper_orgs <span class="sc">%&gt;%</span> <span class="fu">head</span>( <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>no_oper_orgs<span class="ot">&lt;-</span>org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(BMF_FOUNDATION_CODE <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;4&quot;</span>,<span class="st">&quot;17&quot;</span>))  <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(ORG_NAME_CURRENT)  <span class="co">#show examples of what will be dropped</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>no_oper_orgs <span class="sc">%&gt;%</span> <span class="fu">head</span>( <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
 <pre><code>## Simple feature collection with 10 features and 1 field
 ## Geometry type: POINT
 ## Dimension:     XY
@@ -586,8 +580,8 @@ conjunction with organizations with code 10 through 16</li>
 ##  8 KING MEMORIAL CHILD CARE FAMILY ACADEMY INC      (-76.70683 39.31009)
 ##  9 SHILOH RESOURCE COMMUNITY AND DEVELOPMENT CENTER (-76.68396 39.31561)
 ## 10 VICE SQUAD MINISTRIES INC                        (-76.66784 39.34583)</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">subset</span>(<span class="fu">is.na</span>(BMF_FOUNDATION_CODE)<span class="sc">|</span> <span class="sc">!</span> BMF_FOUNDATION_CODE  <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;4&quot;</span>,<span class="st">&quot;17&quot;</span>))<span class="co"># keeping NA values</span></span></code></pre></div>
-<p>After filtering out these orgs we end up with 6843 rows, removing 864
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>org_data <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">is.na</span>(BMF_FOUNDATION_CODE)<span class="sc">|</span> <span class="sc">!</span> BMF_FOUNDATION_CODE  <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;4&quot;</span>,<span class="st">&quot;17&quot;</span>))<span class="co"># keeping NA values</span></span></code></pre></div>
+<p>After filtering out these orgs we end up with 6834 rows, removing 864
 orgs with foundation code 04 or 17.</p>
 </div>
 <div id="filtering-for-year" class="section level1">
@@ -607,17 +601,27 @@ pulled</li>
 <p>If we assume a sliding window and people would need to have filed in
 the last 3 complete years, than we can include orgs that filed in 2021,
 2022, and 2023 (as well as the incomplete 2024).</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>active_orgs <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ORG_YEAR_LAST <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">2024</span>, <span class="dv">2023</span>, <span class="dv">2022</span>, <span class="dv">2021</span>))</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>non_active_orgs <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span> ORG_YEAR_LAST <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">2024</span>, <span class="dv">2023</span>, <span class="dv">2022</span>, <span class="dv">2021</span>))</span></code></pre></div>
-<p>After filtering out orgs that filed between May 15, 2023 and March
-2024, we have 6843 rows, removing 3016 orgs with that filed at that
-time.</p>
-<p>After filtering out orgs that last filed in the last 3 complete
-years, we end up with 3827.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>active_orgs <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ORG_YEAR_LAST <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">2024</span>, <span class="dv">2023</span>, <span class="dv">2022</span>, <span class="dv">2021</span>))</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>non_active_orgs <span class="ot">&lt;-</span> org_data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span> ORG_YEAR_LAST <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">2024</span>, <span class="dv">2023</span>, <span class="dv">2022</span>, <span class="dv">2021</span>)<span class="sc">|</span> <span class="fu">is.na</span>(ORG_YEAR_LAST))</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="fu">count</span>(active_orgs, ORG_YEAR_LAST)</span></code></pre></div>
+<pre><code>## Simple feature collection with 3 features and 2 fields
+## Geometry type: MULTIPOINT
+## Dimension:     XY
+## Bounding box:  xmin: -76.71124 ymin: 39.22115 xmax: -76.53007 ymax: 39.37196
+## Geodetic CRS:  WGS 84
+## # A tibble: 3 × 3
+##   ORG_YEAR_LAST     n                                                 geometry.x
+## *         &lt;dbl&gt; &lt;int&gt;                                           &lt;MULTIPOINT [°]&gt;
+## 1          2022   163 ((-76.62919 39.24851), (-76.62636 39.25327), (-76.61855 3…
+## 2          2023   126 ((-76.60027 39.23441), (-76.6021 39.23622), (-76.63263 39…
+## 3          2024  3530 ((-76.53199 39.25987), (-76.53073 39.27236), (-76.53946 3…</code></pre>
+<p>Filtering from the total 6834 orgs, we have 3819 active orgs,
+removing 3015 orgs with thatlast filed before 2021.</p>
 <p>Now let’s remove orgs from industrial neighborhoods with Population
 of 0 or NA.</p>
 <p>Let’s first check what those neighborhoods are.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>active_orgs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">is.na</span>(Population)) <span class="co"># this is two orgs in a park</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>active_orgs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">is.na</span>(Population)) <span class="co"># this is two orgs in a park</span></span></code></pre></div>
 <pre><code>## Simple feature collection with 2 features and 108 fields
 ## Active geometry column: geometry.x
 ## Geometry type: POINT
@@ -636,37 +640,65 @@ of 0 or NA.</p>
 ## #   CENSUS_CBSA_FIPS &lt;dbl&gt;, CENSUS_CBSA_NAME &lt;chr&gt;, CENSUS_BLOCK_FIPS &lt;dbl&gt;,
 ## #   CENSUS_URBAN_AREA &lt;chr&gt;, CENSUS_STATE_ABBR &lt;chr&gt;, CENSUS_COUNTY_NAME &lt;chr&gt;,
 ## #   ORG_ADDR_FULL &lt;chr&gt;, ORG_ADDR_MATCH &lt;chr&gt;, GEOCODER_SCORE &lt;dbl&gt;, …</code></pre>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>popzero <span class="ot">&lt;-</span>active_orgs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population<span class="sc">==</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>popzero <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(Name)</span></code></pre></div>
-<pre><code>##                             Name
-## 1               Herring Run Park
-## 2                   Carroll Park
-## 3       Gwynns Falls/Leakin Park
-## 4  Spring Garden Industrial Area
-## 5                   Carroll Park
-## 6                   Carroll Park
-## 7  Spring Garden Industrial Area
-## 8  Spring Garden Industrial Area
-## 9  Spring Garden Industrial Area
-## 10 Spring Garden Industrial Area
-## 11 Spring Garden Industrial Area
-## 12 Spring Garden Industrial Area</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>popzero <span class="ot">&lt;-</span>active_orgs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population<span class="sc">==</span> <span class="dv">0</span>) </span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>popzero <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(Name) <span class="co"># do these make sense?</span></span></code></pre></div>
+<pre><code>## Simple feature collection with 12 features and 1 field
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -76.6868 ymin: 39.27143 xmax: -76.57489 ymax: 39.3352
+## Geodetic CRS:  WGS 84
+## # A tibble: 12 × 2
+##    Name                                    geometry.x
+##    &lt;chr&gt;                                  &lt;POINT [°]&gt;
+##  1 Herring Run Park               (-76.57489 39.3352)
+##  2 Carroll Park                  (-76.64487 39.27631)
+##  3 Gwynns Falls/Leakin Park       (-76.6868 39.30792)
+##  4 Spring Garden Industrial Area  (-76.6177 39.27459)
+##  5 Carroll Park                  (-76.64609 39.27222)
+##  6 Carroll Park                  (-76.64487 39.27631)
+##  7 Spring Garden Industrial Area  (-76.6177 39.27459)
+##  8 Spring Garden Industrial Area  (-76.6177 39.27459)
+##  9 Spring Garden Industrial Area  (-76.6177 39.27459)
+## 10 Spring Garden Industrial Area  (-76.6177 39.27459)
+## 11 Spring Garden Industrial Area  (-76.6177 39.27459)
+## 12 Spring Garden Industrial Area (-76.61855 39.27143)</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>popmissing <span class="ot">&lt;-</span> active_orgs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">is.na</span>(Population))</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>popmissing <span class="sc">%&gt;%</span> <span class="fu">count</span>(Population)</span></code></pre></div>
+<pre><code>## Simple feature collection with 1 feature and 2 fields
+## Geometry type: MULTIPOINT
+## Dimension:     XY
+## Bounding box:  xmin: -76.62243 ymin: 39.25142 xmax: -76.615 ymax: 39.25437
+## Geodetic CRS:  WGS 84
+## # A tibble: 1 × 3
+##   Population     n                                 geometry.x
+## *      &lt;int&gt; &lt;int&gt;                           &lt;MULTIPOINT [°]&gt;
+## 1         NA     2 ((-76.615 39.25142), (-76.62243 39.25437))</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>popzero <span class="sc">%&gt;%</span> <span class="fu">count</span>(Population)</span></code></pre></div>
+<pre><code>## Simple feature collection with 1 feature and 2 fields
+## Geometry type: MULTIPOINT
+## Dimension:     XY
+## Bounding box:  xmin: -76.6868 ymin: 39.27143 xmax: -76.57489 ymax: 39.3352
+## Geodetic CRS:  WGS 84
+## # A tibble: 1 × 3
+##   Population     n                                                    geometry.x
+## *      &lt;int&gt; &lt;int&gt;                                              &lt;MULTIPOINT [°]&gt;
+## 1          0    12 ((-76.61855 39.27143), (-76.6177 39.27459), (-76.57489 39.33…</code></pre>
 <p>OK these make sense. Let’s remove them.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="co">#first dim before removal</span></span>
-<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="fu">dim</span>(active_orgs)</span></code></pre></div>
-<pre><code>## [1] 3827  110</code></pre>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>active_orgs <span class="ot">&lt;-</span>active_orgs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population<span class="sc">!=</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Population))</span>
-<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="fu">dim</span>(active_orgs)</span></code></pre></div>
-<pre><code>## [1] 3813  110</code></pre>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">dim</span>(popzero)</span></code></pre></div>
-<pre><code>## [1]  12 110</code></pre>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="co"># OK this looks right</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="co">#first nrow before removal</span></span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="fu">nrow</span>(active_orgs)</span></code></pre></div>
+<pre><code>## [1] 3819</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>active_orgs <span class="ot">&lt;-</span>active_orgs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Population<span class="sc">!=</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Population))</span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="fu">nrow</span>(active_orgs)</span></code></pre></div>
+<pre><code>## [1] 3805</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">nrow</span>(popzero)</span></code></pre></div>
+<pre><code>## [1] 12</code></pre>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="co"># OK this looks right</span></span></code></pre></div>
 <p>Let’s save our files.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="fu">write_rds</span>(active_orgs, <span class="at">file =</span> <span class="st">&quot;data/processed/active_orgs.rds&quot;</span>)</span>
-<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="fu">write_csv</span>(non_active_orgs, <span class="at">file =</span> <span class="st">&quot;data/processed/non_active_orgs.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="fu">write_rds</span>(active_orgs, <span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;processed&quot;</span>, <span class="st">&quot;active_orgs.rds&quot;</span>))</span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="fu">write_csv</span>(non_active_orgs, <span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;processed&quot;</span>, <span class="st">&quot;non_active_orgs.csv&quot;</span>))</span></code></pre></div>
 </div>
 
-<div id="rmd-source-code">CgojIEZpbHRlcmluZyBPcmdzCgpGaXJzdCByZWFkaW5nIGluIG91ciBkYXRhIGZyb20gb3VyIHByZXByb2Nlc3Npbmcgc3RlcHM6CgpgYGB7cn0KbGlicmFyeSh0aWR5dmVyc2UpCmxpYnJhcnkoc2YpCm9yZ19kYXRhIDwtIHJlYWRfcmRzKCJkYXRhL3Byb2Nlc3NlZC9vcmdfZGF0YS5yZHMiKQoKYGBgCgojIEZpbHRlciBvdXQgZm91bmRhdGlvbiBjb2RlIDAwIG9yZ3MKCkJhc2VkIG9uIGh0dHBzOi8vd3d3Lmlycy5nb3YvcHViL2lycy1zb2kvZW8taW5mby5wZGYgCnBhZ2UgMyAtIHdlIHdpbGwgZXhjbHVkZSAwMCBmb3IgZm91bmRhdGlvbiBjb2RlIC0gYWxsIG9yZ3MgZXhjZXB0IDUwMWMzIHRvIGZpbHRlciBkb3duIHRvIDUwMWMzIC0gbG9va3MgbGlrZSB0aGV5IGFyZSBjb2RlZCBhcyAwIGluc3RlYWQgb2YgMDAuCgpXZSBzdGFydCB3aXRoIGByIG5yb3cob3JnX2RhdGEpYCByb3dzLgpgYGB7cn0KZm91bmRfMDBfb3JncyA8LSBvcmdfZGF0YSAlPiUgZmlsdGVyKEJNRl9GT1VOREFUSU9OX0NPREUgPT0gIjAiKSAgJT4lIGRwbHlyOjpzZWxlY3QoT1JHX05BTUVfQ1VSUkVOVCkgCgpmb3VuZF8wMF9vcmdzICU+JSBoZWFkKCBuID0gMTApICNzaG93IGEgY291cGxlIG9mIGV4YW1wbGVzIG9mIHdoYXQgd2lsbCBiZSBkcm9wcGVkCgpvcmdfZGF0YSA8LSBvcmdfZGF0YSAlPiUgc3Vic2V0KGlzLm5hKEJNRl9GT1VOREFUSU9OX0NPREUpfCBCTUZfRk9VTkRBVElPTl9DT0RFICE9ICIwIikjIGtlZXBpbmcgTkEgdmFsdWVzCmBgYAoKQWZ0ZXIgZmlsdGVyaW5nIG91dCB0aGVzZSBvcmdzLCB3ZSBlbmQgd2l0aCBgciBucm93KG9yZ19kYXRhKWAgcm93cywgcmVtb3ZpbmcgYHIgbnJvdyhmb3VuZF8wMF9vcmdzKWAgb3JncyB3aXRoIGZvdW5kYXRpb24gY29kZSAwMC4KCgojIEZpbHRlciBvdXQgc29jaWFsX2NsdWJzIAoKV2Ugc3RhcnQgd2l0aCBgciBucm93KG9yZ19kYXRhKWAgcm93cy4KClNlZSBwYWdlIDE2IGZvciBtb3JlIGluZm9ybWF0aW9uOiBodHRwczovL25jY3MudXJiYW4ub3JnL3B1YnMvbmNjcy1kYXRhLWd1aWRlLnBkZiBhbmQgc2VlIGh0dHBzOi8vdXJiYW5pbnN0aXR1dGUuZ2l0aHViLmlvL25jY3MtbGVnYWN5L250ZWUvbnRlZS1oaXN0b3J5Lmh0bWwuIAoKYGBge3J9CnNvY2lhbGNsdWJzIDwtb3JnX2RhdGEgJT4lIGZpbHRlcihzdHJfZGV0ZWN0KHN0cmluZyA9IE5URUVfSVJTLCBwYXR0ZXJuID0gIll8eSIpKQpzb2NpYWxjbHVicyAlPiUgZHBseXI6OnNlbGVjdChPUkdfTkFNRV9DVVJSRU5UKQoKb3JnX2RhdGEgPC0gb3JnX2RhdGEgJT4lIGZpbHRlcighc3RyX2RldGVjdChzdHJpbmcgPSBOVEVFX0lSUywgcGF0dGVybiA9ICJZfHkiKXwgaXMubmEoTlRFRV9JUlMpKSAjIGtlZXBpbmcgTkEgdmFsdWVzCmBgYAoKCkFmdGVyIGZpbHRlcmluZyBvdXQgc29jaWFsIGNsdWJzIHdlIGVuZCB1cCB3aXRoIGByIG5yb3cob3JnX2RhdGEpYCByb3dzLCByZW1vdmluZyBgciBucm93KHNvY2lhbGNsdWJzKWAgc29jaWFsIGNsdWIgb3Jncy4KCiMgRmlsdGVyIG91dCBQTyBCb3hlcwoKYGBge3J9ClBvc3Rfb2ZmaWNlcyA8LSBvcmdfZGF0YSAlPiUgZmlsdGVyKHN0cl9kZXRlY3QoRjk5MF9PUkdfQUREUl9TVFJFRVQsICJQTyBCT1ggfFBPU1QgT0ZGSUNFIikpCgpQb3N0X29mZmljZXMgJT4lIGRwbHlyOjpzZWxlY3QoRjk5MF9PUkdfQUREUl9TVFJFRVQpCgpvcmdfZGF0YSA8LSBvcmdfZGF0YSAlPiUgZmlsdGVyKCFzdHJfZGV0ZWN0KEY5OTBfT1JHX0FERFJfU1RSRUVULCAiUE8gQk9YIHxQT1NUIE9GRklDRSIpfCBpcy5uYShGOTkwX09SR19BRERSX1NUUkVFVCkpICMga2VlcGluZyBOQSB2YWx1ZXMpCmBgYAoKQWZ0ZXIgZmlsdGVyaW5nIG91dCBQTyBCb3hlcyB3ZSBlbmQgdXAgd2l0aCBgciBucm93KG9yZ19kYXRhKWAgcm93cywgcmVtb3ZpbmcgYHIgbnJvdyhQb3N0X29mZmljZXMpYCAgb3JncyB3aXRoIGEgcG9zdCBvZmZpY2UgYm94IGFkZHJlc3MuCgojIEZpbHRlciBvdXQgZm91bmRhdGlvbiBjb2RlIDA0IGFuZCAxNwoKCi0gMDQgPSBQcml2YXRlIG5vbi1vcGVyYXRpbmcgZm91bmRhdGlvbgotIDE3ID0gT3JnYW5pemF0aW9ucyBvcGVyYXRlZCBzb2xlbHkgZm9yIHRoZSBiZW5lZml0IG9mIGFuZCBpbiBjb25qdW5jdGlvbiB3aXRoIG9yZ2FuaXphdGlvbnMgd2l0aCBjb2RlIDEwIHRocm91Z2ggMTYgCgpXZSB3YW50IHRvIHJlbW92ZSB0aGVzZSBhbmQgc2V0IHRoZW0gYXNpZGUuIAoKTGV0J3Mga2VlcCBvbiB0aGVpciBvd24gYXMgYW4gYXNpZGUgYnV0IHJlbW92ZSBmcm9tIG1haW4gZGF0YS4KCmBgYHtyfQpub19vcGVyX29yZ3M8LW9yZ19kYXRhICU+JSBmaWx0ZXIoQk1GX0ZPVU5EQVRJT05fQ09ERSAlaW4lIGMoIjQiLCIxNyIpKSAgJT4lIGRwbHlyOjpzZWxlY3QoT1JHX05BTUVfQ1VSUkVOVCkgICNzaG93IGV4YW1wbGVzIG9mIHdoYXQgd2lsbCBiZSBkcm9wcGVkCm5vX29wZXJfb3JncyAlPiUgaGVhZCggbiA9IDEwKQoKb3JnX2RhdGEgPC0gb3JnX2RhdGEgJT4lIHN1YnNldChpcy5uYShCTUZfRk9VTkRBVElPTl9DT0RFKXwgISBCTUZfRk9VTkRBVElPTl9DT0RFICAlaW4lIGMoIjQiLCIxNyIpKSMga2VlcGluZyBOQSB2YWx1ZXMKCmBgYAoKQWZ0ZXIgZmlsdGVyaW5nIG91dCB0aGVzZSBvcmdzIHdlIGVuZCB1cCB3aXRoIGByIG5yb3cob3JnX2RhdGEpYCByb3dzLCByZW1vdmluZyBgciBucm93KG5vX29wZXJfb3JncylgIG9yZ3Mgd2l0aCBmb3VuZGF0aW9uIGNvZGUgMDQgb3IgMTcuIAoKIyBGaWx0ZXJpbmcgZm9yIHllYXIKCkZpbGluZyBpcyBkdWUgTWF5IDE1IGVhY2ggeWVhciwgc2luY2UgdGhlIGRhdGEgaXMgZnJvbSBNYXJjaCAyMDI0LCB0aGF0IG1lYW5zIGl0IG9ubHkgc2hvd3MgMjAyMyBjb21wbGV0ZSBkYXRhLgoKT3JncyBvbmx5IG5lZWQgdG8gZmlsZSBldmVyeSAzIHllYXJzIGFzIHdlbGwsIGJ1dCB0aGlzIHdvdWxkIGJlIGEgc2xpZGluZyB3aW5kb3cgZm9yIG9yZ3MgYXQgZGlmZmVyZW50IHRpbWVzIGFzLCBidXQgd2UgY291bGQgcmVxdWlyZSB0aGF0IHRoZSBsYXN0IGZpbGluZyB0aW1lIGJlIHdpdGhpbiB0aGUgbGFzdCAzIGNvbXBsZXRlIHllYXJzLgoKQWNjb3JkaW5nIHRvIHRoZSBbZGljdGlvbmFyeV0oaHR0cHM6Ly9uY2NzZGF0YS5zMy5hbWF6b25hd3MuY29tL2hhcm1vbml6ZWQvaGFybW9uaXplZF9kYXRhX2RpY3Rpb25hcnkueGxzeCk6CgotIE9SR19GSVNDQUxfWUVBUgk9IEZpc2NhbCBZZWFyIG9mIHRoZSBCTUYgZnJvbSB3aGljaCB0aGlzIHJlY29yZCB3YXMgcHVsbGVkCi0gT1JHX1lFQVJfTEFTVCA9CU1vc3QgcmVjZW50IHllYXIgRUlOIHdhcyByZWNvcmRlZCBpbiBCTUYKCgoKSWYgd2UgYXNzdW1lIGEgc2xpZGluZyB3aW5kb3cgYW5kIHBlb3BsZSB3b3VsZCBuZWVkIHRvIGhhdmUgZmlsZWQgaW4gdGhlIGxhc3QgMyBjb21wbGV0ZSB5ZWFycywgdGhhbiB3ZSBjYW4gaW5jbHVkZSBvcmdzIHRoYXQgZmlsZWQgaW4gMjAyMSwgMjAyMiwgYW5kIDIwMjMgKGFzIHdlbGwgYXMgdGhlIGluY29tcGxldGUgMjAyNCkuCgpgYGB7cn0KYWN0aXZlX29yZ3MgPC0gb3JnX2RhdGEgJT4lIGZpbHRlcihPUkdfWUVBUl9MQVNUICVpbiUgYygyMDI0LCAyMDIzLCAyMDIyLCAyMDIxKSkKbm9uX2FjdGl2ZV9vcmdzIDwtIG9yZ19kYXRhICU+JSBmaWx0ZXIoISBPUkdfWUVBUl9MQVNUICVpbiUgYygyMDI0LCAyMDIzLCAyMDIyLCAyMDIxKSkKYGBgCgpBZnRlciBmaWx0ZXJpbmcgb3V0IG9yZ3MgdGhhdCBmaWxlZCBiZXR3ZWVuIE1heSAxNSwgMjAyMyBhbmQgTWFyY2ggMjAyNCwgd2UgaGF2ZSBgciBucm93KG9yZ19kYXRhKWAgcm93cywgcmVtb3ZpbmcgYHIgbnJvdyhub25fYWN0aXZlX29yZ3MpYCBvcmdzIHdpdGggdGhhdCBmaWxlZCBhdCB0aGF0IHRpbWUuCgpBZnRlciBmaWx0ZXJpbmcgb3V0IG9yZ3MgdGhhdCBsYXN0IGZpbGVkIGluIHRoZSBsYXN0IDMgY29tcGxldGUgeWVhcnMsIHdlIGVuZCB1cCB3aXRoIGByIG5yb3coYWN0aXZlX29yZ3MpYC4KCgpOb3cgbGV0J3MgcmVtb3ZlIG9yZ3MgZnJvbSBpbmR1c3RyaWFsIG5laWdoYm9yaG9vZHMgd2l0aCBQb3B1bGF0aW9uIG9mIDAgb3IgTkEuCgpMZXQncyBmaXJzdCBjaGVjayB3aGF0IHRob3NlIG5laWdoYm9yaG9vZHMgYXJlLgoKCmBgYHtyfQphY3RpdmVfb3JncyAlPiUgZmlsdGVyKGlzLm5hKFBvcHVsYXRpb24pKSAjIHRoaXMgaXMgdHdvIG9yZ3MgaW4gYSBwYXJrCnBvcHplcm8gPC1hY3RpdmVfb3JncyAlPiUgZmlsdGVyKFBvcHVsYXRpb249PSAwKSAlPiUgYXMuZGF0YS5mcmFtZSgpCnBvcHplcm8gJT4lIGRwbHlyOjpzZWxlY3QoTmFtZSkKCgpgYGAKCk9LIHRoZXNlIG1ha2Ugc2Vuc2UuIExldCdzIHJlbW92ZSB0aGVtLgoKYGBge3J9CgojZmlyc3QgZGltIGJlZm9yZSByZW1vdmFsCmRpbShhY3RpdmVfb3JncykKYWN0aXZlX29yZ3MgPC1hY3RpdmVfb3JncyAlPiUgZmlsdGVyKFBvcHVsYXRpb24hPSAwKSAlPiUgZmlsdGVyKCFpcy5uYShQb3B1bGF0aW9uKSkKZGltKGFjdGl2ZV9vcmdzKQpkaW0ocG9wemVybykKIyBPSyB0aGlzIGxvb2tzIHJpZ2h0CgpgYGAKCgpMZXQncyBzYXZlIG91ciBmaWxlcy4KCmBgYHtyfQp3cml0ZV9yZHMoYWN0aXZlX29yZ3MsIGZpbGUgPSAiZGF0YS9wcm9jZXNzZWQvYWN0aXZlX29yZ3MucmRzIikKd3JpdGVfY3N2KG5vbl9hY3RpdmVfb3JncywgZmlsZSA9ICJkYXRhL3Byb2Nlc3NlZC9ub25fYWN0aXZlX29yZ3MuY3N2IikKYGBgCg==</div>
+<div id="rmd-source-code">CgojIEZpbHRlcmluZyBPcmdzCgpGaXJzdCByZWFkaW5nIGluIG91ciBkYXRhIGZyb20gb3VyIHByZXByb2Nlc3Npbmcgc3RlcHM6CgpgYGB7cn0KbGlicmFyeSh0aWR5dmVyc2UpCiNsaWJyYXJ5KHNmKQpvcmdfZGF0YSA8LSByZWFkX3JkcyhoZXJlOjpoZXJlKCJkYXRhIiwgInByb2Nlc3NlZCIsICJvcmdfZGF0YS5yZHMiKSkKCmBgYAoKIyBGaWx0ZXIgb3V0IGZvdW5kYXRpb24gY29kZSAwMCBvcmdzCgpCYXNlZCBvbiBodHRwczovL3d3dy5pcnMuZ292L3B1Yi9pcnMtc29pL2VvLWluZm8ucGRmIApwYWdlIDMgLSB3ZSB3aWxsIGV4Y2x1ZGUgMDAgZm9yIGZvdW5kYXRpb24gY29kZSAtIGFsbCBvcmdzIGV4Y2VwdCA1MDFjMyB0byBmaWx0ZXIgZG93biB0byA1MDFjMyAtIGxvb2tzIGxpa2UgdGhleSBhcmUgY29kZWQgYXMgMCBpbnN0ZWFkIG9mIDAwLgoKV2Ugc3RhcnQgd2l0aCBgciBucm93KG9yZ19kYXRhKWAgcm93cy4KYGBge3J9CmZvdW5kXzAwX29yZ3MgPC0gb3JnX2RhdGEgJT4lIGZpbHRlcihCTUZfRk9VTkRBVElPTl9DT0RFID09ICIwIikgICU+JSBkcGx5cjo6c2VsZWN0KE9SR19OQU1FX0NVUlJFTlQpIAoKZm91bmRfMDBfb3JncyAlPiUgaGVhZCggbiA9IDEwKSAjc2hvdyBhIGNvdXBsZSBvZiBleGFtcGxlcyBvZiB3aGF0IHdpbGwgYmUgZHJvcHBlZAoKb3JnX2RhdGEgPC0gb3JnX2RhdGEgJT4lIGZpbHRlcihpcy5uYShCTUZfRk9VTkRBVElPTl9DT0RFKXwgQk1GX0ZPVU5EQVRJT05fQ09ERSAhPSAiMCIpIyBrZWVwaW5nIE5BIHZhbHVlcwpgYGAKCkFmdGVyIGZpbHRlcmluZyBvdXQgdGhlc2Ugb3Jncywgd2UgZW5kIHdpdGggYHIgbnJvdyhvcmdfZGF0YSlgIHJvd3MsIHJlbW92aW5nIGByIG5yb3coZm91bmRfMDBfb3JncylgIG9yZ3Mgd2l0aCBmb3VuZGF0aW9uIGNvZGUgMDAuCgoKIyBGaWx0ZXIgb3V0IHNvY2lhbF9jbHVicyAKCldlIHN0YXJ0IHdpdGggYHIgbnJvdyhvcmdfZGF0YSlgIHJvd3MuCgpTZWUgcGFnZSAxNiBmb3IgbW9yZSBpbmZvcm1hdGlvbjogaHR0cHM6Ly9uY2NzLnVyYmFuLm9yZy9wdWJzL25jY3MtZGF0YS1ndWlkZS5wZGYgYW5kIHNlZSBodHRwczovL3VyYmFuaW5zdGl0dXRlLmdpdGh1Yi5pby9uY2NzLWxlZ2FjeS9udGVlL250ZWUtaGlzdG9yeS5odG1sLiAKCmBgYHtyfQpzb2NpYWxjbHVicyA8LW9yZ19kYXRhICU+JSBmaWx0ZXIoc3RyX3N0YXJ0cyhzdHJpbmcgPSBOVEVFX0lSUywgcGF0dGVybiA9ICJZfHkiKSkKc29jaWFsY2x1YnMgJT4lIGRwbHlyOjpzZWxlY3QoT1JHX05BTUVfQ1VSUkVOVCkKCm9yZ19kYXRhIDwtIG9yZ19kYXRhICU+JSBmaWx0ZXIoIXN0cl9zdGFydHMoc3RyaW5nID0gTlRFRV9JUlMsIHBhdHRlcm4gPSAiWXx5Iil8IGlzLm5hKE5URUVfSVJTKSkgIyBrZWVwaW5nIE5BIHZhbHVlcwpgYGAKCgpBZnRlciBmaWx0ZXJpbmcgb3V0IHNvY2lhbCBjbHVicyB3ZSBlbmQgdXAgd2l0aCBgciBucm93KG9yZ19kYXRhKWAgcm93cywgcmVtb3ZpbmcgYHIgbnJvdyhzb2NpYWxjbHVicylgIHNvY2lhbCBjbHViIG9yZ3MuCgojIEZpbHRlciBvdXQgUE8gQm94ZXMKCmBgYHtyfQpQb3N0X29mZmljZXMgPC0gb3JnX2RhdGEgJT4lIGZpbHRlcihzdHJfZGV0ZWN0KEY5OTBfT1JHX0FERFJfU1RSRUVULCAiQk9YfFBPU1QgT0ZGSUNFIikpClBvc3Rfb2ZmaWNlc19Cb3ggPC0gUG9zdF9vZmZpY2VzICAlPiUgZmlsdGVyKCFzdHJfZGV0ZWN0KEY5OTBfT1JHX0FERFJfU1RSRUVULCAiUE8iKSkjIGxldCdzIGNoZWNrIHRoZSBtb3JlIHVudXNhbCBhZGRyZXNzZXMKUG9zdF9vZmZpY2VzX0JveCRGOTkwX09SR19BRERSX1NUUkVFVAoKIyBiYXNlZCBvbiBHZW1pbmEgMS41IFBybyBBSSBzZWFyY2ggb24gYXVnMjAgMjAyNiB0aGUgZm9sbG93aW5nIGFyZSBsaWtlbHkgcGh5c2ljYWwgYWRkcmVzc2VzIGFuZCBub3QganVzdCBtYWlsIGJveGVzCiMyOTAxIERSVUlEIFBBUksgRFJJVkUgUCBPIEJPWCA0MAojMSBFIENIQVNFIFNUIFNURSBSM0cgTUFJTCBCT1ggOQojOTAwIENBVE9OIEFWRU5VRSBCT1ggMTIzCgoKYGBgCgpQcmVzZXJ2aW5nIGFkZHJlc3NlcyB0aGF0IGxvb2sgbGlrZSBwb3N0IG9mZmljZSBib3hlcyBidXQgYXJlIHBoeXNpY2FsOiAKYGBge3J9ClBvc3Rfb2ZmaWNlcyA8LSBvcmdfZGF0YSAlPiUgZmlsdGVyKHN0cl9kZXRlY3QoRjk5MF9PUkdfQUREUl9TVFJFRVQsICI4MjIgR1VJTEZPUkQgQVZFIEJPWCAyMzV8MzcxNyBCT1NUT04gU1RSRUVUIEJPWCAzNDV8TUFJTCBCT1h8UCBPIEJPWHxQTyBCT1h8UE9TVCBPRkZJQ0UiKSkKCm9yZ19kYXRhIDwtIG9yZ19kYXRhICU+JSBmaWx0ZXIoIXN0cl9kZXRlY3QoRjk5MF9PUkdfQUREUl9TVFJFRVQsICI4MjIgR1VJTEZPUkQgQVZFIEJPWCAyMzV8MzcxNyBCT1NUT04gU1RSRUVUIEJPWCAzNDV8TUFJTCBCT1h8UCBPIEJPWHxQTyBCT1h8UE9TVCBPRkZJQ0UiKXwgaXMubmEoRjk5MF9PUkdfQUREUl9TVFJFRVQpKSAjIGtlZXBpbmcgTkEgdmFsdWVzKQpgYGAKCkFmdGVyIGZpbHRlcmluZyBvdXQgUE8gQm94ZXMgd2UgZW5kIHVwIHdpdGggYHIgbnJvdyhvcmdfZGF0YSlgIHJvd3MsIHJlbW92aW5nIGByIG5yb3coUG9zdF9vZmZpY2VzKWAgIG9yZ3Mgd2l0aCBhIHBvc3Qgb2ZmaWNlIGJveCBhZGRyZXNzLgoKIyBGaWx0ZXIgb3V0IGZvdW5kYXRpb24gY29kZSAwNCBhbmQgMTcKCgotIDA0ID0gUHJpdmF0ZSBub24tb3BlcmF0aW5nIGZvdW5kYXRpb24KLSAxNyA9IE9yZ2FuaXphdGlvbnMgb3BlcmF0ZWQgc29sZWx5IGZvciB0aGUgYmVuZWZpdCBvZiBhbmQgaW4gY29uanVuY3Rpb24gd2l0aCBvcmdhbml6YXRpb25zIHdpdGggY29kZSAxMCB0aHJvdWdoIDE2IAoKV2Ugd2FudCB0byByZW1vdmUgdGhlc2UgYW5kIHNldCB0aGVtIGFzaWRlLiAKCkxldCdzIGtlZXAgb24gdGhlaXIgb3duIGFzIGFuIGFzaWRlIGJ1dCByZW1vdmUgZnJvbSBtYWluIGRhdGEuCgpgYGB7cn0Kbm9fb3Blcl9vcmdzPC1vcmdfZGF0YSAlPiUgZmlsdGVyKEJNRl9GT1VOREFUSU9OX0NPREUgJWluJSBjKCI0IiwiMTciKSkgICU+JSBkcGx5cjo6c2VsZWN0KE9SR19OQU1FX0NVUlJFTlQpICAjc2hvdyBleGFtcGxlcyBvZiB3aGF0IHdpbGwgYmUgZHJvcHBlZApub19vcGVyX29yZ3MgJT4lIGhlYWQoIG4gPSAxMCkKCm9yZ19kYXRhIDwtIG9yZ19kYXRhICU+JSBmaWx0ZXIoaXMubmEoQk1GX0ZPVU5EQVRJT05fQ09ERSl8ICEgQk1GX0ZPVU5EQVRJT05fQ09ERSAgJWluJSBjKCI0IiwiMTciKSkjIGtlZXBpbmcgTkEgdmFsdWVzCgpgYGAKCkFmdGVyIGZpbHRlcmluZyBvdXQgdGhlc2Ugb3JncyB3ZSBlbmQgdXAgd2l0aCBgciBucm93KG9yZ19kYXRhKWAgcm93cywgcmVtb3ZpbmcgYHIgbnJvdyhub19vcGVyX29yZ3MpYCBvcmdzIHdpdGggZm91bmRhdGlvbiBjb2RlIDA0IG9yIDE3LiAKCiMgRmlsdGVyaW5nIGZvciB5ZWFyCgpGaWxpbmcgaXMgZHVlIE1heSAxNSBlYWNoIHllYXIsIHNpbmNlIHRoZSBkYXRhIGlzIGZyb20gTWFyY2ggMjAyNCwgdGhhdCBtZWFucyBpdCBvbmx5IHNob3dzIDIwMjMgY29tcGxldGUgZGF0YS4KCk9yZ3Mgb25seSBuZWVkIHRvIGZpbGUgZXZlcnkgMyB5ZWFycyBhcyB3ZWxsLCBidXQgdGhpcyB3b3VsZCBiZSBhIHNsaWRpbmcgd2luZG93IGZvciBvcmdzIGF0IGRpZmZlcmVudCB0aW1lcyBhcywgYnV0IHdlIGNvdWxkIHJlcXVpcmUgdGhhdCB0aGUgbGFzdCBmaWxpbmcgdGltZSBiZSB3aXRoaW4gdGhlIGxhc3QgMyBjb21wbGV0ZSB5ZWFycy4KCkFjY29yZGluZyB0byB0aGUgW2RpY3Rpb25hcnldKGh0dHBzOi8vbmNjc2RhdGEuczMuYW1hem9uYXdzLmNvbS9oYXJtb25pemVkL2hhcm1vbml6ZWRfZGF0YV9kaWN0aW9uYXJ5Lnhsc3gpOgoKLSBPUkdfRklTQ0FMX1lFQVIJPSBGaXNjYWwgWWVhciBvZiB0aGUgQk1GIGZyb20gd2hpY2ggdGhpcyByZWNvcmQgd2FzIHB1bGxlZAotIE9SR19ZRUFSX0xBU1QgPQlNb3N0IHJlY2VudCB5ZWFyIEVJTiB3YXMgcmVjb3JkZWQgaW4gQk1GCgoKCklmIHdlIGFzc3VtZSBhIHNsaWRpbmcgd2luZG93IGFuZCBwZW9wbGUgd291bGQgbmVlZCB0byBoYXZlIGZpbGVkIGluIHRoZSBsYXN0IDMgY29tcGxldGUgeWVhcnMsIHRoYW4gd2UgY2FuIGluY2x1ZGUgb3JncyB0aGF0IGZpbGVkIGluIDIwMjEsIDIwMjIsIGFuZCAyMDIzIChhcyB3ZWxsIGFzIHRoZSBpbmNvbXBsZXRlIDIwMjQpLgoKCmBgYHtyfQphY3RpdmVfb3JncyA8LSBvcmdfZGF0YSAlPiUgZmlsdGVyKE9SR19ZRUFSX0xBU1QgJWluJSBjKDIwMjQsIDIwMjMsIDIwMjIsIDIwMjEpKQpub25fYWN0aXZlX29yZ3MgPC0gb3JnX2RhdGEgJT4lIGZpbHRlcighIE9SR19ZRUFSX0xBU1QgJWluJSBjKDIwMjQsIDIwMjMsIDIwMjIsIDIwMjEpfCBpcy5uYShPUkdfWUVBUl9MQVNUKSkKCmNvdW50KGFjdGl2ZV9vcmdzLCBPUkdfWUVBUl9MQVNUKQpgYGAKCkZpbHRlcmluZyBmcm9tIHRoZSB0b3RhbCBgciBucm93KG9yZ19kYXRhKWAgb3Jncywgd2UgaGF2ZSAgYHIgbnJvdyhhY3RpdmVfb3JncylgIGFjdGl2ZSBvcmdzLCByZW1vdmluZyBgciBucm93KG5vbl9hY3RpdmVfb3JncylgIG9yZ3Mgd2l0aCB0aGF0bGFzdCBmaWxlZCBiZWZvcmUgMjAyMS4KCgpOb3cgbGV0J3MgcmVtb3ZlIG9yZ3MgZnJvbSBpbmR1c3RyaWFsIG5laWdoYm9yaG9vZHMgd2l0aCBQb3B1bGF0aW9uIG9mIDAgb3IgTkEuCgpMZXQncyBmaXJzdCBjaGVjayB3aGF0IHRob3NlIG5laWdoYm9yaG9vZHMgYXJlLgoKCmBgYHtyfQphY3RpdmVfb3JncyAlPiUgZmlsdGVyKGlzLm5hKFBvcHVsYXRpb24pKSAjIHRoaXMgaXMgdHdvIG9yZ3MgaW4gYSBwYXJrCnBvcHplcm8gPC1hY3RpdmVfb3JncyAlPiUgZmlsdGVyKFBvcHVsYXRpb249PSAwKSAKcG9wemVybyAlPiUgZHBseXI6OnNlbGVjdChOYW1lKSAjIGRvIHRoZXNlIG1ha2Ugc2Vuc2U/Cgpwb3BtaXNzaW5nIDwtIGFjdGl2ZV9vcmdzICU+JSBmaWx0ZXIoaXMubmEoUG9wdWxhdGlvbikpCnBvcG1pc3NpbmcgJT4lIGNvdW50KFBvcHVsYXRpb24pCnBvcHplcm8gJT4lIGNvdW50KFBvcHVsYXRpb24pCmBgYAoKT0sgdGhlc2UgbWFrZSBzZW5zZS4gTGV0J3MgcmVtb3ZlIHRoZW0uCgpgYGB7cn0KCiNmaXJzdCBucm93IGJlZm9yZSByZW1vdmFsCm5yb3coYWN0aXZlX29yZ3MpCmFjdGl2ZV9vcmdzIDwtYWN0aXZlX29yZ3MgJT4lIGZpbHRlcihQb3B1bGF0aW9uIT0gMCkgJT4lIGZpbHRlcighaXMubmEoUG9wdWxhdGlvbikpCm5yb3coYWN0aXZlX29yZ3MpCm5yb3cocG9wemVybykKIyBPSyB0aGlzIGxvb2tzIHJpZ2h0CgpgYGAKCgpMZXQncyBzYXZlIG91ciBmaWxlcy4KCmBgYHtyfQp3cml0ZV9yZHMoYWN0aXZlX29yZ3MsIGZpbGUgPSBoZXJlOjpoZXJlKCJkYXRhIiwgInByb2Nlc3NlZCIsICJhY3RpdmVfb3Jncy5yZHMiKSkKd3JpdGVfY3N2KG5vbl9hY3RpdmVfb3JncywgZmlsZSA9IGhlcmU6OmhlcmUoImRhdGEiLCAicHJvY2Vzc2VkIiwgIm5vbl9hY3RpdmVfb3Jncy5jc3YiKSkKYGBgCg==</div>
 
 
 </div>

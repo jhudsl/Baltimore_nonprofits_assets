@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>03_analysis.knit</title>
+
+<script src="site_libs/header-attrs-2.31/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+<style type="text/css">
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Baltimore nonprofits assets analysis</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="01_prepare_neighborhood_data.html">Import Data</a>
+</li>
+<li>
+  <a href="02_filtering_data.html">Filtering</a>
+</li>
+<li>
+  <a href="03_analysis.html">Variable Generation &amp; Analysis</a>
+</li>
+<li>
+  <a href="04_maps.html">Maps</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(naniar)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code></pre></div>
+<div id="data-analysis" class="section level1">
+<h1>Data Analysis</h1>
+<p>First let’s get our processed data:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>df_simplified <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;processed&quot;</span>, <span class="st">&quot;active_orgs.rds&quot;</span>)) <span class="co"># org and shape/location info</span></span></code></pre></div>
+<p>Information about the data: <a
+href="https://nccs.urban.org/nccs/catalogs/catalog-bmf.html"
+class="uri">https://nccs.urban.org/nccs/catalogs/catalog-bmf.html</a>
+(to get MD file) Here’s an <a
+href="https://nccs.urban.org/nccs/datasets/bmf/">article</a> describing
+some of the datasets from the IRS 990s. We’re using the Business Master
+File (BMF). There’s a section titled “Minimum Filing Threshold” that
+explains a data limitation (and why we’re seeing so many 0’s). See <a
+href="https://www.irs.gov/charities-non-profits/exempt-organizations-annual-reporting-requirements-overview-annual-return-filing-exceptions">here</a>
+for more info.</p>
+<p>It is not possible to distinguish a true zero from a zero due to not
+meeting the threshold of $50,000 for gross receipts and just not
+submitting. See <a
+href="https://github.com/jhudsl/Baltimore_nonprofits_assets/blob/8094191b88bcef6503c132c7cc73408c12ddc916/Guide_to_Using_NCCS_Data_202.pdf">this
+guide</a>, page 5 in the “minimum filing threshold” section.</p>
+<p>It therefore makes sense to remove zero values and to report this
+caveat that the data is incomplete because many nonprofits that had
+gross receipts less than 50,000 are not included.</p>
+<p>However for the high vs nonhigh asset we could keep these - because
+zero values would still be less than the threshold regardless.</p>
+<p>Adding to this, NA values might be considered ors with gross receipts
+less than 50000, as organizations are not required to report an amount
+if they have less than 50000.</p>
+</div>
+<div id="tidying-data-and-exploratory-analysis" class="section level1">
+<h1>Tidying data and Exploratory Analysis</h1>
+<div id="asset-amount" class="section level2">
+<h2>Asset amount</h2>
+<p>First let’s check how many zero values there are for asset
+amounts.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co">#df_simplified &lt;-sf::st_as_sf(df_simplified)</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>df_simplified <span class="sc">%&gt;%</span> <span class="fu">filter</span>(F990_TOTAL_ASSETS_RECENT<span class="sc">==</span><span class="dv">0</span>)<span class="sc">%&gt;%</span> <span class="fu">nrow</span>()</span></code></pre></div>
+<pre><code>## [1] 2103</code></pre>
+<p>Now we will check if there are <code>NA</code> values for asset
+amounts.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">gg_miss_var</span>(df_simplified)</span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-4-1.png" alt="" width="672" /></p>
+<p>Yes, indeed there are…</p>
+<p>NA and zero values may mean the nonprofit did not need to submit to
+the IRS. It is impossible to know however, if a zero is actually a true
+zero. NA values could mean something else.</p>
+<p>Thus, we will recode asset amount based on a threshold of greater
+than or equal to 500,000 as high asset and less than 500,000 (including
+zero) as not high asset. Note we keep our NA values with this
+recoding.</p>
+<p>Note: F990_TOTAL_ASSETS_RECENT was ASSET_AMT with the old files</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>df_simplified<span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="co">#create a variable about high asset amount (threshold being $500,000)</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASSET_High =</span> <span class="fu">case_when</span>(F990_TOTAL_ASSETS_RECENT   <span class="sc">&gt;=</span> <span class="dv">500000</span> <span class="sc">~</span> <span class="cn">TRUE</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>                                F990_TOTAL_ASSETS_RECENT   <span class="sc">&lt;</span> <span class="dv">500000</span> <span class="sc">~</span> <span class="cn">FALSE</span>))</span></code></pre></div>
+<p>Here we can see the NA values:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">table</span>(df_simplified<span class="sc">$</span>ASSET_High, <span class="at">useNA =</span> <span class="st">&quot;always&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+## FALSE  TRUE  &lt;NA&gt; 
+##  2686   587   532</code></pre>
+<p>Now we will replace <code>NA</code> values with <code>False</code> as
+well:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a> df_simplified <span class="ot">&lt;-</span> df_simplified <span class="sc">%&gt;%</span>  </span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASSET_High =</span> <span class="fu">replace_na</span>(ASSET_High, <span class="cn">FALSE</span>)) <span class="co">#NA values will be coded as not high asset for this analysis  (assuming that missing values are not high, because they would likely have a gross receipt of greater than 50000 and would be required to apply (although not everyone will still apply who should))</span></span></code></pre></div>
+<p>Check that this worked and that there are no NA values now:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">table</span>(df_simplified<span class="sc">$</span>ASSET_High, <span class="at">useNA =</span> <span class="st">&quot;always&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+## FALSE  TRUE  &lt;NA&gt; 
+##  3218   587     0</code></pre>
+<p>Now we will convert these to text as another variable and also create
+a log version of the asset amount to compress the scale, as plots and
+analysis may be easier to interpret if there are many values that are
+high or low.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a> df_simplified<span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASSET_High_text =</span> <span class="fu">case_when</span>(ASSET_High  <span class="sc">==</span> <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;High Asset&quot;</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>                                     ASSET_High  <span class="sc">==</span> <span class="cn">FALSE</span> <span class="sc">~</span> <span class="st">&quot;Low Asset&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="co"># we will also create new log of asset amount variable</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASSET_AMT_log =</span> <span class="fu">log</span>(F990_TOTAL_ASSETS_RECENT)) <span class="co"># for assets of zero will be neg inf- so likely good to filter out if using this</span></span></code></pre></div>
+</div>
+<div id="neighborhood-category" class="section level2">
+<h2>Neighborhood category</h2>
+<p>Next we will modify the data to include a variable about the
+percentage of African American/Black people.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># create new Percent_AA variable by converting</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co"># Blk_Afam (was `Normalized African American Population`) variable </span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co"># into a percentage and rounding</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#dictionary shows: Blk_AfAm = Black or African American alone population (P3)</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co"># Population = Total population (P3) https://data.baltimorecity.gov/datasets/baltimore::neighborhood-statistical-area-nsa-boundaries/about</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a> df_simplified<span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Percent_AA =</span> </span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>           <span class="fu">round</span>(Blk_AfAm<span class="sc">/</span>Population<span class="sc">*</span><span class="dv">100</span>, <span class="at">digits =</span> <span class="dv">2</span>))  <span class="sc">%&gt;%</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>  <span class="co"># create new Majority_AA variable that indicates if Percent_AA is greater than 50% or not</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Majority_AA =</span> <span class="fu">case_when</span>(</span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>    Percent_AA <span class="sc">&gt;=</span> <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;Yes&quot;</span>, </span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>    Percent_AA <span class="sc">&lt;</span>  <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;No&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a>  <span class="co"># create a new variable about this in text</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">Neighborhood =</span> <span class="fu">case_when</span>(</span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a>    Percent_AA <span class="sc">&gt;=</span> <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;Majority</span><span class="sc">\n</span><span class="st">Black&quot;</span>, </span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a>    Percent_AA <span class="sc">&lt;</span>  <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;Majority</span><span class="sc">\n</span><span class="st">Non-Black&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a>  <span class="co"># make this a factor and order by level appearance in the data</span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Neighborhood =</span> <span class="fu">as_factor</span>(Neighborhood),</span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a>         <span class="at">Neighborhood =</span> forcats<span class="sc">::</span><span class="fu">fct_inorder</span>(Neighborhood))</span></code></pre></div>
+</div>
+<div id="quantile-data" class="section level2">
+<h2>Quantile data</h2>
+<p>To group the data by quantiles, we first remove organizations with
+zero assets because we don’t know if zero values are real. If assets are
+under 50,000, organizations can report as zero also.</p>
+<p>Similarly, NA values could be anything between 0 and less than
+50,000. Thus we aren’t sure what those asset amounts are.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a> <span class="co"># make a new dataframe without zeros and NA asset amounts</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>df_simplified_no_zero<span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>    <span class="fu">drop_na</span>(F990_TOTAL_ASSETS_RECENT) <span class="sc">%&gt;%</span> <span class="co">#redundant but shows we are dropping NA values</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>    <span class="fu">filter</span>(F990_TOTAL_ASSETS_RECENT<span class="sc">&gt;</span><span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="co"># F990_TOTAL_ASSETS_RECENT must be greater than zero</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="co"># get quartiles</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">ASSET_quartile =</span> <span class="fu">ntile</span>(F990_TOTAL_ASSETS_RECENT, <span class="dv">4</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>  <span class="co"># create new quartile variable that specifies quartiles by text</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">ASSET_quartile_text =</span> <span class="fu">case_when</span>(ASSET_quartile <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;1st_Quartile&quot;</span>,</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>                                           ASSET_quartile <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;2nd_Quartile&quot;</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>                                           ASSET_quartile <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;3rd_Quartile&quot;</span>,</span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>                                           ASSET_quartile <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">&quot;4th_Quartile&quot;</span>))</span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#Now check:</span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="fu">table</span>(df_simplified_no_zero<span class="sc">$</span>ASSET_quartile, <span class="at">useNA =</span> <span class="st">&quot;always&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+##    1    2    3    4 &lt;NA&gt; 
+##  293  293  292  292    0</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>df_simplified_no_zero<span class="sc">%&gt;%</span> <span class="fu">group_by</span>(ASSET_quartile_text) <span class="sc">%&gt;%</span> <span class="fu">reframe</span>(<span class="at">range =</span> <span class="fu">range</span>(F990_TOTAL_ASSETS_RECENT))</span></code></pre></div>
+<pre><code>## # A tibble: 8 × 2
+##   ASSET_quartile_text       range
+##   &lt;chr&gt;                     &lt;dbl&gt;
+## 1 1st_Quartile                  1
+## 2 1st_Quartile              81320
+## 3 2nd_Quartile              81474
+## 4 2nd_Quartile             513249
+## 5 3rd_Quartile             513256
+## 6 3rd_Quartile            3607626
+## 7 4th_Quartile            3616310
+## 8 4th_Quartile        17635700000</code></pre>
+<p>Without removal (except NAs)- since these asset amounts might
+influence quartiles.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>df_simplified_no_removal<span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>    <span class="fu">drop_na</span>(F990_TOTAL_ASSETS_RECENT) <span class="sc">%&gt;%</span> <span class="co">#dropping NA values</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>  <span class="co"># get quartiles</span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">ASSET_quartile =</span> <span class="fu">ntile</span>(F990_TOTAL_ASSETS_RECENT, <span class="dv">4</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>  <span class="co"># create new quartile variable that specifies quartiles by text</span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">ASSET_quartile_text =</span> <span class="fu">case_when</span>(ASSET_quartile <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;1st_Quartile&quot;</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>                                           ASSET_quartile <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;2nd_Quartile&quot;</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>                                           ASSET_quartile <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;3rd_Quartile&quot;</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>                                           ASSET_quartile <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">&quot;4th_Quartile&quot;</span>))</span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#Now check:</span></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="fu">table</span>(df_simplified_no_removal<span class="sc">$</span>ASSET_quartile, <span class="at">useNA =</span> <span class="st">&quot;always&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+##    1    2    3    4 &lt;NA&gt; 
+##  819  818  818  818    0</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>df_simplified_no_removal <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(ASSET_quartile_text) <span class="sc">%&gt;%</span> <span class="fu">reframe</span>(<span class="at">range =</span> <span class="fu">range</span>(F990_TOTAL_ASSETS_RECENT))</span></code></pre></div>
+<pre><code>## # A tibble: 8 × 2
+##   ASSET_quartile_text       range
+##   &lt;chr&gt;                     &lt;dbl&gt;
+## 1 1st_Quartile                  0
+## 2 1st_Quartile                  0
+## 3 2nd_Quartile                  0
+## 4 2nd_Quartile                  0
+## 5 3rd_Quartile                  0
+## 6 3rd_Quartile             118763
+## 7 4th_Quartile             118907
+## 8 4th_Quartile        17635700000</code></pre>
+<p>Turns out this doesn’t really work well, as we don’t know if the
+values of 0 are real or for orgs that had a gross receipt of below
+50,000 and didn’t have to report total assets. So we will stick with our
+removal.</p>
+</div>
+<div id="national-taxonomy-of-exempt-entities-ntee-recoding"
+class="section level2">
+<h2>National Taxonomy of Exempt Entities (NTEE) recoding</h2>
+<p>To provide more information to readers about what the nonprofits do,
+we will convert the National Taxonomy of Exempt Entities (NTEE) codes
+based on <a
+href="https://urbaninstitute.github.io/nccs-legacy/ntee/ntee.html">this</a>
+and <a href="https://www.irs.gov/pub/irs-tege/p4838.pdf">this (see page
+15)</a>.</p>
+<p>The NTEE_IRS variable appears to be the most complete</p>
+<p>NTEE_IRS was NTEE_CD in the older raw files</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>df_simplified <span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NTEE_text =</span> <span class="fu">case_when</span>(</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;A&quot;</span>)<span class="sc">~</span> <span class="st">&quot;Arts&quot;</span>, <span class="co"># if NTEE_IRS starts with A make new variable value &quot;Arts&quot; etc.</span></span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;B&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Education&quot;</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;C|D&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Environment/Animals&quot;</span>, <span class="co"># if NTEE_IRS value starts with C or D make new variable value &quot;Environment/Animals&quot;</span></span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;E|F|G|H&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Health&quot;</span>,</span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;I|J|K|L|M|N|O|P&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Human Services&quot;</span>,</span>
+<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;Q&quot;</span>) <span class="sc">~</span> <span class="st">&quot;International Affairs&quot;</span>,</span>
+<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;R|S|T|U|V|W&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Societal Benefit&quot;</span>,</span>
+<span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;X&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Religious&quot;</span>,</span>
+<span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a>    <span class="fu">is.na</span>(NTEE_IRS) <span class="sc">~</span> <span class="st">&quot;Unclassified&quot;</span>,</span>
+<span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;Other&quot;</span>)) <span class="co">#everything else will be Other</span></span></code></pre></div>
+<p>Also for the quantile data:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>df_simplified_no_zero <span class="ot">&lt;-</span>df_simplified_no_zero <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NTEE_text =</span> <span class="fu">case_when</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;A&quot;</span>)<span class="sc">~</span> <span class="st">&quot;Arts&quot;</span>, <span class="co"># if NTEE_IRS starts with A make new variable value &quot;Arts&quot; etc.</span></span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;B&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Education&quot;</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;C|D&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Environment/Animals&quot;</span>, <span class="co"># if NTEE_IRS value starts with C or D make new variable value &quot;Environment/Animals&quot;</span></span>
+<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;E|F|G|H&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Health&quot;</span>,</span>
+<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;I|J|K|L|M|N|O|P&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Human Services&quot;</span>,</span>
+<span id="cb23-8"><a href="#cb23-8" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;Q&quot;</span>) <span class="sc">~</span> <span class="st">&quot;International Affairs&quot;</span>,</span>
+<span id="cb23-9"><a href="#cb23-9" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;R|S|T|U|V|W&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Societal Benefit&quot;</span>,</span>
+<span id="cb23-10"><a href="#cb23-10" tabindex="-1"></a>    <span class="fu">str_starts</span>(NTEE_IRS, <span class="at">pattern =</span> <span class="st">&quot;X&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Religious&quot;</span>,</span>
+<span id="cb23-11"><a href="#cb23-11" tabindex="-1"></a>    <span class="fu">is.na</span>(NTEE_IRS) <span class="sc">~</span> <span class="st">&quot;Unclassified&quot;</span>,</span>
+<span id="cb23-12"><a href="#cb23-12" tabindex="-1"></a>    <span class="cn">TRUE</span><span class="sc">~</span> <span class="st">&quot;Other&quot;</span>)) <span class="co"># everything else will be Other</span></span></code></pre></div>
+</div>
+<div id="save-data-for-maps" class="section level2">
+<h2>Save data for maps</h2>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">write_rds</span>(df_simplified, <span class="at">file =</span> <span class="st">&quot;data/processed/formaps.rds&quot;</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="fu">write_rds</span>(df_simplified_no_zero, <span class="at">file =</span> <span class="st">&quot;data/processed/formaps_nozero.rds&quot;</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="visualizations-and-analysis" class="section level1">
+<h1>Visualizations and Analysis</h1>
+<div id="deeper-possible-visualizations" class="section level2">
+<h2>Deeper possible visualizations</h2>
+<p>First without log normalization figure:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>df_simplified_no_zero <span class="sc">%&gt;%</span> </span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> F990_TOTAL_ASSETS_RECENT, <span class="at">x =</span> Percent_AA)) <span class="sc">+</span></span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;loess&quot;</span>)</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-16-1.png" alt="" width="672" />
+We can see that some of the dat points are much higher and this makes it
+challenging to see the lower data values.</p>
+<p>Now let’s look at normalized version.</p>
+<p>Overall log Asset amount figure:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>df_simplified_no_zero <span class="sc">%&gt;%</span> </span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> ASSET_AMT_log, <span class="at">x =</span> Percent_AA)) <span class="sc">+</span></span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;loess&quot;</span>)</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-17-1.png" alt="" width="672" /></p>
+</div>
+<div id="quartile-plots" class="section level2">
+<h2>Quartile plots</h2>
+<p>Quartiles with log asset data:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a>df_simplified_no_zero <span class="sc">%&gt;%</span> </span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> ASSET_AMT_log, <span class="at">x =</span> Percent_AA)) <span class="sc">+</span></span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span> ASSET_quartile_text, <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="sc">+</span><span class="fu">geom_smooth</span>()</span></code></pre></div>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-18-1.png" alt="" width="672" /></p>
+<p>Look at log asset data for each NTEE type- <strong>remember the
+caveat that there are many organizations that are not included because
+of NA or zero value F990_TOTAL_ASSETS_RECENT</strong>. However, still we
+can see that some categories show a trend towards lower amount of assets
+even with this limited data.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a>df_simplified_no_zero <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>(NTEE_text) <span class="sc">%&gt;%</span></span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> ASSET_AMT_log, <span class="at">x =</span> Neighborhood)) <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()<span class="sc">+</span> <span class="fu">geom_jitter</span>(<span class="at">width =</span> .<span class="dv">08</span>) <span class="sc">+</span> </span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> NTEE_text, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">se=</span><span class="cn">TRUE</span>, <span class="fu">aes</span>(<span class="at">group=</span><span class="dv">1</span>))</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-19-1.png" alt="" width="672" /></p>
+<p>Compare all organizations by neighborhood AA status for log asset
+data. <em>remember the caveat that there are many organizations that are
+not included because of NA or zero value
+F990_TOTAL_ASSETS_RECENT</em></p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a>df_simplified_no_zero <span class="sc">%&gt;%</span> </span>
+<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> ASSET_AMT_log, <span class="at">x =</span> Neighborhood)) <span class="sc">+</span></span>
+<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()<span class="sc">+</span> <span class="fu">geom_jitter</span>(<span class="at">width =</span> .<span class="dv">08</span>) <span class="sc">+</span> <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">se=</span><span class="cn">TRUE</span>, <span class="fu">aes</span>(<span class="at">group=</span><span class="dv">1</span>))</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-20-1.png" alt="" width="672" /></p>
+</div>
+<div id="association-tests" class="section level2">
+<h2>Association Tests</h2>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="co">#recall that we can&#39;t differentiate not submitting as a zero value vs zero assets (true zero assets is also unlikely, solikely means they didn&#39;t submit)</span></span>
+<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="co">#starting with a more basic model and checking assumptions</span></span>
+<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">glm</span>(<span class="at">data =</span> df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT <span class="sc">~</span>Percent_AA)) </span></code></pre></div>
+<pre><code>## 
+## Call:
+## glm(formula = F990_TOTAL_ASSETS_RECENT ~ Percent_AA, data = df_simplified_no_zero)
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept) 77672977   27211926   2.854  0.00439 **
+## Percent_AA  -1016886     510928  -1.990  0.04679 * 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for gaussian family taken to be 2.81448e+17)
+## 
+##     Null deviance: 3.2985e+20  on 1169  degrees of freedom
+## Residual deviance: 3.2873e+20  on 1168  degrees of freedom
+## AIC: 50333
+## 
+## Number of Fisher Scoring iterations: 2</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="fu">glm</span>(<span class="at">data =</span> df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT <span class="sc">~</span>Percent_AA) <span class="sc">%&gt;%</span> <span class="fu">plot</span>(<span class="at">which =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-21-1.png" alt="" width="672" /><img src="03_analysis_files/figure-html/unnamed-chunk-21-2.png" alt="" width="672" /><img src="03_analysis_files/figure-html/unnamed-chunk-21-3.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="fu">glm</span>(<span class="at">data =</span> df_simplified_no_zero, F990_TOTAL_ASSETS_RECENT <span class="sc">~</span>Percent_AA <span class="sc">+</span> Population) <span class="sc">%&gt;%</span> <span class="fu">plot</span>(<span class="at">which =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="co"># plots indicate that there are outliers</span></span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-21-4.png" alt="" width="672" /><img src="03_analysis_files/figure-html/unnamed-chunk-21-5.png" alt="" width="672" /><img src="03_analysis_files/figure-html/unnamed-chunk-21-6.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a><span class="co"># now try with log version of asset amount</span></span>
+<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a><span class="fu">hist</span>(df_simplified_no_zero<span class="sc">$</span>ASSET_AMT_log)</span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-21-7.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">glm</span>(<span class="at">data =</span> df_simplified_no_zero, ASSET_AMT_log<span class="sc">~</span>Percent_AA)) </span></code></pre></div>
+<pre><code>## 
+## Call:
+## glm(formula = ASSET_AMT_log ~ Percent_AA, data = df_simplified_no_zero)
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 13.837799   0.179846  76.942  &lt; 2e-16 ***
+## Percent_AA  -0.021364   0.003377  -6.327 3.56e-10 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for gaussian family taken to be 12.29367)
+## 
+##     Null deviance: 14851  on 1169  degrees of freedom
+## Residual deviance: 14359  on 1168  degrees of freedom
+## AIC: 6259.9
+## 
+## Number of Fisher Scoring iterations: 2</code></pre>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a><span class="fu">glm</span>(<span class="at">data =</span> df_simplified_no_zero, ASSET_AMT_log <span class="sc">~</span> Percent_AA) <span class="sc">%&gt;%</span> <span class="fu">plot</span>(<span class="at">which =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="co"># looks much better</span></span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-21-8.png" alt="" width="672" /><img src="03_analysis_files/figure-html/unnamed-chunk-21-9.png" alt="" width="672" /><img src="03_analysis_files/figure-html/unnamed-chunk-21-10.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a><span class="co"># now with population</span></span>
+<span id="cb43-2"><a href="#cb43-2" tabindex="-1"></a><span class="fu">glm</span>(<span class="at">data =</span> df_simplified_no_zero, ASSET_AMT_log <span class="sc">~</span> Percent_AA <span class="sc">+</span> Population) <span class="sc">%&gt;%</span> <span class="fu">plot</span>(<span class="at">which =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="co"># looks similar</span></span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-21-11.png" alt="" width="672" /><img src="03_analysis_files/figure-html/unnamed-chunk-21-12.png" alt="" width="672" /><img src="03_analysis_files/figure-html/unnamed-chunk-21-13.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" tabindex="-1"></a><span class="co">#nonparametric test - because the residuals looked skewed in the above qqplots</span></span>
+<span id="cb44-2"><a href="#cb44-2" tabindex="-1"></a><span class="fu">cor.test</span>(df_simplified_no_zero<span class="sc">$</span>ASSET_AMT_log, df_simplified_no_zero<span class="sc">$</span>Percent_AA, <span class="at">method =</span> <span class="st">&quot;spearman&quot;</span>, <span class="at">exact =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<pre><code>## 
+##  Spearman&#39;s rank correlation rho
+## 
+## data:  df_simplified_no_zero$ASSET_AMT_log and df_simplified_no_zero$Percent_AA
+## S = 301265222, p-value = 1.021e-05
+## alternative hypothesis: true rho is not equal to 0
+## sample estimates:
+##        rho 
+## -0.1286076</code></pre>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" tabindex="-1"></a>sorted_data <span class="ot">&lt;-</span> <span class="fu">arrange</span>(df_simplified_no_zero, <span class="fu">desc</span>(F990_TOTAL_ASSETS_RECENT))</span>
+<span id="cb46-2"><a href="#cb46-2" tabindex="-1"></a><span class="fu">glimpse</span>(sorted_data)</span></code></pre></div>
+<pre><code>## Rows: 1,170
+## Columns: 119
+## $ EIN2                      &lt;chr&gt; &quot;EIN-52-0595110&quot;, &quot;EIN-52-0591656&quot;, &quot;EIN-53-…
+## $ EIN                       &lt;dbl&gt; 520595110, 520591656, 530196602, 590683252, …
+## $ NTEE_IRS                  &lt;chr&gt; &quot;B430&quot;, &quot;E220&quot;, &quot;E220&quot;, &quot;E240&quot;, &quot;E220&quot;, &quot;B43…
+## $ NTEE_NCCS                 &lt;chr&gt; &quot;B43&quot;, &quot;E220&quot;, &quot;E220&quot;, &quot;D40&quot;, &quot;E220&quot;, &quot;B43&quot;,…
+## $ NTEEV2                    &lt;chr&gt; &quot;UNI-B43-RG&quot;, NA, NA, &quot;ENV-D40-RG&quot;, NA, &quot;UNI…
+## $ NCCS_LEVEL_1              &lt;chr&gt; &quot;501C3 CHARITY&quot;, &quot;501C3 CHARITY&quot;, &quot;501C3 CHA…
+## $ NCCS_LEVEL_2              &lt;chr&gt; &quot;O&quot;, &quot;O&quot;, &quot;O&quot;, &quot;O&quot;, &quot;O&quot;, &quot;O&quot;, &quot;O&quot;, &quot;O&quot;, &quot;S&quot;,…
+## $ NCCS_LEVEL_3              &lt;chr&gt; &quot;ED&quot;, &quot;HE&quot;, &quot;HE&quot;, &quot;EN&quot;, &quot;HE&quot;, &quot;ED&quot;, &quot;HE&quot;, &quot;H…
+## $ F990_TOTAL_REVENUE_RECENT &lt;dbl&gt; 8434336000, 3309691627, 551873331, 591863741…
+## $ F990_TOTAL_INCOME_RECENT  &lt;dbl&gt; 17516457000, 3403178366, 552142974, 68828878…
+## $ F990_TOTAL_ASSETS_RECENT  &lt;dbl&gt; 17635700000, 3534358977, 1400679075, 1076831…
+## $ F990_ORG_ADDR_CITY        &lt;chr&gt; &quot;BALTIMORE&quot;, &quot;BALTIMORE&quot;, &quot;BALTIMORE&quot;, &quot;BALT…
+## $ F990_ORG_ADDR_STATE       &lt;chr&gt; &quot;MD&quot;, &quot;MD&quot;, &quot;MD&quot;, &quot;MD&quot;, &quot;MD&quot;, &quot;MD&quot;, &quot;MD&quot;, &quot;M…
+## $ F990_ORG_ADDR_ZIP         &lt;chr&gt; &quot;21211-2226&quot;, &quot;21211-0000&quot;, &quot;21211-2226&quot;, &quot;2…
+## $ F990_ORG_ADDR_STREET      &lt;chr&gt; &quot;3910 KESWICK ROAD N4327B&quot;, &quot;3910 KESWICK RD…
+## $ CENSUS_CBSA_FIPS          &lt;dbl&gt; 12580, 12580, 12580, 12580, 12580, 12580, 12…
+## $ CENSUS_CBSA_NAME          &lt;chr&gt; &quot;Baltimore-Columbia-Towson, MD&quot;, &quot;Baltimore-…
+## $ CENSUS_BLOCK_FIPS         &lt;dbl&gt; 2.451013e+14, 2.451013e+14, 2.451013e+14, 2.…
+## $ CENSUS_URBAN_AREA         &lt;chr&gt; &quot;U&quot;, &quot;U&quot;, &quot;U&quot;, &quot;U&quot;, &quot;U&quot;, &quot;U&quot;, &quot;U&quot;, &quot;U&quot;, &quot;U&quot;,…
+## $ CENSUS_STATE_ABBR         &lt;chr&gt; &quot;MD&quot;, &quot;MD&quot;, &quot;MD&quot;, &quot;MD&quot;, &quot;MD&quot;, &quot;MD&quot;, &quot;MD&quot;, &quot;M…
+## $ CENSUS_COUNTY_NAME        &lt;chr&gt; &quot;Baltimore city&quot;, &quot;Baltimore city&quot;, &quot;Baltimo…
+## $ ORG_ADDR_FULL             &lt;chr&gt; &quot;3910 KESWICK ROAD N4327B,BALTIMORE,MD,21211…
+## $ ORG_ADDR_MATCH            &lt;chr&gt; &quot;3910 Keswick Rd, Baltimore, Maryland, 21211…
+## $ GEOCODER_SCORE            &lt;dbl&gt; 98.54, 98.96, 97.66, 98.89, 100.00, 100.00, …
+## $ GEOCODER_MATCH            &lt;chr&gt; &quot;M&quot;, &quot;M&quot;, &quot;M&quot;, &quot;M&quot;, &quot;M&quot;, &quot;M&quot;, &quot;M&quot;, &quot;M&quot;, &quot;M&quot;,…
+## $ BMF_SUBSECTION_CODE       &lt;dbl&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,…
+## $ BMF_STATUS_CODE           &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+## $ BMF_PF_FILING_REQ_CODE    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ BMF_ORGANIZATION_CODE     &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+## $ BMF_INCOME_CODE           &lt;dbl&gt; 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,…
+## $ BMF_GROUP_EXEMPT_NUM      &lt;dbl&gt; 8238, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ BMF_FOUNDATION_CODE       &lt;dbl&gt; 11, 12, 12, 12, 12, 11, 12, 12, 15, 15, 12, …
+## $ BMF_FILING_REQ_CODE       &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+## $ BMF_DEDUCTIBILITY_CODE    &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+## $ BMF_CLASSIFICATION_CODE   &lt;dbl&gt; 1000, 1200, 1000, 1000, 1000, 1000, 1000, 12…
+## $ BMF_ASSET_CODE            &lt;dbl&gt; 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,…
+## $ BMF_AFFILIATION_CODE      &lt;dbl&gt; 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3,…
+## $ ORG_RULING_DATE           &lt;chr&gt; &quot;1935-01&quot;, &quot;1948-02&quot;, &quot;1936-04&quot;, &quot;1942-05&quot;, …
+## $ ORG_FISCAL_YEAR           &lt;dbl&gt; 2024, 2024, 2024, 2024, 2024, 2024, 2024, 20…
+## $ ORG_RULING_YEAR           &lt;dbl&gt; 1935, 1948, 1936, 1942, 1949, 1993, 1936, 19…
+## $ ORG_YEAR_FIRST            &lt;dbl&gt; 1989, 1989, 1989, 1989, 1989, 1989, 1989, 19…
+## $ ORG_YEAR_LAST             &lt;dbl&gt; 2024, 2024, 2024, 2024, 2024, 2024, 2024, 20…
+## $ ORG_YEAR_COUNT            &lt;dbl&gt; 36, 36, 36, 36, 36, 36, 36, 36, 24, 24, 27, …
+## $ ORG_PERS_ICO              &lt;chr&gt; NA, NA, NA, NA, &quot;% JUSTIN C DEIBEL&quot;, &quot;% JOHN…
+## $ ORG_NAME_SEC              &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+## $ ORG_NAME_CURRENT          &lt;chr&gt; &quot;JOHNS HOPKINS UNIVERSITY&quot;, &quot;THE JOHNS HOPKI…
+## $ ORG_FISCAL_PERIOD         &lt;dbl&gt; 1, 2, 4, 5, 9, 4, 2, 10, 8, 12, 5, 7, 6, 9, …
+## $ geometry.x                &lt;POINT [°]&gt; POINT (-76.62835 39.3358), POINT (-76.…
+## $ intersection_row          &lt;int&gt; 142, 142, 142, 142, 108, 173, 168, 142, 270,…
+## $ OBJECTID                  &lt;int&gt; 142, 142, 142, 142, 108, 173, 168, 142, 270,…
+## $ Name                      &lt;chr&gt; &quot;Hampden&quot;, &quot;Hampden&quot;, &quot;Hampden&quot;, &quot;Hampden&quot;, …
+## $ Population                &lt;int&gt; 7346, 7346, 7346, 7346, 7171, 3158, 1077, 73…
+## $ White                     &lt;int&gt; 5951, 5951, 5951, 5951, 2740, 1417, 130, 595…
+## $ Blk_AfAm                  &lt;int&gt; 432, 432, 432, 432, 2336, 241, 897, 432, 42,…
+## $ AmInd_AkNa                &lt;int&gt; 18, 18, 18, 18, 17, 0, 1, 18, 1, 0, 18, 18, …
+## $ Asian                     &lt;int&gt; 368, 368, 368, 368, 1295, 1127, 5, 368, 51, …
+## $ NatHaw_Pac                &lt;int&gt; 0, 0, 0, 0, 6, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0,…
+## $ Other_Race                &lt;int&gt; 85, 85, 85, 85, 188, 138, 15, 85, 1, 22, 85,…
+## $ TwoOrMore                 &lt;int&gt; 492, 492, 492, 492, 589, 234, 29, 492, 41, 3…
+## $ Hisp_Lat                  &lt;int&gt; 312, 312, 312, 312, 510, 341, 27, 312, 17, 4…
+## $ Male                      &lt;int&gt; 3562, 3562, 3562, 3562, 3536, 1233, 534, 356…
+## $ Female                    &lt;int&gt; 3784, 3784, 3784, 3784, 3635, 1925, 543, 378…
+## $ Total_Unit                &lt;int&gt; 4318, 4318, 4318, 4318, 5693, 26, 531, 4318,…
+## $ Occ_Occupi                &lt;int&gt; 3925, 3925, 3925, 3925, 4765, 23, 489, 3925,…
+## $ Occ_Vacant                &lt;int&gt; 393, 393, 393, 393, 928, 3, 42, 393, 16, 82,…
+## $ Tenure_Own                &lt;int&gt; 2023, 2023, 2023, 2023, 209, 17, 137, 2023, …
+## $ Tenure_Ren                &lt;int&gt; 1902, 1902, 1902, 1902, 4556, 6, 352, 1902, …
+## $ Vacant_For                &lt;int&gt; 162, 162, 162, 162, 820, 0, 5, 162, 16, 56, …
+## $ Vacant_F_1                &lt;int&gt; 40, 40, 40, 40, 29, 0, 13, 40, 0, 0, 40, 40,…
+## $ Vacant_Oth                &lt;int&gt; 191, 191, 191, 191, 79, 3, 24, 191, 0, 26, 1…
+## $ HH_Total                  &lt;int&gt; 3925, 3925, 3925, 3925, 4765, 23, 489, 3925,…
+## $ HH_Family                 &lt;int&gt; 1495, 1495, 1495, 1495, 801, 16, 190, 1495, …
+## $ HH_Married                &lt;int&gt; 1147, 1147, 1147, 1147, 509, 14, 66, 1147, 4…
+## $ HH_OtherFa                &lt;int&gt; 348, 348, 348, 348, 292, 2, 124, 348, 16, 33…
+## $ HH_Male_No                &lt;int&gt; 115, 115, 115, 115, 90, 0, 29, 115, 2, 10, 1…
+## $ HH_Female_                &lt;int&gt; 233, 233, 233, 233, 202, 2, 95, 233, 14, 23,…
+## $ HH_NonFami                &lt;int&gt; 2430, 2430, 2430, 2430, 3964, 7, 299, 2430, …
+## $ HH_NonFa_1                &lt;int&gt; 1635, 1635, 1635, 1635, 3200, 4, 273, 1635, …
+## $ HH_NonFa_2                &lt;int&gt; 795, 795, 795, 795, 764, 3, 26, 795, 45, 35,…
+## $ HH18_With1                &lt;int&gt; 528, 528, 528, 528, 267, 5, 88, 528, 27, 18,…
+## $ HH18_Famil                &lt;int&gt; 519, 519, 519, 519, 261, 5, 88, 519, 24, 18,…
+## $ HH18_NonFa                &lt;int&gt; 9, 9, 9, 9, 6, 0, 0, 9, 3, 0, 9, 9, 4, 6, 1,…
+## $ HH18_No18                 &lt;int&gt; 3397, 3397, 3397, 3397, 4498, 18, 401, 3397,…
+## $ HH18_Fam_1                &lt;int&gt; 976, 976, 976, 976, 540, 11, 102, 976, 38, 3…
+## $ HH18_Non_1                &lt;int&gt; 2421, 2421, 2421, 2421, 3958, 7, 299, 2421, …
+## $ Age_U5                    &lt;int&gt; 358, 358, 358, 358, 163, 3, 19, 358, 6, 11, …
+## $ Age_5_9                   &lt;int&gt; 189, 189, 189, 189, 95, 3, 35, 189, 8, 5, 18…
+## $ Age_10_14                 &lt;int&gt; 139, 139, 139, 139, 78, 4, 45, 139, 2, 3, 13…
+## $ Age_15_17                 &lt;int&gt; 33, 33, 33, 33, 19, 2, 13, 33, 2, 3, 33, 33,…
+## $ Age_18_21                 &lt;int&gt; 123, 123, 123, 123, 241, 2382, 29, 123, 6, 2…
+## $ Age_22_24                 &lt;int&gt; 266, 266, 266, 266, 1056, 666, 22, 266, 24, …
+## $ Age_25_29                 &lt;int&gt; 1123, 1123, 1123, 1123, 1943, 62, 29, 1123, …
+## $ Age_30_34                 &lt;int&gt; 1364, 1364, 1364, 1364, 1309, 3, 60, 1364, 4…
+## $ Age_35_39                 &lt;int&gt; 866, 866, 866, 866, 719, 1, 55, 866, 20, 58,…
+## $ Age_40_44                 &lt;int&gt; 497, 497, 497, 497, 373, 0, 43, 497, 33, 39,…
+## $ Age_45_49                 &lt;int&gt; 369, 369, 369, 369, 277, 1, 28, 369, 10, 10,…
+## $ Age_50_54                 &lt;int&gt; 331, 331, 331, 331, 269, 5, 38, 331, 9, 25, …
+## $ Age_55_59                 &lt;int&gt; 171, 171, 171, 171, 106, 0, 57, 171, 19, 10,…
+## $ Age_60_64                 &lt;int&gt; 384, 384, 384, 384, 179, 7, 95, 384, 9, 36, …
+## $ Age_65_69                 &lt;int&gt; 300, 300, 300, 300, 109, 9, 142, 300, 26, 8,…
+## $ Age_70_74                 &lt;int&gt; 269, 269, 269, 269, 48, 6, 120, 269, 14, 5, …
+## $ Age_75_79                 &lt;int&gt; 175, 175, 175, 175, 27, 1, 67, 175, 29, 2, 1…
+## $ Age_80_84                 &lt;int&gt; 99, 99, 99, 99, 17, 0, 61, 99, 11, 1, 99, 99…
+## $ Age_85up                  &lt;int&gt; 83, 83, 83, 83, 14, 1, 78, 83, 12, 4, 83, 83…
+## $ Med_Age                   &lt;dbl&gt; 37.4, 37.4, 37.4, 37.4, 30.3, 20.8, 55.6, 37…
+## $ Med_Age_Ma                &lt;dbl&gt; 38.4, 38.4, 38.4, 38.4, 31.3, 21.2, 53.8, 38…
+## $ Med_Age_Fe                &lt;dbl&gt; 37.1, 37.1, 37.1, 37.1, 29.6, 20.8, 57.7, 37…
+## $ Shape__Are                &lt;dbl&gt; 17132059, 17132059, 17132059, 17132059, 1135…
+## $ Shape__Len                &lt;dbl&gt; 19321.006, 19321.006, 19321.006, 19321.006, …
+## $ geometry.y                &lt;MULTIPOLYGON [US_survey_foot]&gt; MULTIPOLYGON (((14…
+## $ ASSET_High                &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TR…
+## $ ASSET_High_text           &lt;chr&gt; &quot;High Asset&quot;, &quot;High Asset&quot;, &quot;High Asset&quot;, &quot;H…
+## $ ASSET_AMT_log             &lt;dbl&gt; 23.59319, 21.98580, 21.06022, 20.79729, 20.7…
+## $ Percent_AA                &lt;dbl&gt; 5.88, 5.88, 5.88, 5.88, 32.58, 7.63, 83.29, …
+## $ Majority_AA               &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;Yes&quot;, &quot;…
+## $ Neighborhood              &lt;fct&gt; Majority
+## Non-Black, Majority
+## Non-Black, Majo…
+## $ ASSET_quartile            &lt;int&gt; 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,…
+## $ ASSET_quartile_text       &lt;chr&gt; &quot;4th_Quartile&quot;, &quot;4th_Quartile&quot;, &quot;4th_Quartil…
+## $ NTEE_text                 &lt;chr&gt; &quot;Education&quot;, &quot;Health&quot;, &quot;Health&quot;, &quot;Health&quot;, &quot;…</code></pre>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" tabindex="-1"></a><span class="do">## seem to have many outliers for asset amount</span></span>
+<span id="cb48-2"><a href="#cb48-2" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" tabindex="-1"></a>potential_outliers <span class="ot">&lt;-</span> <span class="fu">boxplot</span>(df_simplified_no_zero<span class="sc">$</span>F990_TOTAL_ASSETS_RECENT, <span class="at">plot=</span><span class="cn">FALSE</span>)<span class="sc">$</span>out</span>
+<span id="cb48-4"><a href="#cb48-4" tabindex="-1"></a>df_simplified_no_zero_no_outliers <span class="ot">&lt;-</span> <span class="fu">filter</span>(df_simplified_no_zero, <span class="sc">!</span>F990_TOTAL_ASSETS_RECENT <span class="sc">%in%</span> potential_outliers)</span>
+<span id="cb48-5"><a href="#cb48-5" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" tabindex="-1"></a><span class="fu">plot</span>(df_simplified_no_zero_no_outliers<span class="sc">$</span>ASSET_AMT_log, df_simplified_no_zero_no_outliers<span class="sc">$</span>Percent_AA)</span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-22-1.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" tabindex="-1"></a><span class="fu">ggplot</span>(df_simplified_no_zero_no_outliers, <span class="fu">aes</span>(Percent_AA, ASSET_AMT_log)) <span class="sc">+</span></span>
+<span id="cb49-2"><a href="#cb49-2" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb49-3"><a href="#cb49-3" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;loess&quot;</span>) <span class="co"># without outliers</span></span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-22-2.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" tabindex="-1"></a><span class="fu">ggplot</span>(df_simplified_no_zero, <span class="fu">aes</span>(Percent_AA, ASSET_AMT_log)) <span class="sc">+</span></span>
+<span id="cb51-2"><a href="#cb51-2" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb51-3"><a href="#cb51-3" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;loess&quot;</span>) <span class="co"># with outliers</span></span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-22-3.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" tabindex="-1"></a><span class="co"># notice a similar pattern with and without outliers</span></span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" tabindex="-1"></a><span class="co"># Check different models for scaling percent_AA, including or not including population </span></span>
+<span id="cb54-2"><a href="#cb54-2" tabindex="-1"></a></span>
+<span id="cb54-3"><a href="#cb54-3" tabindex="-1"></a></span>
+<span id="cb54-4"><a href="#cb54-4" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(ASSET_AMT_log<span class="sc">~</span> Percent_AA, <span class="at">data =</span> df_simplified_no_zero)</span>
+<span id="cb54-5"><a href="#cb54-5" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(ASSET_AMT_log <span class="sc">~</span> <span class="fu">poly</span>(Percent_AA, <span class="dv">2</span>), <span class="at">data =</span> df_simplified_no_zero)</span>
+<span id="cb54-6"><a href="#cb54-6" tabindex="-1"></a></span>
+<span id="cb54-7"><a href="#cb54-7" tabindex="-1"></a><span class="fu">anova</span>(lm1, lm2)</span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: ASSET_AMT_log ~ Percent_AA
+## Model 2: ASSET_AMT_log ~ poly(Percent_AA, 2)
+##   Res.Df   RSS Df Sum of Sq      F  Pr(&gt;F)   
+## 1   1168 14359                               
+## 2   1167 14259  1    99.951 8.1803 0.00431 **
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" tabindex="-1"></a><span class="fu">AIC</span>(lm1)</span></code></pre></div>
+<pre><code>## [1] 6259.943</code></pre>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" tabindex="-1"></a><span class="fu">AIC</span>(lm2) <span class="co"># slightly lower and therefore possibly better model</span></span></code></pre></div>
+<pre><code>## [1] 6253.77</code></pre>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" tabindex="-1"></a><span class="fu">summary</span>(lm1)<span class="sc">$</span>adj.r.squared</span></code></pre></div>
+<pre><code>## [1] 0.03230816</code></pre>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" tabindex="-1"></a><span class="fu">summary</span>(lm2)<span class="sc">$</span>adj.r.squared <span class="co"># slightly higher so possibly better model</span></span></code></pre></div>
+<pre><code>## [1] 0.03822069</code></pre>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" tabindex="-1"></a><span class="co"># now log scale of Percent_AA vs poly_AA</span></span>
+<span id="cb64-2"><a href="#cb64-2" tabindex="-1"></a></span>
+<span id="cb64-3"><a href="#cb64-3" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(F990_TOTAL_ASSETS_RECENT) <span class="sc">~</span> <span class="fu">log</span>(Percent_AA <span class="sc">+</span><span class="dv">1</span>), <span class="at">data =</span> df_simplified_no_zero)</span>
+<span id="cb64-4"><a href="#cb64-4" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(F990_TOTAL_ASSETS_RECENT) <span class="sc">~</span> <span class="fu">poly</span>(Percent_AA, <span class="dv">2</span>), <span class="at">data =</span> df_simplified_no_zero)</span>
+<span id="cb64-5"><a href="#cb64-5" tabindex="-1"></a><span class="fu">anova</span>(lm1, lm2) <span class="co"># significant, poly scaling of Percent_AA seems to be better than log</span></span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: log(F990_TOTAL_ASSETS_RECENT) ~ log(Percent_AA + 1)
+## Model 2: log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2)
+##   Res.Df   RSS Df Sum of Sq      F    Pr(&gt;F)    
+## 1   1168 14524                                  
+## 2   1167 14259  1    265.35 21.717 3.523e-06 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" tabindex="-1"></a><span class="fu">AIC</span>(lm1)</span></code></pre></div>
+<pre><code>## [1] 6273.343</code></pre>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" tabindex="-1"></a><span class="fu">AIC</span>(lm2) <span class="co"># lower and therefore suggests this model is better</span></span></code></pre></div>
+<pre><code>## [1] 6253.77</code></pre>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" tabindex="-1"></a><span class="fu">summary</span>(lm1)<span class="sc">$</span>adj.r.squared</span></code></pre></div>
+<pre><code>## [1] 0.02116121</code></pre>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" tabindex="-1"></a><span class="fu">summary</span>(lm2)<span class="sc">$</span>adj.r.squared <span class="co"># higher so possibly better model</span></span></code></pre></div>
+<pre><code>## [1] 0.03822069</code></pre>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" tabindex="-1"></a><span class="co">#adding population seems to weaken the model </span></span>
+<span id="cb74-2"><a href="#cb74-2" tabindex="-1"></a>lm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(F990_TOTAL_ASSETS_RECENT) <span class="sc">~</span> <span class="fu">poly</span>(Percent_AA, <span class="dv">2</span>), <span class="at">data =</span> df_simplified_no_zero)</span>
+<span id="cb74-3"><a href="#cb74-3" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(F990_TOTAL_ASSETS_RECENT) <span class="sc">~</span> <span class="fu">poly</span>(Percent_AA, <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">log</span>(Population), <span class="at">data =</span> df_simplified_no_zero)</span>
+<span id="cb74-4"><a href="#cb74-4" tabindex="-1"></a><span class="fu">anova</span>(lm1, lm2) <span class="co"># not significant - adding population does not appear to be better</span></span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2)
+## Model 2: log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2) + log(Population)
+##   Res.Df   RSS Df Sum of Sq      F Pr(&gt;F)
+## 1   1167 14259                           
+## 2   1166 14240  1    19.339 1.5836 0.2085</code></pre>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" tabindex="-1"></a><span class="fu">AIC</span>(lm1)</span></code></pre></div>
+<pre><code>## [1] 6253.77</code></pre>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" tabindex="-1"></a><span class="fu">AIC</span>(lm2) <span class="co"># slightly higher, does not seem to be a better model</span></span></code></pre></div>
+<pre><code>## [1] 6254.182</code></pre>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" tabindex="-1"></a><span class="fu">summary</span>(lm1)<span class="sc">$</span>adj.r.squared</span></code></pre></div>
+<pre><code>## [1] 0.03822069</code></pre>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" tabindex="-1"></a><span class="fu">summary</span>(lm2)<span class="sc">$</span>adj.r.squared <span class="co"># this is slightly higher than above</span></span></code></pre></div>
+<pre><code>## [1] 0.03870139</code></pre>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" tabindex="-1"></a><span class="fu">ggplot</span>(df_simplified_no_zero, <span class="fu">aes</span>(<span class="fu">poly</span>(Percent_AA,<span class="dv">2</span>), <span class="fu">log</span>(F990_TOTAL_ASSETS_RECENT))) <span class="sc">+</span></span>
+<span id="cb84-2"><a href="#cb84-2" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb84-3"><a href="#cb84-3" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;loess&quot;</span>)</span></code></pre></div>
+<pre><code>## Don&#39;t know how to automatically pick scale for object of type &lt;poly/matrix&gt;.
+## Defaulting to continuous.</code></pre>
+<pre><code>## Warning in `[&lt;-.data.frame`(`*tmp*`, , x_vars, value = list(x =
+## c(0.0441935811552246, : replacement element 1 has 2340 rows to replace 1170
+## rows
+## Warning in `[&lt;-.data.frame`(`*tmp*`, , x_vars, value = list(x =
+## c(0.0441935811552246, : replacement element 1 has 2340 rows to replace 1170
+## rows</code></pre>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-23-1.png" alt="" width="672" /></p>
+<div id="sensitivity-analysis" class="section level3">
+<h3>Sensitivity analysis</h3>
+<p>Now we will compare with and without outliers and with and without
+zeros to see if our results are similar to before.</p>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" tabindex="-1"></a><span class="co"># trying again without possible outliers</span></span>
+<span id="cb88-2"><a href="#cb88-2" tabindex="-1"></a></span>
+<span id="cb88-3"><a href="#cb88-3" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(F990_TOTAL_ASSETS_RECENT) <span class="sc">~</span> <span class="fu">poly</span>(Percent_AA, <span class="dv">2</span>), <span class="at">data =</span> df_simplified_no_zero_no_outliers)</span>
+<span id="cb88-4"><a href="#cb88-4" tabindex="-1"></a><span class="fu">summary</span>(lm2)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 
+##     2), data = df_simplified_no_zero_no_outliers)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -12.4243  -1.0703   0.5474   2.0279   4.9981 
+## 
+## Coefficients:
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)           11.94059    0.09971 119.758  &lt; 2e-16 ***
+## poly(Percent_AA, 2)1 -13.97118    3.09409  -4.515  7.1e-06 ***
+## poly(Percent_AA, 2)2 -10.46281    3.09409  -3.382  0.00075 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 3.094 on 960 degrees of freedom
+## Multiple R-squared:  0.03209,    Adjusted R-squared:  0.03007 
+## F-statistic: 15.91 on 2 and 960 DF,  p-value: 1.591e-07</code></pre>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" tabindex="-1"></a><span class="fu">ggplot</span>(df_simplified_no_zero_no_outliers, <span class="fu">aes</span>(<span class="fu">poly</span>(Percent_AA,<span class="dv">2</span>), <span class="fu">log</span>(F990_TOTAL_ASSETS_RECENT))) <span class="sc">+</span></span>
+<span id="cb90-2"><a href="#cb90-2" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb90-3"><a href="#cb90-3" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;loess&quot;</span>)</span></code></pre></div>
+<pre><code>## Don&#39;t know how to automatically pick scale for object of type &lt;poly/matrix&gt;.
+## Defaulting to continuous.</code></pre>
+<pre><code>## Warning in `[&lt;-.data.frame`(`*tmp*`, , x_vars, value = list(x =
+## c(0.0466173696045051, : replacement element 1 has 1926 rows to replace 963 rows
+## Warning in `[&lt;-.data.frame`(`*tmp*`, , x_vars, value = list(x =
+## c(0.0466173696045051, : replacement element 1 has 1926 rows to replace 963 rows</code></pre>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-24-1.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" tabindex="-1"></a><span class="co"># trying again with orgs with zero asset value</span></span>
+<span id="cb94-2"><a href="#cb94-2" tabindex="-1"></a></span>
+<span id="cb94-3"><a href="#cb94-3" tabindex="-1"></a>lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(F990_TOTAL_ASSETS_RECENT<span class="sc">+</span><span class="dv">1</span>) <span class="sc">~</span> <span class="fu">poly</span>(Percent_AA, <span class="dv">2</span>) , <span class="at">data =</span> df_simplified)</span>
+<span id="cb94-4"><a href="#cb94-4" tabindex="-1"></a><span class="fu">summary</span>(lm2) <span class="co">#need plus 1 for log of zero</span></span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = log(F990_TOTAL_ASSETS_RECENT + 1) ~ poly(Percent_AA, 
+##     2), data = df_simplified)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -6.365 -5.610 -2.366  6.271 17.888 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)            4.5873     0.1105  41.518  &lt; 2e-16 ***
+## poly(Percent_AA, 2)1 -91.6340     6.8060 -13.464  &lt; 2e-16 ***
+## poly(Percent_AA, 2)2 -48.7722     6.7973  -7.175 8.89e-13 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 6.32 on 3270 degrees of freedom
+##   (532 observations deleted due to missingness)
+## Multiple R-squared:  0.06593,    Adjusted R-squared:  0.06536 
+## F-statistic: 115.4 on 2 and 3270 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" tabindex="-1"></a><span class="fu">ggplot</span>(df_simplified, <span class="fu">aes</span>(<span class="fu">poly</span>(Percent_AA,<span class="dv">2</span>), <span class="fu">log</span>(F990_TOTAL_ASSETS_RECENT<span class="sc">+</span><span class="dv">1</span>))) <span class="sc">+</span></span>
+<span id="cb96-2"><a href="#cb96-2" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb96-3"><a href="#cb96-3" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;loess&quot;</span>)</span></code></pre></div>
+<pre><code>## Don&#39;t know how to automatically pick scale for object of type &lt;poly/matrix&gt;.
+## Defaulting to continuous.</code></pre>
+<pre><code>## Warning in `[&lt;-.data.frame`(`*tmp*`, , x_vars, value = list(x =
+## c(-0.0159317582772073, : replacement element 1 has 7610 rows to replace 3805
+## rows</code></pre>
+<pre><code>## Warning in `[&lt;-.data.frame`(`*tmp*`, , x_vars, value = list(x =
+## c(-0.0159317582772073, : replacement element 1 has 7610 rows to replace 3805
+## rows</code></pre>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<pre><code>## Warning: Removed 532 rows containing non-finite outside the scale range
+## (`stat_smooth()`).</code></pre>
+<pre><code>## Warning: Removed 532 rows containing missing values or values outside the scale range
+## (`geom_point()`).</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-24-2.png" alt="" width="672" />
+It seems that there is a trend towards an association of assets with
+neighborhood Black population with what looks like reduced scaled assets
+for orgs in neighborhoods with a higher Black population.</p>
+<p>Look at quartiles with log asset data: <em>remember the caveat that
+there are many organizations that are not included because of NA or zero
+value F990_TOTAL_ASSETS_RECENT</em></p>
+<div class="sourceCode" id="cb103"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" tabindex="-1"></a>df_simplified_no_zero <span class="sc">%&gt;%</span></span>
+<span id="cb103-2"><a href="#cb103-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> ASSET_AMT_log, <span class="at">x =</span> Neighborhood)) <span class="sc">+</span></span>
+<span id="cb103-3"><a href="#cb103-3" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()<span class="sc">+</span> <span class="fu">geom_jitter</span>(<span class="at">width =</span> .<span class="dv">08</span>) <span class="sc">+</span> <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">se=</span><span class="cn">TRUE</span>, <span class="fu">aes</span>(<span class="at">group=</span><span class="dv">1</span>)) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>ASSET_quartile_text, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>)</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-25-1.png" alt="" width="672" /></p>
+<p>First we will remove geo data to make it easier to see results:</p>
+<div class="sourceCode" id="cb105"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" tabindex="-1"></a>df_simplified_no_zero <span class="ot">&lt;-</span>df_simplified_no_zero <span class="sc">%&gt;%</span> <span class="fu">st_drop_geometry</span>()</span>
+<span id="cb105-2"><a href="#cb105-2" tabindex="-1"></a>df_simplified <span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span> <span class="fu">st_drop_geometry</span>()</span></code></pre></div>
+<p>First create data to make visualization easier <em>caveat for the
+data: that there are many organizations that are not included because of
+NA or zero value F990_TOTAL_ASSETS_RECENT</em></p>
+<div class="sourceCode" id="cb106"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" tabindex="-1"></a>quartile_data <span class="ot">&lt;-</span>df_simplified_no_zero <span class="sc">%&gt;%</span> </span>
+<span id="cb106-2"><a href="#cb106-2" tabindex="-1"></a>  <span class="fu">group_by</span>(ASSET_quartile_text, Neighborhood) <span class="sc">%&gt;%</span> </span>
+<span id="cb106-3"><a href="#cb106-3" tabindex="-1"></a>  <span class="fu">count</span>()</span>
+<span id="cb106-4"><a href="#cb106-4" tabindex="-1"></a>quartile_data</span></code></pre></div>
+<pre><code>## # A tibble: 8 × 3
+## # Groups:   ASSET_quartile_text, Neighborhood [8]
+##   ASSET_quartile_text Neighborhood              n
+##   &lt;chr&gt;               &lt;fct&gt;                 &lt;int&gt;
+## 1 1st_Quartile        &quot;Majority\nNon-Black&quot;   137
+## 2 1st_Quartile        &quot;Majority\nBlack&quot;       156
+## 3 2nd_Quartile        &quot;Majority\nNon-Black&quot;   167
+## 4 2nd_Quartile        &quot;Majority\nBlack&quot;       126
+## 5 3rd_Quartile        &quot;Majority\nNon-Black&quot;   168
+## 6 3rd_Quartile        &quot;Majority\nBlack&quot;       124
+## 7 4th_Quartile        &quot;Majority\nNon-Black&quot;   182
+## 8 4th_Quartile        &quot;Majority\nBlack&quot;       110</code></pre>
+<p>Create percentage variable for each quantile</p>
+<div class="sourceCode" id="cb108"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" tabindex="-1"></a>quartile_data <span class="ot">&lt;-</span> quartile_data <span class="sc">%&gt;%</span></span>
+<span id="cb108-2"><a href="#cb108-2" tabindex="-1"></a>  <span class="fu">group_by</span>(ASSET_quartile_text) <span class="sc">%&gt;%</span> </span>
+<span id="cb108-3"><a href="#cb108-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Percent  =</span> <span class="fu">round</span>(n<span class="sc">/</span><span class="fu">sum</span>(n)<span class="sc">*</span><span class="dv">100</span>)) </span>
+<span id="cb108-4"><a href="#cb108-4" tabindex="-1"></a>quartile_data</span></code></pre></div>
+<pre><code>## # A tibble: 8 × 4
+## # Groups:   ASSET_quartile_text [4]
+##   ASSET_quartile_text Neighborhood              n Percent
+##   &lt;chr&gt;               &lt;fct&gt;                 &lt;int&gt;   &lt;dbl&gt;
+## 1 1st_Quartile        &quot;Majority\nNon-Black&quot;   137      47
+## 2 1st_Quartile        &quot;Majority\nBlack&quot;       156      53
+## 3 2nd_Quartile        &quot;Majority\nNon-Black&quot;   167      57
+## 4 2nd_Quartile        &quot;Majority\nBlack&quot;       126      43
+## 5 3rd_Quartile        &quot;Majority\nNon-Black&quot;   168      58
+## 6 3rd_Quartile        &quot;Majority\nBlack&quot;       124      42
+## 7 4th_Quartile        &quot;Majority\nNon-Black&quot;   182      62
+## 8 4th_Quartile        &quot;Majority\nBlack&quot;       110      38</code></pre>
+<p>Visuals…of the above data:</p>
+<div class="sourceCode" id="cb110"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" tabindex="-1"></a>quart_plot <span class="ot">&lt;-</span> quartile_data <span class="sc">%&gt;%</span> </span>
+<span id="cb110-2"><a href="#cb110-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> ASSET_quartile_text, <span class="at">y =</span> Percent,  <span class="at">fill =</span> Neighborhood)) <span class="sc">+</span> </span>
+<span id="cb110-3"><a href="#cb110-3" tabindex="-1"></a>    <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">9</span>))<span class="sc">+</span></span>
+<span id="cb110-4"><a href="#cb110-4" tabindex="-1"></a>     <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(x, <span class="st">&quot;%&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb110-5"><a href="#cb110-5" tabindex="-1"></a>     <span class="fu">ylim</span>(<span class="dv">0</span>,<span class="dv">100</span>) <span class="sc">+</span></span>
+<span id="cb110-6"><a href="#cb110-6" tabindex="-1"></a>    <span class="fu">scale_fill_grey</span>() <span class="sc">+</span></span>
+<span id="cb110-7"><a href="#cb110-7" tabindex="-1"></a>    <span class="fu">theme_linedraw</span>() <span class="sc">+</span></span>
+<span id="cb110-8"><a href="#cb110-8" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(Percent, <span class="st">&quot;%&quot;</span>)), <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">9</span>), <span class="at">vjust =</span> <span class="sc">-</span>.<span class="dv">5</span>) </span></code></pre></div>
+<pre><code>## Scale for y is already present.
+## Adding another scale for y, which will replace the existing scale.</code></pre>
+<div class="sourceCode" id="cb112"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" tabindex="-1"></a>quart_plot <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Quartile based on nonprofit asset amount&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Percentage of nonprofits in the asset quartile&quot;</span>)</span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-29-1.png" alt="" width="672" /></p>
+<p><strong>this does NOT include all organizations</strong></p>
+</div>
+</div>
+<div id="overall-percentage-plot" class="section level2">
+<h2>Overall Percentage Plot</h2>
+<p>First let’s get a count of each - <strong>NOTE we are keeping zero
+values and NA as low asset</strong>! The NA neighborhood means there is
+only one neighborhood that did not fit the categories or have
+information. We can drop this neighborhood.</p>
+<div class="sourceCode" id="cb113"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" tabindex="-1"></a>df_simplified <span class="sc">%&gt;%</span></span>
+<span id="cb113-2"><a href="#cb113-2" tabindex="-1"></a>  <span class="fu">count</span>(ASSET_High_text, Neighborhood)</span></code></pre></div>
+<pre><code>## # A tibble: 4 × 3
+##   ASSET_High_text Neighborhood              n
+##   &lt;chr&gt;           &lt;fct&gt;                 &lt;int&gt;
+## 1 High Asset      &quot;Majority\nNon-Black&quot;   352
+## 2 High Asset      &quot;Majority\nBlack&quot;       235
+## 3 Low Asset       &quot;Majority\nNon-Black&quot;  1279
+## 4 Low Asset       &quot;Majority\nBlack&quot;      1939</code></pre>
+<div class="sourceCode" id="cb115"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" tabindex="-1"></a>df_simplified <span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span></span>
+<span id="cb115-2"><a href="#cb115-2" tabindex="-1"></a>  <span class="fu">drop_na</span>(Neighborhood)</span>
+<span id="cb115-3"><a href="#cb115-3" tabindex="-1"></a></span>
+<span id="cb115-4"><a href="#cb115-4" tabindex="-1"></a>df_simplified <span class="sc">%&gt;%</span></span>
+<span id="cb115-5"><a href="#cb115-5" tabindex="-1"></a>  <span class="fu">count</span>(ASSET_High_text, Neighborhood)</span></code></pre></div>
+<pre><code>## # A tibble: 4 × 3
+##   ASSET_High_text Neighborhood              n
+##   &lt;chr&gt;           &lt;fct&gt;                 &lt;int&gt;
+## 1 High Asset      &quot;Majority\nNon-Black&quot;   352
+## 2 High Asset      &quot;Majority\nBlack&quot;       235
+## 3 Low Asset       &quot;Majority\nNon-Black&quot;  1279
+## 4 Low Asset       &quot;Majority\nBlack&quot;      1939</code></pre>
+<div class="sourceCode" id="cb117"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1" tabindex="-1"></a>High_asset_data <span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span> </span>
+<span id="cb117-2"><a href="#cb117-2" tabindex="-1"></a>  <span class="fu">group_by</span>(ASSET_High_text, Neighborhood) <span class="sc">%&gt;%</span> </span>
+<span id="cb117-3"><a href="#cb117-3" tabindex="-1"></a>  <span class="fu">count</span>() </span>
+<span id="cb117-4"><a href="#cb117-4" tabindex="-1"></a>High_asset_data</span></code></pre></div>
+<pre><code>## # A tibble: 4 × 3
+## # Groups:   ASSET_High_text, Neighborhood [4]
+##   ASSET_High_text Neighborhood              n
+##   &lt;chr&gt;           &lt;fct&gt;                 &lt;int&gt;
+## 1 High Asset      &quot;Majority\nNon-Black&quot;   352
+## 2 High Asset      &quot;Majority\nBlack&quot;       235
+## 3 Low Asset       &quot;Majority\nNon-Black&quot;  1279
+## 4 Low Asset       &quot;Majority\nBlack&quot;      1939</code></pre>
+<p>Create percentage variable for each category:</p>
+<div class="sourceCode" id="cb119"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" tabindex="-1"></a>High_asset_data <span class="ot">&lt;-</span> High_asset_data <span class="sc">%&gt;%</span></span>
+<span id="cb119-2"><a href="#cb119-2" tabindex="-1"></a>  <span class="fu">group_by</span>(Neighborhood) <span class="sc">%&gt;%</span> </span>
+<span id="cb119-3"><a href="#cb119-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Percent_AA_cat =</span> <span class="fu">round</span>(n<span class="sc">/</span><span class="fu">sum</span>(n)<span class="sc">*</span><span class="dv">100</span>)) </span>
+<span id="cb119-4"><a href="#cb119-4" tabindex="-1"></a>High_asset_data</span></code></pre></div>
+<pre><code>## # A tibble: 4 × 4
+## # Groups:   Neighborhood [2]
+##   ASSET_High_text Neighborhood              n Percent_AA_cat
+##   &lt;chr&gt;           &lt;fct&gt;                 &lt;int&gt;          &lt;dbl&gt;
+## 1 High Asset      &quot;Majority\nNon-Black&quot;   352             22
+## 2 High Asset      &quot;Majority\nBlack&quot;       235             11
+## 3 Low Asset       &quot;Majority\nNon-Black&quot;  1279             78
+## 4 Low Asset       &quot;Majority\nBlack&quot;      1939             89</code></pre>
+<p>Visuals…of the above data:</p>
+<div class="sourceCode" id="cb121"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" tabindex="-1"></a>High_asset_data <span class="sc">%&gt;%</span> </span>
+<span id="cb121-2"><a href="#cb121-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> Neighborhood, <span class="at">y =</span> Percent_AA_cat,  <span class="at">fill =</span> ASSET_High_text)) <span class="sc">+</span> </span>
+<span id="cb121-3"><a href="#cb121-3" tabindex="-1"></a>    <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">9</span>))<span class="sc">+</span></span>
+<span id="cb121-4"><a href="#cb121-4" tabindex="-1"></a>     <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(x, <span class="st">&quot;%&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb121-5"><a href="#cb121-5" tabindex="-1"></a>     <span class="fu">ylim</span>(<span class="dv">0</span>,<span class="dv">100</span>) <span class="sc">+</span></span>
+<span id="cb121-6"><a href="#cb121-6" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(Percent_AA_cat, <span class="st">&quot;%&quot;</span>)), <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">9</span>), <span class="at">vjust =</span> <span class="sc">-</span>.<span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb121-7"><a href="#cb121-7" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Percent of Neighborhood Category&quot;</span>) <span class="sc">+</span></span>
+<span id="cb121-8"><a href="#cb121-8" tabindex="-1"></a>  <span class="fu">theme_linedraw</span>() <span class="sc">+</span></span>
+<span id="cb121-9"><a href="#cb121-9" tabindex="-1"></a>  <span class="fu">scale_fill_grey</span>() <span class="sc">+</span></span>
+<span id="cb121-10"><a href="#cb121-10" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span></code></pre></div>
+<pre><code>## Scale for y is already present.
+## Adding another scale for y, which will replace the existing scale.</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-33-1.png" alt="" width="672" />
+<strong>this includes all organizations including those with NA
+values</strong></p>
+</div>
+<div id="high-vs-non-asset-by-category" class="section level2">
+<h2>High vs non asset by category</h2>
+<p>First create data to make visualization easier.</p>
+<div class="sourceCode" id="cb123"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" tabindex="-1"></a>High_asset_data <span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span></span>
+<span id="cb123-2"><a href="#cb123-2" tabindex="-1"></a>  <span class="fu">group_by</span>(ASSET_High_text, Neighborhood, NTEE_text) <span class="sc">%&gt;%</span> </span>
+<span id="cb123-3"><a href="#cb123-3" tabindex="-1"></a>  <span class="fu">count</span>()</span>
+<span id="cb123-4"><a href="#cb123-4" tabindex="-1"></a>High_asset_data</span></code></pre></div>
+<pre><code>## # A tibble: 40 × 4
+## # Groups:   ASSET_High_text, Neighborhood, NTEE_text [40]
+##    ASSET_High_text Neighborhood          NTEE_text                 n
+##    &lt;chr&gt;           &lt;fct&gt;                 &lt;chr&gt;                 &lt;int&gt;
+##  1 High Asset      &quot;Majority\nNon-Black&quot; Arts                     48
+##  2 High Asset      &quot;Majority\nNon-Black&quot; Education                59
+##  3 High Asset      &quot;Majority\nNon-Black&quot; Environment/Animals       8
+##  4 High Asset      &quot;Majority\nNon-Black&quot; Health                   71
+##  5 High Asset      &quot;Majority\nNon-Black&quot; Human Services           88
+##  6 High Asset      &quot;Majority\nNon-Black&quot; International Affairs     8
+##  7 High Asset      &quot;Majority\nNon-Black&quot; Other                     1
+##  8 High Asset      &quot;Majority\nNon-Black&quot; Religious                12
+##  9 High Asset      &quot;Majority\nNon-Black&quot; Societal Benefit         56
+## 10 High Asset      &quot;Majority\nNon-Black&quot; Unclassified              1
+## # ℹ 30 more rows</code></pre>
+<div class="sourceCode" id="cb125"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" tabindex="-1"></a>contingency_table <span class="ot">&lt;-</span> <span class="fu">table</span>( df_simplified<span class="sc">$</span>Majority_AA, df_simplified<span class="sc">$</span>ASSET_High_text)</span>
+<span id="cb125-2"><a href="#cb125-2" tabindex="-1"></a><span class="fu">print</span>(contingency_table)</span></code></pre></div>
+<pre><code>##      
+##       High Asset Low Asset
+##   No         352      1279
+##   Yes        235      1939</code></pre>
+<div class="sourceCode" id="cb127"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="#cb127-1" tabindex="-1"></a>independence_results <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(contingency_table)</span>
+<span id="cb127-2"><a href="#cb127-2" tabindex="-1"></a><span class="fu">print</span>(independence_results)</span></code></pre></div>
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+## 
+## data:  contingency_table
+## X-squared = 82.058, df = 1, p-value &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb129"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb129-1"><a href="#cb129-1" tabindex="-1"></a><span class="co">#Create percentage variable for each category</span></span>
+<span id="cb129-2"><a href="#cb129-2" tabindex="-1"></a>High_asset_data <span class="ot">&lt;-</span> High_asset_data <span class="sc">%&gt;%</span></span>
+<span id="cb129-3"><a href="#cb129-3" tabindex="-1"></a>  <span class="fu">group_by</span>(NTEE_text) <span class="sc">%&gt;%</span> </span>
+<span id="cb129-4"><a href="#cb129-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Percent_ntee_cat =</span> <span class="fu">round</span>(n<span class="sc">/</span><span class="fu">sum</span>(n)<span class="sc">*</span><span class="dv">100</span>)) </span>
+<span id="cb129-5"><a href="#cb129-5" tabindex="-1"></a>High_asset_data</span></code></pre></div>
+<pre><code>## # A tibble: 40 × 5
+## # Groups:   NTEE_text [10]
+##    ASSET_High_text Neighborhood          NTEE_text            n Percent_ntee_cat
+##    &lt;chr&gt;           &lt;fct&gt;                 &lt;chr&gt;            &lt;int&gt;            &lt;dbl&gt;
+##  1 High Asset      &quot;Majority\nNon-Black&quot; Arts                48               15
+##  2 High Asset      &quot;Majority\nNon-Black&quot; Education           59               14
+##  3 High Asset      &quot;Majority\nNon-Black&quot; Environment/Ani…     8               11
+##  4 High Asset      &quot;Majority\nNon-Black&quot; Health              71               24
+##  5 High Asset      &quot;Majority\nNon-Black&quot; Human Services      88                8
+##  6 High Asset      &quot;Majority\nNon-Black&quot; International A…     8               17
+##  7 High Asset      &quot;Majority\nNon-Black&quot; Other                1                4
+##  8 High Asset      &quot;Majority\nNon-Black&quot; Religious           12                1
+##  9 High Asset      &quot;Majority\nNon-Black&quot; Societal Benefit    56               11
+## 10 High Asset      &quot;Majority\nNon-Black&quot; Unclassified         1                1
+## # ℹ 30 more rows</code></pre>
+<p>Visuals…of the above data:</p>
+<div class="sourceCode" id="cb131"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb131-1"><a href="#cb131-1" tabindex="-1"></a>High_asset_data <span class="sc">%&gt;%</span> </span>
+<span id="cb131-2"><a href="#cb131-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> Neighborhood, <span class="at">y =</span> Percent_ntee_cat,  <span class="at">fill =</span> ASSET_High_text)) <span class="sc">+</span> </span>
+<span id="cb131-3"><a href="#cb131-3" tabindex="-1"></a>    <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">9</span>))<span class="sc">+</span></span>
+<span id="cb131-4"><a href="#cb131-4" tabindex="-1"></a>     <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(x, <span class="st">&quot;%&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb131-5"><a href="#cb131-5" tabindex="-1"></a>    <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="dv">100</span>) <span class="sc">+</span></span>
+<span id="cb131-6"><a href="#cb131-6" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(Percent_ntee_cat, <span class="st">&quot;%&quot;</span>)), <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">9</span>), <span class="at">vjust =</span> <span class="sc">-</span>.<span class="dv">5</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>NTEE_text) <span class="sc">+</span></span>
+<span id="cb131-7"><a href="#cb131-7" tabindex="-1"></a>  <span class="fu">theme_linedraw</span>() <span class="sc">+</span></span>
+<span id="cb131-8"><a href="#cb131-8" tabindex="-1"></a>  <span class="fu">scale_fill_grey</span>() <span class="sc">+</span></span>
+<span id="cb131-9"><a href="#cb131-9" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span></span>
+<span id="cb131-10"><a href="#cb131-10" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Percentage for each category&quot;</span>)</span></code></pre></div>
+<p><strong>this includes all 4,082 organizations</strong></p>
+</div>
+<div id="count-plotstables" class="section level2">
+<h2>Count plots/Tables</h2>
+<div id="different-kinds-of-orgs" class="section level3">
+<h3>Different kinds of orgs</h3>
+<div class="sourceCode" id="cb132"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" tabindex="-1"></a>df_simplified <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(NTEE_text) <span class="sc">%&gt;%</span><span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb132-2"><a href="#cb132-2" tabindex="-1"></a> <span class="fu">mutate</span>(<span class="at">Percentage =</span> <span class="fu">round</span>(count<span class="sc">/</span><span class="fu">sum</span>(count)<span class="sc">*</span><span class="dv">100</span>, <span class="at">digits =</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb132-3"><a href="#cb132-3" tabindex="-1"></a>  <span class="fu">arrange</span>(NTEE_text)</span></code></pre></div>
+<pre><code>## # A tibble: 10 × 3
+##    NTEE_text             count Percentage
+##    &lt;chr&gt;                 &lt;int&gt;      &lt;dbl&gt;
+##  1 Arts                    326       8.57
+##  2 Education               411      10.8 
+##  3 Environment/Animals      76       2   
+##  4 Health                  302       7.94
+##  5 Human Services         1126      29.6 
+##  6 International Affairs    46       1.21
+##  7 Other                    27       0.71
+##  8 Religious               891      23.4 
+##  9 Societal Benefit        513      13.5 
+## 10 Unclassified             87       2.29</code></pre>
+<div class="sourceCode" id="cb134"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" tabindex="-1"></a>Total_NTEE <span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(NTEE_text) <span class="sc">%&gt;%</span><span class="fu">summarize</span>(<span class="at">total_count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb134-2"><a href="#cb134-2" tabindex="-1"></a>  <span class="fu">arrange</span>(NTEE_text)</span></code></pre></div>
+<div class="sourceCode" id="cb135"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb135-1"><a href="#cb135-1" tabindex="-1"></a>df_simplified <span class="sc">%&gt;%</span> </span>
+<span id="cb135-2"><a href="#cb135-2" tabindex="-1"></a>  <span class="fu">group_by</span>(NTEE_text, Neighborhood) <span class="sc">%&gt;%</span></span>
+<span id="cb135-3"><a href="#cb135-3" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb135-4"><a href="#cb135-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NTEE_text =</span> <span class="fu">as_factor</span>(NTEE_text)) <span class="sc">%&gt;%</span></span>
+<span id="cb135-5"><a href="#cb135-5" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_reorder</span>(NTEE_text, count, min), <span class="at">y =</span> count , <span class="at">fill =</span> Neighborhood)) <span class="sc">+</span> </span>
+<span id="cb135-6"><a href="#cb135-6" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_d</span>() <span class="sc">+</span></span>
+<span id="cb135-7"><a href="#cb135-7" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span><span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">9</span>))  <span class="sc">+</span> </span>
+<span id="cb135-8"><a href="#cb135-8" tabindex="-1"></a>  <span class="fu">ylab</span> (<span class="st">&quot;Number of Organizations&quot;</span>) <span class="sc">+</span></span>
+<span id="cb135-9"><a href="#cb135-9" tabindex="-1"></a>  <span class="fu">theme_linedraw</span>() <span class="sc">+</span></span>
+<span id="cb135-10"><a href="#cb135-10" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">vjust =</span> .<span class="dv">5</span>),</span>
+<span id="cb135-11"><a href="#cb135-11" tabindex="-1"></a>        <span class="at">axis.title.x =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span></span>
+<span id="cb135-12"><a href="#cb135-12" tabindex="-1"></a>  <span class="fu">scale_fill_grey</span>()</span></code></pre></div>
+<pre><code>## `summarise()` has regrouped the output.
+## Scale for fill is already present. Adding another scale for fill, which will
+## replace the existing scale.
+## ℹ Summaries were computed grouped by NTEE_text and Neighborhood.
+## ℹ Output is grouped by NTEE_text.
+## ℹ Use `summarise(.groups = &quot;drop_last&quot;)` to silence this message.
+## ℹ Use `summarise(.by = c(NTEE_text, Neighborhood))` for per-operation grouping
+##   (`?dplyr::dplyr_by`) instead.</code></pre>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-37-1.png" alt="" width="672" /></p>
+<p><strong>This includes all 4,082 organizations</strong> There was no
+removal of organizations based on asset amount, just to get a sense of
+what oganizations are in Baltimore.</p>
+<div class="sourceCode" id="cb137"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb137-1"><a href="#cb137-1" tabindex="-1"></a>plot2 <span class="ot">&lt;-</span> df_simplified <span class="sc">%&gt;%</span> </span>
+<span id="cb137-2"><a href="#cb137-2" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">NTEE_text =</span> <span class="fu">as_factor</span>(NTEE_text),</span>
+<span id="cb137-3"><a href="#cb137-3" tabindex="-1"></a>         <span class="at">NTEE_text =</span> forcats<span class="sc">::</span><span class="fu">fct_relevel</span>(NTEE_text, <span class="st">&quot;International Affairs&quot;</span>, <span class="st">&quot;Environment/Animals&quot;</span>, <span class="st">&quot;Arts&quot;</span>, <span class="st">&quot;Religious&quot;</span>, <span class="st">&quot;Health&quot;</span>,<span class="st">&quot;Education&quot;</span>, <span class="st">&quot;Societal Benefit&quot;</span>, <span class="st">&quot;Human Services&quot;</span>, <span class="st">&quot;Other&quot;</span>, <span class="st">&quot;Unclassified&quot;</span> )) <span class="sc">%&gt;%</span></span>
+<span id="cb137-4"><a href="#cb137-4" tabindex="-1"></a>  <span class="fu">group_by</span>(NTEE_text, Neighborhood, ASSET_High_text) <span class="sc">%&gt;%</span></span>
+<span id="cb137-5"><a href="#cb137-5" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb137-6"><a href="#cb137-6" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> NTEE_text, <span class="at">y =</span> count , <span class="at">fill =</span> Neighborhood)) <span class="sc">+</span> </span>
+<span id="cb137-7"><a href="#cb137-7" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span><span class="fu">position_dodge</span>(<span class="at">width =</span> .<span class="dv">9</span>))  <span class="sc">+</span> </span>
+<span id="cb137-8"><a href="#cb137-8" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="at">rows =</span> <span class="fu">vars</span>(ASSET_High_text)) <span class="sc">+</span></span>
+<span id="cb137-9"><a href="#cb137-9" tabindex="-1"></a>  <span class="fu">ylab</span> (<span class="st">&quot;Number of Organizations&quot;</span>) <span class="sc">+</span></span>
+<span id="cb137-10"><a href="#cb137-10" tabindex="-1"></a>  <span class="fu">theme_linedraw</span>() <span class="sc">+</span></span>
+<span id="cb137-11"><a href="#cb137-11" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">vjust =</span> .<span class="dv">5</span>),</span>
+<span id="cb137-12"><a href="#cb137-12" tabindex="-1"></a>        <span class="at">axis.title.x =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span></span>
+<span id="cb137-13"><a href="#cb137-13" tabindex="-1"></a>  <span class="fu">scale_fill_grey</span>()</span></code></pre></div>
+<pre><code>## `summarise()` has regrouped the output.
+## ℹ Summaries were computed grouped by NTEE_text, Neighborhood, and
+##   ASSET_High_text.
+## ℹ Output is grouped by NTEE_text and Neighborhood.
+## ℹ Use `summarise(.groups = &quot;drop_last&quot;)` to silence this message.
+## ℹ Use `summarise(.by = c(NTEE_text, Neighborhood, ASSET_High_text))` for
+##   per-operation grouping (`?dplyr::dplyr_by`) instead.</code></pre>
+<div class="sourceCode" id="cb139"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb139-1"><a href="#cb139-1" tabindex="-1"></a>plot2</span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-38-1.png" alt="" width="672" /></p>
+<p><strong>This includes all 4,082 organizations</strong> There was no
+removal of organizations based on asset amount, just to get a sense of
+what oganizations are in Baltimore.</p>
+</div>
+<div id="high-asset-orgs" class="section level3">
+<h3>High Asset Orgs</h3>
+<p>Based on Asset Amount (F990_TOTAL_ASSETS_RECENT)</p>
+<div class="sourceCode" id="cb140"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" tabindex="-1"></a>High_counts <span class="ot">&lt;-</span> df_simplified <span class="sc">%&gt;%</span> </span>
+<span id="cb140-2"><a href="#cb140-2" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">NTEE_text =</span> <span class="fu">as_factor</span>(NTEE_text),</span>
+<span id="cb140-3"><a href="#cb140-3" tabindex="-1"></a>        <span class="at">NTEE_text =</span> forcats<span class="sc">::</span><span class="fu">fct_relevel</span>(NTEE_text, <span class="st">&quot;International Affairs&quot;</span>, <span class="st">&quot;Environment/Animals&quot;</span>, <span class="st">&quot;Arts&quot;</span>, <span class="st">&quot;Religious&quot;</span>, <span class="st">&quot;Health&quot;</span>,<span class="st">&quot;Education&quot;</span>, <span class="st">&quot;Societal Benefit&quot;</span>, <span class="st">&quot;Human Services&quot;</span>, <span class="st">&quot;Other&quot;</span>, <span class="st">&quot;Unclassified&quot;</span> )) <span class="sc">%&gt;%</span></span>
+<span id="cb140-4"><a href="#cb140-4" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>(), <span class="at">.by =</span> <span class="fu">c</span>(NTEE_text, ASSET_High_text)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ASSET_High_text <span class="sc">==</span> <span class="st">&quot;High Asset&quot;</span>)</span>
+<span id="cb140-5"><a href="#cb140-5" tabindex="-1"></a></span>
+<span id="cb140-6"><a href="#cb140-6" tabindex="-1"></a>High_counts</span></code></pre></div>
+<pre><code>## # A tibble: 10 × 3
+##    NTEE_text             ASSET_High_text count
+##    &lt;fct&gt;                 &lt;chr&gt;           &lt;int&gt;
+##  1 Health                High Asset        101
+##  2 Human Services        High Asset        184
+##  3 Arts                  High Asset         63
+##  4 Education             High Asset         99
+##  5 Religious             High Asset         20
+##  6 Societal Benefit      High Asset         92
+##  7 International Affairs High Asset         11
+##  8 Other                 High Asset          2
+##  9 Environment/Animals   High Asset         12
+## 10 Unclassified          High Asset          3</code></pre>
+<div class="sourceCode" id="cb142"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1" tabindex="-1"></a><span class="fu">full_join</span>(Total_NTEE, High_counts, <span class="fu">join_by</span>(NTEE_text)) <span class="sc">%&gt;%</span></span>
+<span id="cb142-2"><a href="#cb142-2" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="st">&quot;Percentage_of_each_code&quot;</span> <span class="ot">=</span> <span class="fu">round</span>(count<span class="sc">/</span>total_count <span class="sc">*</span><span class="dv">100</span>, <span class="at">digits =</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb142-3"><a href="#cb142-3" tabindex="-1"></a>  <span class="fu">arrange</span>(NTEE_text) </span></code></pre></div>
+<pre><code>## # A tibble: 10 × 5
+##    NTEE_text            total_count ASSET_High_text count Percentage_of_each_c…¹
+##    &lt;chr&gt;                      &lt;int&gt; &lt;chr&gt;           &lt;int&gt;                  &lt;dbl&gt;
+##  1 Arts                         326 High Asset         63                  19.3 
+##  2 Education                    411 High Asset         99                  24.1 
+##  3 Environment/Animals           76 High Asset         12                  15.8 
+##  4 Health                       302 High Asset        101                  33.4 
+##  5 Human Services              1126 High Asset        184                  16.3 
+##  6 International Affai…          46 High Asset         11                  23.9 
+##  7 Other                         27 High Asset          2                   7.41
+##  8 Religious                    891 High Asset         20                   2.24
+##  9 Societal Benefit             513 High Asset         92                  17.9 
+## 10 Unclassified                  87 High Asset          3                   3.45
+## # ℹ abbreviated name: ¹​Percentage_of_each_code</code></pre>
+<p>Based on BMF_ASSET_CODE (Where 5 means &gt;=500,000)</p>
+<div class="sourceCode" id="cb144"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" tabindex="-1"></a>High_counts <span class="ot">&lt;-</span> df_simplified <span class="sc">%&gt;%</span> </span>
+<span id="cb144-2"><a href="#cb144-2" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">NTEE_text =</span> <span class="fu">as_factor</span>(NTEE_text),</span>
+<span id="cb144-3"><a href="#cb144-3" tabindex="-1"></a>        <span class="at">NTEE_text =</span> forcats<span class="sc">::</span><span class="fu">fct_relevel</span>(NTEE_text, <span class="st">&quot;International Affairs&quot;</span>, <span class="st">&quot;Environment/Animals&quot;</span>, <span class="st">&quot;Arts&quot;</span>, <span class="st">&quot;Religious&quot;</span>, <span class="st">&quot;Health&quot;</span>,<span class="st">&quot;Education&quot;</span>, <span class="st">&quot;Societal Benefit&quot;</span>, <span class="st">&quot;Human Services&quot;</span>, <span class="st">&quot;NA&quot;</span> )) <span class="sc">%&gt;%</span></span>
+<span id="cb144-4"><a href="#cb144-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASSET_CD_High =</span> <span class="fu">case_when</span>(BMF_ASSET_CODE <span class="sc">&gt;=</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">&quot;High&quot;</span>,</span>
+<span id="cb144-5"><a href="#cb144-5" tabindex="-1"></a>                                   BMF_ASSET_CODE <span class="sc">&lt;</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">&quot;Low&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb144-6"><a href="#cb144-6" tabindex="-1"></a>  <span class="fu">group_by</span>(NTEE_text, ASSET_CD_High) <span class="sc">%&gt;%</span></span>
+<span id="cb144-7"><a href="#cb144-7" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ASSET_CD_High <span class="sc">==</span> <span class="st">&quot;High&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb144-8"><a href="#cb144-8" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">NTEE_text =</span> <span class="fu">str_replace</span>(<span class="at">string =</span> NTEE_text, <span class="at">pattern =</span> <span class="st">&quot;NA&quot;</span>, <span class="at">replacement =</span> <span class="st">&quot;Unclassified&quot;</span>))</span></code></pre></div>
+<pre><code>## Warning: There was 1 warning in `mutate()`.
+## ℹ In argument: `NTEE_text = forcats::fct_relevel(...)`.
+## Caused by warning:
+## ! 1 unknown level in `f`: NA</code></pre>
+<pre><code>## `summarise()` has regrouped the output.
+## ℹ Summaries were computed grouped by NTEE_text and ASSET_CD_High.
+## ℹ Output is grouped by NTEE_text.
+## ℹ Use `summarise(.groups = &quot;drop_last&quot;)` to silence this message.
+## ℹ Use `summarise(.by = c(NTEE_text, ASSET_CD_High))` for per-operation grouping
+##   (`?dplyr::dplyr_by`) instead.</code></pre>
+<div class="sourceCode" id="cb147"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb147-1"><a href="#cb147-1" tabindex="-1"></a>High_counts</span></code></pre></div>
+<pre><code>## # A tibble: 10 × 3
+## # Groups:   NTEE_text [10]
+##    NTEE_text             ASSET_CD_High count
+##    &lt;chr&gt;                 &lt;chr&gt;         &lt;int&gt;
+##  1 International Affairs High             11
+##  2 Environment/Animals   High             12
+##  3 Arts                  High             63
+##  4 Religious             High             25
+##  5 Health                High            100
+##  6 Education             High             99
+##  7 Societal Benefit      High             91
+##  8 Human Services        High            186
+##  9 Unclassified          High              3
+## 10 Other                 High              2</code></pre>
+<div class="sourceCode" id="cb149"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb149-1"><a href="#cb149-1" tabindex="-1"></a><span class="fu">full_join</span>(Total_NTEE, High_counts, <span class="fu">join_by</span>(NTEE_text)) <span class="sc">%&gt;%</span></span>
+<span id="cb149-2"><a href="#cb149-2" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="st">&quot;Percentage_of_each_code&quot;</span> <span class="ot">=</span> <span class="fu">round</span>(count<span class="sc">/</span>total_count <span class="sc">*</span><span class="dv">100</span>, <span class="at">digits =</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb149-3"><a href="#cb149-3" tabindex="-1"></a>  <span class="fu">arrange</span>(NTEE_text) </span></code></pre></div>
+<pre><code>## # A tibble: 10 × 5
+##    NTEE_text             total_count ASSET_CD_High count Percentage_of_each_code
+##    &lt;chr&gt;                       &lt;int&gt; &lt;chr&gt;         &lt;int&gt;                   &lt;dbl&gt;
+##  1 Arts                          326 High             63                   19.3 
+##  2 Education                     411 High             99                   24.1 
+##  3 Environment/Animals            76 High             12                   15.8 
+##  4 Health                        302 High            100                   33.1 
+##  5 Human Services               1126 High            186                   16.5 
+##  6 International Affairs          46 High             11                   23.9 
+##  7 Other                          27 High              2                    7.41
+##  8 Religious                     891 High             25                    2.81
+##  9 Societal Benefit              513 High             91                   17.7 
+## 10 Unclassified                   87 High              3                    3.45</code></pre>
+</div>
+<div id="counts-across-neighborhood-type-and-ntee"
+class="section level3">
+<h3>Counts across neighborhood type and NTEE</h3>
+<p>BMF_ASSET_CODE was ASSET_CD in older raw files</p>
+<div class="sourceCode" id="cb151"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb151-1"><a href="#cb151-1" tabindex="-1"></a>Count_by_neighborhood_type <span class="ot">&lt;-</span> df_simplified <span class="sc">%&gt;%</span> </span>
+<span id="cb151-2"><a href="#cb151-2" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">NTEE_text =</span> <span class="fu">as_factor</span>(NTEE_text),</span>
+<span id="cb151-3"><a href="#cb151-3" tabindex="-1"></a>        <span class="at">NTEE_text =</span> forcats<span class="sc">::</span><span class="fu">fct_na_value_to_level</span>(NTEE_text, <span class="at">level =</span> <span class="st">&quot;Unclassified&quot;</span>),   </span>
+<span id="cb151-4"><a href="#cb151-4" tabindex="-1"></a>        <span class="at">NTEE_text =</span> forcats<span class="sc">::</span><span class="fu">fct_relevel</span>(NTEE_text, <span class="st">&quot;International Affairs&quot;</span>, <span class="st">&quot;Environment/Animals&quot;</span>, <span class="st">&quot;Arts&quot;</span>, <span class="st">&quot;Religious&quot;</span>, <span class="st">&quot;Health&quot;</span>,<span class="st">&quot;Education&quot;</span>, <span class="st">&quot;Societal Benefit&quot;</span>, <span class="st">&quot;Human Services&quot;</span>, <span class="st">&quot;Unclassified&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb151-5"><a href="#cb151-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASSET_CD_High =</span> <span class="fu">case_when</span>(BMF_ASSET_CODE <span class="sc">&gt;=</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">&quot;High&quot;</span>,</span>
+<span id="cb151-6"><a href="#cb151-6" tabindex="-1"></a>                                   BMF_ASSET_CODE <span class="sc">&lt;</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">&quot;Low&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb151-7"><a href="#cb151-7" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>(), <span class="at">.by =</span> <span class="fu">c</span>(NTEE_text, Majority_AA)) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(NTEE_text)</span>
+<span id="cb151-8"><a href="#cb151-8" tabindex="-1"></a></span>
+<span id="cb151-9"><a href="#cb151-9" tabindex="-1"></a>Count_by_neighborhood_type</span></code></pre></div>
+<pre><code>## # A tibble: 20 × 3
+##    NTEE_text             Majority_AA count
+##    &lt;fct&gt;                 &lt;chr&gt;       &lt;int&gt;
+##  1 International Affairs Yes            14
+##  2 International Affairs No             32
+##  3 Environment/Animals   No             54
+##  4 Environment/Animals   Yes            22
+##  5 Arts                  No            204
+##  6 Arts                  Yes           122
+##  7 Religious             No            270
+##  8 Religious             Yes           621
+##  9 Health                Yes           140
+## 10 Health                No            162
+## 11 Education             No            218
+## 12 Education             Yes           193
+## 13 Societal Benefit      Yes           266
+## 14 Societal Benefit      No            247
+## 15 Human Services        Yes           724
+## 16 Human Services        No            402
+## 17 Unclassified          No             34
+## 18 Unclassified          Yes            53
+## 19 Other                 Yes            19
+## 20 Other                 No              8</code></pre>
+<div class="sourceCode" id="cb153"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb153-1"><a href="#cb153-1" tabindex="-1"></a>renamed_perc_data <span class="ot">&lt;-</span><span class="fu">full_join</span>(Total_NTEE, Count_by_neighborhood_type) <span class="sc">%&gt;%</span></span>
+<span id="cb153-2"><a href="#cb153-2" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="st">&quot;Percentage_of_each_code&quot;</span> <span class="ot">=</span> <span class="fu">round</span>(count<span class="sc">/</span>total_count <span class="sc">*</span><span class="dv">100</span>, <span class="at">digits =</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb153-3"><a href="#cb153-3" tabindex="-1"></a>  <span class="fu">arrange</span>(NTEE_text) <span class="sc">%&gt;%</span></span>
+<span id="cb153-4"><a href="#cb153-4" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Majority_AA, <span class="at">values_from =</span> count<span class="sc">:</span>Percentage_of_each_code) <span class="sc">%&gt;%</span> </span>
+<span id="cb153-5"><a href="#cb153-5" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(NTEE_text, total_count, count_Yes, Percentage_of_each_code_Yes,  count_No, Percentage_of_each_code_No) <span class="sc">%&gt;%</span></span>
+<span id="cb153-6"><a href="#cb153-6" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>NTEE_text) <span class="sc">%&gt;%</span></span>
+<span id="cb153-7"><a href="#cb153-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name =</span> <span class="fu">case_when</span>(</span>
+<span id="cb153-8"><a href="#cb153-8" tabindex="-1"></a>            name <span class="sc">==</span> <span class="st">&quot;total_count&quot;</span> <span class="sc">~</span> <span class="st">&quot;Total&quot;</span>,</span>
+<span id="cb153-9"><a href="#cb153-9" tabindex="-1"></a>            name <span class="sc">==</span> <span class="st">&quot;count_Yes&quot;</span> <span class="sc">~</span><span class="st">&quot;Count_Majority_Black&quot;</span>,</span>
+<span id="cb153-10"><a href="#cb153-10" tabindex="-1"></a>            name <span class="sc">==</span> <span class="st">&quot;Percentage_of_each_code_Yes&quot;</span> <span class="sc">~</span> <span class="st">&quot;Perc_Maj_Black&quot;</span>,</span>
+<span id="cb153-11"><a href="#cb153-11" tabindex="-1"></a>            name <span class="sc">==</span> <span class="st">&quot;count_No&quot;</span> <span class="sc">~</span> <span class="st">&quot;Count_Non_Black&quot;</span>,</span>
+<span id="cb153-12"><a href="#cb153-12" tabindex="-1"></a>            name <span class="sc">==</span> <span class="st">&quot;Percentage_of_each_code_No&quot;</span> <span class="sc">~</span> <span class="st">&quot;Perc_Non_Black&quot;</span>))</span></code></pre></div>
+<pre><code>## Joining with `by = join_by(NTEE_text)`</code></pre>
+<div class="sourceCode" id="cb155"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb155-1"><a href="#cb155-1" tabindex="-1"></a>  renamed_perc_data  <span class="sc">%&gt;%</span></span>
+<span id="cb155-2"><a href="#cb155-2" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> name, <span class="at">values_from =</span> value) <span class="sc">%&gt;%</span></span>
+<span id="cb155-3"><a href="#cb155-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ratio =</span> Count_Majority_Black<span class="sc">/</span>Count_Non_Black)</span></code></pre></div>
+<pre><code>## # A tibble: 10 × 7
+##    NTEE_text           Total Count_Majority_Black Perc_Maj_Black Count_Non_Black
+##    &lt;chr&gt;               &lt;dbl&gt;                &lt;dbl&gt;          &lt;dbl&gt;           &lt;dbl&gt;
+##  1 Arts                  326                  122           37.4             204
+##  2 Education             411                  193           47.0             218
+##  3 Environment/Animals    76                   22           29.0              54
+##  4 Health                302                  140           46.4             162
+##  5 Human Services       1126                  724           64.3             402
+##  6 International Affa…    46                   14           30.4              32
+##  7 Other                  27                   19           70.4               8
+##  8 Religious             891                  621           69.7             270
+##  9 Societal Benefit      513                  266           51.8             247
+## 10 Unclassified           87                   53           60.9              34
+## # ℹ 2 more variables: Perc_Non_Black &lt;dbl&gt;, ratio &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<div id="distribution-of-percent-aa" class="section level2">
+<h2>Distribution of percent AA</h2>
+<p>Now to take a look at if 50% African American makes sense. What do
+the neighborhoods look like?</p>
+<p>Name was neighborhood name in the old data</p>
+<div class="sourceCode" id="cb157"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb157-1"><a href="#cb157-1" tabindex="-1"></a><span class="co"># get the neighborhood values if no removing rows for nonprofits with NA or zero assets</span></span>
+<span id="cb157-2"><a href="#cb157-2" tabindex="-1"></a>neighborhood_AAperc <span class="ot">&lt;-</span> df_simplified <span class="sc">%&gt;%</span> </span>
+<span id="cb157-3"><a href="#cb157-3" tabindex="-1"></a> <span class="fu">distinct</span>(Name, Percent_AA)</span>
+<span id="cb157-4"><a href="#cb157-4" tabindex="-1"></a></span>
+<span id="cb157-5"><a href="#cb157-5" tabindex="-1"></a><span class="co"># get the neighborhood values after removing rows for nonprofits with NA or zero assets</span></span>
+<span id="cb157-6"><a href="#cb157-6" tabindex="-1"></a>neighborhood_AAperc_nozero <span class="ot">&lt;-</span> df_simplified_no_zero <span class="sc">%&gt;%</span> </span>
+<span id="cb157-7"><a href="#cb157-7" tabindex="-1"></a> <span class="fu">distinct</span>(Name, Percent_AA)</span></code></pre></div>
+<p>We can see that there are many neighborhoods that have a more extreme
+percentage.</p>
+<div class="sourceCode" id="cb158"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb158-1"><a href="#cb158-1" tabindex="-1"></a><span class="co"># get the neighborhood values if no removing rows for nonprofits with NA or zero assets</span></span>
+<span id="cb158-2"><a href="#cb158-2" tabindex="-1"></a></span>
+<span id="cb158-3"><a href="#cb158-3" tabindex="-1"></a>neighborhood_AAperc<span class="sc">%&gt;%</span> <span class="fu">pull</span>(Percent_AA) <span class="sc">%&gt;%</span> <span class="fu">hist</span>(<span class="at">main =</span> <span class="st">&quot;Distribution of Black population percentages across Baltimore neighborhoods&quot;</span>)</span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-45-1.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb159"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb159-1"><a href="#cb159-1" tabindex="-1"></a><span class="co"># get the neighborhood values after removing rows for nonprofits with NA or zero assets</span></span>
+<span id="cb159-2"><a href="#cb159-2" tabindex="-1"></a>neighborhood_AAperc_nozero <span class="sc">%&gt;%</span> <span class="fu">pull</span>(Percent_AA) <span class="sc">%&gt;%</span> <span class="fu">hist</span>(<span class="at">main =</span> <span class="st">&quot;Distribution of Black population percentages across Baltimore neighborhoods</span><span class="sc">\n</span><span class="st"> (removed neighborhoods with only zero or NA assets)&quot;</span>)</span></code></pre></div>
+<p><img src="03_analysis_files/figure-html/unnamed-chunk-45-2.png" alt="" width="672" /></p>
+</div>
+<div
+id="what-of-people-living-in-baltimore-neighborhoods-live-in-majority-black-neighborhoods"
+class="section level2">
+<h2>What % of people living in Baltimore neighborhoods live in majority
+black neighborhoods</h2>
+<div class="sourceCode" id="cb160"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb160-1"><a href="#cb160-1" tabindex="-1"></a><span class="co">#start with the raw neighborhood statistical area data and use it to get population estimates </span></span>
+<span id="cb160-2"><a href="#cb160-2" tabindex="-1"></a>neighborhoods <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;Neighborhood_Statistical_Area_(NSA)_Boundaries.csv&quot;</span>))</span></code></pre></div>
+<pre><code>## Rows: 279 Columns: 60
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (1): Name
+## dbl (59): OBJECTID, Population, White, Blk_AfAm, AmInd_AkNa, Asian, NatHaw_P...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb162"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb162-1"><a href="#cb162-1" tabindex="-1"></a>Black_majority_neighborhoods <span class="ot">&lt;-</span>neighborhoods<span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Percent_AA =</span> </span>
+<span id="cb162-2"><a href="#cb162-2" tabindex="-1"></a>           <span class="fu">round</span>(Blk_AfAm<span class="sc">/</span>Population<span class="sc">*</span><span class="dv">100</span>, <span class="at">digits =</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span><span class="fu">filter</span>(Percent_AA<span class="sc">&gt;=</span><span class="dv">50</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(Name)</span>
+<span id="cb162-3"><a href="#cb162-3" tabindex="-1"></a></span>
+<span id="cb162-4"><a href="#cb162-4" tabindex="-1"></a><span class="fu">length</span>(Black_majority_neighborhoods) <span class="co"># number of black majority neighborhoods</span></span></code></pre></div>
+<pre><code>## [1] 163</code></pre>
+<div class="sourceCode" id="cb164"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb164-1"><a href="#cb164-1" tabindex="-1"></a>Not_Black_majority_neighborhoods <span class="ot">&lt;-</span>neighborhoods<span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Percent_AA =</span> </span>
+<span id="cb164-2"><a href="#cb164-2" tabindex="-1"></a>           <span class="fu">round</span>(Blk_AfAm<span class="sc">/</span>Population<span class="sc">*</span><span class="dv">100</span>, <span class="at">digits =</span> <span class="dv">2</span>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Percent_AA<span class="sc">&lt;</span><span class="dv">50</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(Name)</span>
+<span id="cb164-3"><a href="#cb164-3" tabindex="-1"></a></span>
+<span id="cb164-4"><a href="#cb164-4" tabindex="-1"></a><span class="fu">length</span>(Not_Black_majority_neighborhoods)</span></code></pre></div>
+<pre><code>## [1] 108</code></pre>
+<div class="sourceCode" id="cb166"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb166-1"><a href="#cb166-1" tabindex="-1"></a>pop_in_black_neighborhoods <span class="ot">&lt;-</span><span class="fu">filter</span>(neighborhoods, Name <span class="sc">%in%</span> Black_majority_neighborhoods) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(Population) <span class="sc">%&gt;%</span> <span class="fu">sum</span>()</span>
+<span id="cb166-2"><a href="#cb166-2" tabindex="-1"></a><span class="co"># estimate of population living in Black majority neighborhoods</span></span>
+<span id="cb166-3"><a href="#cb166-3" tabindex="-1"></a>pop_in_black_neighborhoods</span></code></pre></div>
+<pre><code>## [1] 360205</code></pre>
+<div class="sourceCode" id="cb168"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb168-1"><a href="#cb168-1" tabindex="-1"></a>pop_not_in_black_neighborhoods <span class="ot">&lt;-</span> <span class="fu">filter</span>(neighborhoods, <span class="sc">!</span>(Name <span class="sc">%in%</span> Black_majority_neighborhoods)) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(Population) <span class="sc">%&gt;%</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb168-2"><a href="#cb168-2" tabindex="-1"></a></span>
+<span id="cb168-3"><a href="#cb168-3" tabindex="-1"></a><span class="co">#estimate of population living in not Black majority neighborhoods</span></span>
+<span id="cb168-4"><a href="#cb168-4" tabindex="-1"></a>pop_not_in_black_neighborhoods</span></code></pre></div>
+<pre><code>## [1] 225477</code></pre>
+<div class="sourceCode" id="cb170"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb170-1"><a href="#cb170-1" tabindex="-1"></a>pop_in_black_neighborhoods<span class="sc">/</span>(pop_in_black_neighborhoods<span class="sc">+</span>pop_not_in_black_neighborhoods)<span class="sc">*</span><span class="dv">100</span></span></code></pre></div>
+<pre><code>## [1] 61.5018</code></pre>
+<div class="sourceCode" id="cb172"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb172-1"><a href="#cb172-1" tabindex="-1"></a>total_pop_est <span class="ot">&lt;-</span> pop_not_in_black_neighborhoods<span class="sc">+</span>pop_not_in_black_neighborhoods</span></code></pre></div>
+</div>
+</div>
+
+<div id="rmd-source-code">CgpgYGB7ciwgbWVzc2FnZT0gRkFMU0V9CmxpYnJhcnkoaGVyZSkKbGlicmFyeSh0aWR5dmVyc2UpCmxpYnJhcnkobmFuaWFyKQpsaWJyYXJ5KHNmKQpgYGAKCiMgRGF0YSBBbmFseXNpcwoKRmlyc3QgbGV0J3MgZ2V0IG91ciBwcm9jZXNzZWQgZGF0YToKYGBge3J9CmRmX3NpbXBsaWZpZWQgPC0gcmVhZF9yZHMoaGVyZTo6aGVyZSgiZGF0YSIsICJwcm9jZXNzZWQiLCAiYWN0aXZlX29yZ3MucmRzIikpICMgb3JnIGFuZCBzaGFwZS9sb2NhdGlvbiBpbmZvCmBgYAoKSW5mb3JtYXRpb24gYWJvdXQgdGhlIGRhdGE6IApodHRwczovL25jY3MudXJiYW4ub3JnL25jY3MvY2F0YWxvZ3MvY2F0YWxvZy1ibWYuaHRtbCAodG8gZ2V0IE1EIGZpbGUpCkhlcmXigJlzIGFuIFthcnRpY2xlXShodHRwczovL25jY3MudXJiYW4ub3JnL25jY3MvZGF0YXNldHMvYm1mLykgZGVzY3JpYmluZyBzb21lIG9mIHRoZSBkYXRhc2V0cyBmcm9tIHRoZSBJUlMgOTkwcy4gV2XigJlyZSB1c2luZyB0aGUgQnVzaW5lc3MgTWFzdGVyIEZpbGUgKEJNRikuICBUaGVyZeKAmXMgYSBzZWN0aW9uIHRpdGxlZCDigJxNaW5pbXVtIEZpbGluZyBUaHJlc2hvbGTigJ0gdGhhdCBleHBsYWlucyBhIGRhdGEgbGltaXRhdGlvbiAoYW5kIHdoeSB3ZeKAmXJlIHNlZWluZyBzbyBtYW55IDDigJlzKS4gU2VlIFtoZXJlXShodHRwczovL3d3dy5pcnMuZ292L2NoYXJpdGllcy1ub24tcHJvZml0cy9leGVtcHQtb3JnYW5pemF0aW9ucy1hbm51YWwtcmVwb3J0aW5nLXJlcXVpcmVtZW50cy1vdmVydmlldy1hbm51YWwtcmV0dXJuLWZpbGluZy1leGNlcHRpb25zKSBmb3IgbW9yZSBpbmZvLgoKSXQgaXMgbm90IHBvc3NpYmxlIHRvIGRpc3Rpbmd1aXNoIGEgdHJ1ZSB6ZXJvIGZyb20gYSB6ZXJvIGR1ZSB0byBub3QgbWVldGluZyB0aGUgdGhyZXNob2xkIG9mICQ1MCwwMDAgZm9yIGdyb3NzIHJlY2VpcHRzIGFuZCBqdXN0IG5vdCBzdWJtaXR0aW5nLiBTZWUgW3RoaXMgZ3VpZGVdKGh0dHBzOi8vZ2l0aHViLmNvbS9qaHVkc2wvQmFsdGltb3JlX25vbnByb2ZpdHNfYXNzZXRzL2Jsb2IvODA5NDE5MWI4OGJjZWY2NTAzYzEzMmM3Y2M3MzQwOGMxMmRkYzkxNi9HdWlkZV90b19Vc2luZ19OQ0NTX0RhdGFfMjAyLnBkZiksIHBhZ2UgNSBpbiB0aGUgIm1pbmltdW0gZmlsaW5nIHRocmVzaG9sZCIgc2VjdGlvbi4KCkl0IHRoZXJlZm9yZSBtYWtlcyBzZW5zZSB0byByZW1vdmUgemVybyB2YWx1ZXMgYW5kIHRvIHJlcG9ydCB0aGlzIGNhdmVhdCB0aGF0IHRoZSBkYXRhIGlzIGluY29tcGxldGUgYmVjYXVzZSBtYW55IG5vbnByb2ZpdHMgdGhhdCBoYWQgZ3Jvc3MgcmVjZWlwdHMgbGVzcyB0aGFuIDUwLDAwMCBhcmUgbm90IGluY2x1ZGVkLgoKSG93ZXZlciBmb3IgdGhlIGhpZ2ggdnMgbm9uaGlnaCBhc3NldCB3ZSBjb3VsZCBrZWVwIHRoZXNlIC0gYmVjYXVzZSB6ZXJvIHZhbHVlcyB3b3VsZCBzdGlsbCBiZSBsZXNzIHRoYW4gdGhlIHRocmVzaG9sZCByZWdhcmRsZXNzLgoKQWRkaW5nIHRvIHRoaXMsIE5BIHZhbHVlcyBtaWdodCBiZSBjb25zaWRlcmVkIG9ycyB3aXRoIGdyb3NzIHJlY2VpcHRzIGxlc3MgdGhhbiA1MDAwMCwgYXMgb3JnYW5pemF0aW9ucyBhcmUgbm90IHJlcXVpcmVkIHRvIHJlcG9ydCBhbiBhbW91bnQgaWYgdGhleSBoYXZlIGxlc3MgdGhhbiA1MDAwMC4KCiMgVGlkeWluZyBkYXRhIGFuZCBFeHBsb3JhdG9yeSBBbmFseXNpcwoKIyMgQXNzZXQgYW1vdW50CgpGaXJzdCBsZXQncyBjaGVjayBob3cgbWFueSB6ZXJvIHZhbHVlcyB0aGVyZSBhcmUgZm9yIGFzc2V0IGFtb3VudHMuCgpgYGB7cn0KI2RmX3NpbXBsaWZpZWQgPC1zZjo6c3RfYXNfc2YoZGZfc2ltcGxpZmllZCkKZGZfc2ltcGxpZmllZCAlPiUgZmlsdGVyKEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVD09MCklPiUgbnJvdygpCmBgYAoKTm93IHdlIHdpbGwgY2hlY2sgaWYgdGhlcmUgYXJlIGBOQWAgdmFsdWVzIGZvciBhc3NldCBhbW91bnRzLgoKYGBge3IsIGZpZy5oZWlnaHQ9IDh9CmdnX21pc3NfdmFyKGRmX3NpbXBsaWZpZWQpCmBgYAoKWWVzLCBpbmRlZWQgdGhlcmUgYXJlLi4uCgpOQSBhbmQgemVybyB2YWx1ZXMgbWF5IG1lYW4gdGhlIG5vbnByb2ZpdCBkaWQgbm90IG5lZWQgdG8gc3VibWl0IHRvIHRoZSBJUlMuCkl0IGlzIGltcG9zc2libGUgdG8ga25vdyBob3dldmVyLCBpZiBhIHplcm8gaXMgYWN0dWFsbHkgYSB0cnVlIHplcm8uIE5BIHZhbHVlcyBjb3VsZCBtZWFuIHNvbWV0aGluZyBlbHNlLiAKClRodXMsIHdlIHdpbGwgcmVjb2RlIGFzc2V0IGFtb3VudCBiYXNlZCBvbiBhIHRocmVzaG9sZCBvZiBncmVhdGVyIHRoYW4gb3IgZXF1YWwgdG8gNTAwLDAwMCBhcyBoaWdoIGFzc2V0IGFuZCBsZXNzIHRoYW4gNTAwLDAwMCAoaW5jbHVkaW5nIHplcm8pIGFzIG5vdCBoaWdoIGFzc2V0LgpOb3RlIHdlIGtlZXAgb3VyIE5BIHZhbHVlcyB3aXRoIHRoaXMgcmVjb2RpbmcuCgpOb3RlOiBGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQgd2FzIEFTU0VUX0FNVCB3aXRoIHRoZSBvbGQgZmlsZXMKCmBgYHtyfQpkZl9zaW1wbGlmaWVkPC1kZl9zaW1wbGlmaWVkICU+JQogICNjcmVhdGUgYSB2YXJpYWJsZSBhYm91dCBoaWdoIGFzc2V0IGFtb3VudCAodGhyZXNob2xkIGJlaW5nICQ1MDAsMDAwKQogIG11dGF0ZShBU1NFVF9IaWdoID0gY2FzZV93aGVuKEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCAgID49IDUwMDAwMCB+IFRSVUUsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRjk5MF9UT1RBTF9BU1NFVFNfUkVDRU5UICAgPCA1MDAwMDAgfiBGQUxTRSkpCmBgYAoKSGVyZSB3ZSBjYW4gc2VlIHRoZSBOQSB2YWx1ZXM6CgpgYGB7cn0KdGFibGUoZGZfc2ltcGxpZmllZCRBU1NFVF9IaWdoLCB1c2VOQSA9ICJhbHdheXMiKQpgYGAKCk5vdyB3ZSB3aWxsIHJlcGxhY2UgYE5BYCB2YWx1ZXMgd2l0aCBgRmFsc2VgIGFzIHdlbGw6CgpgYGB7cn0KIGRmX3NpbXBsaWZpZWQgPC0gZGZfc2ltcGxpZmllZCAlPiUgIAogIG11dGF0ZShBU1NFVF9IaWdoID0gcmVwbGFjZV9uYShBU1NFVF9IaWdoLCBGQUxTRSkpICNOQSB2YWx1ZXMgd2lsbCBiZSBjb2RlZCBhcyBub3QgaGlnaCBhc3NldCBmb3IgdGhpcyBhbmFseXNpcyAgKGFzc3VtaW5nIHRoYXQgbWlzc2luZyB2YWx1ZXMgYXJlIG5vdCBoaWdoLCBiZWNhdXNlIHRoZXkgd291bGQgbGlrZWx5IGhhdmUgYSBncm9zcyByZWNlaXB0IG9mIGdyZWF0ZXIgdGhhbiA1MDAwMCBhbmQgd291bGQgYmUgcmVxdWlyZWQgdG8gYXBwbHkgKGFsdGhvdWdoIG5vdCBldmVyeW9uZSB3aWxsIHN0aWxsIGFwcGx5IHdobyBzaG91bGQpKQpgYGAKCkNoZWNrIHRoYXQgdGhpcyB3b3JrZWQgYW5kIHRoYXQgdGhlcmUgYXJlIG5vIE5BIHZhbHVlcyBub3c6CgpgYGB7cn0KdGFibGUoZGZfc2ltcGxpZmllZCRBU1NFVF9IaWdoLCB1c2VOQSA9ICJhbHdheXMiKQpgYGAKCk5vdyB3ZSB3aWxsIGNvbnZlcnQgdGhlc2UgdG8gdGV4dCBhcyBhbm90aGVyIHZhcmlhYmxlIGFuZCBhbHNvIGNyZWF0ZSBhIGxvZyB2ZXJzaW9uIG9mIHRoZSBhc3NldCBhbW91bnQgdG8gY29tcHJlc3MgdGhlIHNjYWxlLCBhcyBwbG90cyBhbmQgYW5hbHlzaXMgbWF5IGJlIGVhc2llciB0byBpbnRlcnByZXQgaWYgdGhlcmUgYXJlIG1hbnkgdmFsdWVzIHRoYXQgYXJlIGhpZ2ggb3IgbG93LgoKYGBge3J9CiBkZl9zaW1wbGlmaWVkPC1kZl9zaW1wbGlmaWVkICU+JQogIG11dGF0ZShBU1NFVF9IaWdoX3RleHQgPSBjYXNlX3doZW4oQVNTRVRfSGlnaCAgPT0gVFJVRSB+ICJIaWdoIEFzc2V0IiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEFTU0VUX0hpZ2ggID09IEZBTFNFIH4gIkxvdyBBc3NldCIpKSAlPiUKICAjIHdlIHdpbGwgYWxzbyBjcmVhdGUgbmV3IGxvZyBvZiBhc3NldCBhbW91bnQgdmFyaWFibGUKICBtdXRhdGUoQVNTRVRfQU1UX2xvZyA9IGxvZyhGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQpKSAjIGZvciBhc3NldHMgb2YgemVybyB3aWxsIGJlIG5lZyBpbmYtIHNvIGxpa2VseSBnb29kIHRvIGZpbHRlciBvdXQgaWYgdXNpbmcgdGhpcwpgYGAKCiMjIE5laWdoYm9yaG9vZCBjYXRlZ29yeQoKTmV4dCB3ZSB3aWxsIG1vZGlmeSB0aGUgZGF0YSB0byBpbmNsdWRlIGEgdmFyaWFibGUgYWJvdXQgdGhlIHBlcmNlbnRhZ2Ugb2YgQWZyaWNhbiBBbWVyaWNhbi9CbGFjayBwZW9wbGUuCmBgYHtyfQojIGNyZWF0ZSBuZXcgUGVyY2VudF9BQSB2YXJpYWJsZSBieSBjb252ZXJ0aW5nCiMgQmxrX0FmYW0gKHdhcyBgTm9ybWFsaXplZCBBZnJpY2FuIEFtZXJpY2FuIFBvcHVsYXRpb25gKSB2YXJpYWJsZSAKIyBpbnRvIGEgcGVyY2VudGFnZSBhbmQgcm91bmRpbmcKI2RpY3Rpb25hcnkgc2hvd3M6IEJsa19BZkFtID0gQmxhY2sgb3IgQWZyaWNhbiBBbWVyaWNhbiBhbG9uZSBwb3B1bGF0aW9uIChQMykKIyBQb3B1bGF0aW9uID0gVG90YWwgcG9wdWxhdGlvbiAoUDMpIGh0dHBzOi8vZGF0YS5iYWx0aW1vcmVjaXR5Lmdvdi9kYXRhc2V0cy9iYWx0aW1vcmU6Om5laWdoYm9yaG9vZC1zdGF0aXN0aWNhbC1hcmVhLW5zYS1ib3VuZGFyaWVzL2Fib3V0CiBkZl9zaW1wbGlmaWVkPC1kZl9zaW1wbGlmaWVkICU+JQogIG11dGF0ZShQZXJjZW50X0FBID0gCiAgICAgICAgICAgcm91bmQoQmxrX0FmQW0vUG9wdWxhdGlvbioxMDAsIGRpZ2l0cyA9IDIpKSAgJT4lCgogICMgY3JlYXRlIG5ldyBNYWpvcml0eV9BQSB2YXJpYWJsZSB0aGF0IGluZGljYXRlcyBpZiBQZXJjZW50X0FBIGlzIGdyZWF0ZXIgdGhhbiA1MCUgb3Igbm90CiAgbXV0YXRlKE1ham9yaXR5X0FBID0gY2FzZV93aGVuKAogICAgUGVyY2VudF9BQSA+PSA1MCB+ICJZZXMiLCAKICAgIFBlcmNlbnRfQUEgPCAgNTAgfiAiTm8iKSkgJT4lCiAgIyBjcmVhdGUgYSBuZXcgdmFyaWFibGUgYWJvdXQgdGhpcyBpbiB0ZXh0CiAgIG11dGF0ZShOZWlnaGJvcmhvb2QgPSBjYXNlX3doZW4oCiAgICBQZXJjZW50X0FBID49IDUwIH4gIk1ham9yaXR5XG5CbGFjayIsIAogICAgUGVyY2VudF9BQSA8ICA1MCB+ICJNYWpvcml0eVxuTm9uLUJsYWNrIikpICU+JSAKICAjIG1ha2UgdGhpcyBhIGZhY3RvciBhbmQgb3JkZXIgYnkgbGV2ZWwgYXBwZWFyYW5jZSBpbiB0aGUgZGF0YQogIG11dGF0ZShOZWlnaGJvcmhvb2QgPSBhc19mYWN0b3IoTmVpZ2hib3Job29kKSwKICAgICAgICAgTmVpZ2hib3Job29kID0gZm9yY2F0czo6ZmN0X2lub3JkZXIoTmVpZ2hib3Job29kKSkKYGBgCgojIyBRdWFudGlsZSBkYXRhClRvIGdyb3VwIHRoZSBkYXRhIGJ5IHF1YW50aWxlcywgd2UgZmlyc3QgcmVtb3ZlIG9yZ2FuaXphdGlvbnMgd2l0aCB6ZXJvIGFzc2V0cyBiZWNhdXNlIHdlIGRvbid0IGtub3cgaWYgemVybyB2YWx1ZXMgYXJlIHJlYWwuIElmIGFzc2V0cyBhcmUgdW5kZXIgNTAsMDAwLCBvcmdhbml6YXRpb25zIGNhbiByZXBvcnQgYXMgemVybyBhbHNvLgoKU2ltaWxhcmx5LCBOQSB2YWx1ZXMgY291bGQgYmUgYW55dGhpbmcgYmV0d2VlbiAwIGFuZCBsZXNzIHRoYW4gNTAsMDAwLiBUaHVzIHdlIGFyZW4ndCBzdXJlIHdoYXQgdGhvc2UgYXNzZXQgYW1vdW50cyBhcmUuCmBgYHtyfQogIyBtYWtlIGEgbmV3IGRhdGFmcmFtZSB3aXRob3V0IHplcm9zIGFuZCBOQSBhc3NldCBhbW91bnRzCmRmX3NpbXBsaWZpZWRfbm9femVybzwtZGZfc2ltcGxpZmllZCAlPiUKICAgIGRyb3BfbmEoRjk5MF9UT1RBTF9BU1NFVFNfUkVDRU5UKSAlPiUgI3JlZHVuZGFudCBidXQgc2hvd3Mgd2UgYXJlIGRyb3BwaW5nIE5BIHZhbHVlcwogICAgZmlsdGVyKEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVD4wKSAlPiUgIyBGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQgbXVzdCBiZSBncmVhdGVyIHRoYW4gemVybwogICMgZ2V0IHF1YXJ0aWxlcwogICAgbXV0YXRlKEFTU0VUX3F1YXJ0aWxlID0gbnRpbGUoRjk5MF9UT1RBTF9BU1NFVFNfUkVDRU5ULCA0KSkgJT4lCiAgIyBjcmVhdGUgbmV3IHF1YXJ0aWxlIHZhcmlhYmxlIHRoYXQgc3BlY2lmaWVzIHF1YXJ0aWxlcyBieSB0ZXh0CiAgICBtdXRhdGUoQVNTRVRfcXVhcnRpbGVfdGV4dCA9IGNhc2Vfd2hlbihBU1NFVF9xdWFydGlsZSA9PSAxIH4gIjFzdF9RdWFydGlsZSIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBU1NFVF9xdWFydGlsZSA9PSAyIH4gIjJuZF9RdWFydGlsZSIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBU1NFVF9xdWFydGlsZSA9PSAzIH4gIjNyZF9RdWFydGlsZSIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBU1NFVF9xdWFydGlsZSA9PSA0IH4gIjR0aF9RdWFydGlsZSIpKQoKI05vdyBjaGVjazoKdGFibGUoZGZfc2ltcGxpZmllZF9ub196ZXJvJEFTU0VUX3F1YXJ0aWxlLCB1c2VOQSA9ICJhbHdheXMiKQoKZGZfc2ltcGxpZmllZF9ub196ZXJvJT4lIGdyb3VwX2J5KEFTU0VUX3F1YXJ0aWxlX3RleHQpICU+JSByZWZyYW1lKHJhbmdlID0gcmFuZ2UoRjk5MF9UT1RBTF9BU1NFVFNfUkVDRU5UKSkKCmBgYAoKCldpdGhvdXQgcmVtb3ZhbCAoZXhjZXB0IE5BcyktIHNpbmNlIHRoZXNlIGFzc2V0IGFtb3VudHMgbWlnaHQgaW5mbHVlbmNlIHF1YXJ0aWxlcy4gCmBgYHtyfQoKZGZfc2ltcGxpZmllZF9ub19yZW1vdmFsPC1kZl9zaW1wbGlmaWVkICU+JQogICAgZHJvcF9uYShGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQpICU+JSAjZHJvcHBpbmcgTkEgdmFsdWVzCiAgIyBnZXQgcXVhcnRpbGVzCiAgICBtdXRhdGUoQVNTRVRfcXVhcnRpbGUgPSBudGlsZShGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQsIDQpKSAlPiUKICAjIGNyZWF0ZSBuZXcgcXVhcnRpbGUgdmFyaWFibGUgdGhhdCBzcGVjaWZpZXMgcXVhcnRpbGVzIGJ5IHRleHQKICAgIG11dGF0ZShBU1NFVF9xdWFydGlsZV90ZXh0ID0gY2FzZV93aGVuKEFTU0VUX3F1YXJ0aWxlID09IDEgfiAiMXN0X1F1YXJ0aWxlIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEFTU0VUX3F1YXJ0aWxlID09IDIgfiAiMm5kX1F1YXJ0aWxlIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEFTU0VUX3F1YXJ0aWxlID09IDMgfiAiM3JkX1F1YXJ0aWxlIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEFTU0VUX3F1YXJ0aWxlID09IDQgfiAiNHRoX1F1YXJ0aWxlIikpCgojTm93IGNoZWNrOgp0YWJsZShkZl9zaW1wbGlmaWVkX25vX3JlbW92YWwkQVNTRVRfcXVhcnRpbGUsIHVzZU5BID0gImFsd2F5cyIpCgpkZl9zaW1wbGlmaWVkX25vX3JlbW92YWwgJT4lIGdyb3VwX2J5KEFTU0VUX3F1YXJ0aWxlX3RleHQpICU+JSByZWZyYW1lKHJhbmdlID0gcmFuZ2UoRjk5MF9UT1RBTF9BU1NFVFNfUkVDRU5UKSkKYGBgCgpUdXJucyBvdXQgdGhpcyBkb2Vzbid0IHJlYWxseSB3b3JrIHdlbGwsIGFzIHdlIGRvbid0IGtub3cgaWYgdGhlIHZhbHVlcyBvZiAwICBhcmUgcmVhbCBvciBmb3Igb3JncyB0aGF0IGhhZCBhIGdyb3NzIHJlY2VpcHQgb2YgYmVsb3cgNTAsMDAwIGFuZCBkaWRuJ3QgaGF2ZSB0byByZXBvcnQgdG90YWwgYXNzZXRzLiBTbyB3ZSB3aWxsIHN0aWNrIHdpdGggb3VyIHJlbW92YWwuCgojIyBOYXRpb25hbCBUYXhvbm9teSBvZiBFeGVtcHQgRW50aXRpZXMgKE5URUUpIHJlY29kaW5nCgpUbyBwcm92aWRlIG1vcmUgaW5mb3JtYXRpb24gdG8gcmVhZGVycyBhYm91dCB3aGF0IHRoZSBub25wcm9maXRzIGRvLCB3ZSB3aWxsIGNvbnZlcnQgdGhlIE5hdGlvbmFsIFRheG9ub215IG9mIEV4ZW1wdCBFbnRpdGllcyAoTlRFRSkgY29kZXMgYmFzZWQgb24gW3RoaXNdKGh0dHBzOi8vdXJiYW5pbnN0aXR1dGUuZ2l0aHViLmlvL25jY3MtbGVnYWN5L250ZWUvbnRlZS5odG1sKSBhbmQgW3RoaXMgKHNlZSBwYWdlIDE1KV0oaHR0cHM6Ly93d3cuaXJzLmdvdi9wdWIvaXJzLXRlZ2UvcDQ4MzgucGRmKS4KClRoZSBOVEVFX0lSUyB2YXJpYWJsZSBhcHBlYXJzIHRvIGJlIHRoZSBtb3N0IGNvbXBsZXRlCgpOVEVFX0lSUyB3YXMgTlRFRV9DRCBpbiB0aGUgb2xkZXIgcmF3IGZpbGVzCgpgYGB7cn0KZGZfc2ltcGxpZmllZCA8LWRmX3NpbXBsaWZpZWQgJT4lCiAgbXV0YXRlKE5URUVfdGV4dCA9IGNhc2Vfd2hlbigKICAgIHN0cl9zdGFydHMoTlRFRV9JUlMsIHBhdHRlcm4gPSAiQSIpfiAiQXJ0cyIsICMgaWYgTlRFRV9JUlMgc3RhcnRzIHdpdGggQSBtYWtlIG5ldyB2YXJpYWJsZSB2YWx1ZSAiQXJ0cyIgZXRjLgogICAgc3RyX3N0YXJ0cyhOVEVFX0lSUywgcGF0dGVybiA9ICJCIikgfiAiRWR1Y2F0aW9uIiwKICAgIHN0cl9zdGFydHMoTlRFRV9JUlMsIHBhdHRlcm4gPSAiQ3xEIikgfiAiRW52aXJvbm1lbnQvQW5pbWFscyIsICMgaWYgTlRFRV9JUlMgdmFsdWUgc3RhcnRzIHdpdGggQyBvciBEIG1ha2UgbmV3IHZhcmlhYmxlIHZhbHVlICJFbnZpcm9ubWVudC9BbmltYWxzIgogICAgc3RyX3N0YXJ0cyhOVEVFX0lSUywgcGF0dGVybiA9ICJFfEZ8R3xIIikgfiAiSGVhbHRoIiwKICAgIHN0cl9zdGFydHMoTlRFRV9JUlMsIHBhdHRlcm4gPSAiSXxKfEt8THxNfE58T3xQIikgfiAiSHVtYW4gU2VydmljZXMiLAogICAgc3RyX3N0YXJ0cyhOVEVFX0lSUywgcGF0dGVybiA9ICJRIikgfiAiSW50ZXJuYXRpb25hbCBBZmZhaXJzIiwKICAgIHN0cl9zdGFydHMoTlRFRV9JUlMsIHBhdHRlcm4gPSAiUnxTfFR8VXxWfFciKSB+ICJTb2NpZXRhbCBCZW5lZml0IiwKICAgIHN0cl9zdGFydHMoTlRFRV9JUlMsIHBhdHRlcm4gPSAiWCIpIH4gIlJlbGlnaW91cyIsCiAgICBpcy5uYShOVEVFX0lSUykgfiAiVW5jbGFzc2lmaWVkIiwKICAgIFRSVUUgfiAiT3RoZXIiKSkgI2V2ZXJ5dGhpbmcgZWxzZSB3aWxsIGJlIE90aGVyCmBgYAoKCkFsc28gZm9yIHRoZSBxdWFudGlsZSBkYXRhOgpgYGB7cn0KZGZfc2ltcGxpZmllZF9ub196ZXJvIDwtZGZfc2ltcGxpZmllZF9ub196ZXJvICU+JQogIG11dGF0ZShOVEVFX3RleHQgPSBjYXNlX3doZW4oCiAgICBzdHJfc3RhcnRzKE5URUVfSVJTLCBwYXR0ZXJuID0gIkEiKX4gIkFydHMiLCAjIGlmIE5URUVfSVJTIHN0YXJ0cyB3aXRoIEEgbWFrZSBuZXcgdmFyaWFibGUgdmFsdWUgIkFydHMiIGV0Yy4KICAgIHN0cl9zdGFydHMoTlRFRV9JUlMsIHBhdHRlcm4gPSAiQiIpIH4gIkVkdWNhdGlvbiIsCiAgICBzdHJfc3RhcnRzKE5URUVfSVJTLCBwYXR0ZXJuID0gIkN8RCIpIH4gIkVudmlyb25tZW50L0FuaW1hbHMiLCAjIGlmIE5URUVfSVJTIHZhbHVlIHN0YXJ0cyB3aXRoIEMgb3IgRCBtYWtlIG5ldyB2YXJpYWJsZSB2YWx1ZSAiRW52aXJvbm1lbnQvQW5pbWFscyIKICAgIHN0cl9zdGFydHMoTlRFRV9JUlMsIHBhdHRlcm4gPSAiRXxGfEd8SCIpIH4gIkhlYWx0aCIsCiAgICBzdHJfc3RhcnRzKE5URUVfSVJTLCBwYXR0ZXJuID0gIkl8SnxLfEx8TXxOfE98UCIpIH4gIkh1bWFuIFNlcnZpY2VzIiwKICAgIHN0cl9zdGFydHMoTlRFRV9JUlMsIHBhdHRlcm4gPSAiUSIpIH4gIkludGVybmF0aW9uYWwgQWZmYWlycyIsCiAgICBzdHJfc3RhcnRzKE5URUVfSVJTLCBwYXR0ZXJuID0gIlJ8U3xUfFV8VnxXIikgfiAiU29jaWV0YWwgQmVuZWZpdCIsCiAgICBzdHJfc3RhcnRzKE5URUVfSVJTLCBwYXR0ZXJuID0gIlgiKSB+ICJSZWxpZ2lvdXMiLAogICAgaXMubmEoTlRFRV9JUlMpIH4gIlVuY2xhc3NpZmllZCIsCiAgICBUUlVFfiAiT3RoZXIiKSkgIyBldmVyeXRoaW5nIGVsc2Ugd2lsbCBiZSBPdGhlcgpgYGAKCiMjIFNhdmUgZGF0YSBmb3IgbWFwcwoKYGBge3J9CndyaXRlX3JkcyhkZl9zaW1wbGlmaWVkLCBmaWxlID0gImRhdGEvcHJvY2Vzc2VkL2Zvcm1hcHMucmRzIikKd3JpdGVfcmRzKGRmX3NpbXBsaWZpZWRfbm9femVybywgZmlsZSA9ICJkYXRhL3Byb2Nlc3NlZC9mb3JtYXBzX25vemVyby5yZHMiKQpgYGAKCiMgVmlzdWFsaXphdGlvbnMgYW5kIEFuYWx5c2lzCgojIyBEZWVwZXIgcG9zc2libGUgdmlzdWFsaXphdGlvbnMgCgpGaXJzdCB3aXRob3V0IGxvZyBub3JtYWxpemF0aW9uIGZpZ3VyZToKYGBge3J9CmRmX3NpbXBsaWZpZWRfbm9femVybyAlPiUgCmdncGxvdChhZXMoeSA9IEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCwgeCA9IFBlcmNlbnRfQUEpKSArCiAgZ2VvbV9wb2ludCgpICsgZ2VvbV9zbW9vdGgobWV0aG9kID0gImxvZXNzIikKCmBgYApXZSBjYW4gc2VlIHRoYXQgc29tZSBvZiB0aGUgZGF0IHBvaW50cyBhcmUgbXVjaCBoaWdoZXIgYW5kIHRoaXMgbWFrZXMgaXQgY2hhbGxlbmdpbmcgdG8gc2VlIHRoZSBsb3dlciBkYXRhIHZhbHVlcy4gCgpOb3cgbGV0J3MgbG9vayBhdCBub3JtYWxpemVkIHZlcnNpb24uCgpPdmVyYWxsIGxvZyBBc3NldCBhbW91bnQgZmlndXJlOgpgYGB7cn0KZGZfc2ltcGxpZmllZF9ub196ZXJvICU+JSAKZ2dwbG90KGFlcyh5ID0gQVNTRVRfQU1UX2xvZywgeCA9IFBlcmNlbnRfQUEpKSArCiAgZ2VvbV9wb2ludCgpICsgZ2VvbV9zbW9vdGgobWV0aG9kID0gImxvZXNzIikKCgpgYGAKCgoKIyMgUXVhcnRpbGUgcGxvdHMKCgpRdWFydGlsZXMgd2l0aCBsb2cgYXNzZXQgZGF0YToKYGBge3J9CmRmX3NpbXBsaWZpZWRfbm9femVybyAlPiUgCmdncGxvdChhZXMoeSA9IEFTU0VUX0FNVF9sb2csIHggPSBQZXJjZW50X0FBKSkgKwogIGdlb21fcG9pbnQoKSArIGZhY2V0X3dyYXAofiBBU1NFVF9xdWFydGlsZV90ZXh0LCBzY2FsZXMgPSAiZnJlZSIpICtnZW9tX3Ntb290aCgpCmBgYAoKCgpMb29rIGF0IGxvZyBhc3NldCBkYXRhIGZvciBlYWNoIE5URUUgdHlwZS0gKipyZW1lbWJlciB0aGUgY2F2ZWF0IHRoYXQgdGhlcmUgYXJlIG1hbnkgb3JnYW5pemF0aW9ucyB0aGF0IGFyZSBub3QgaW5jbHVkZWQgYmVjYXVzZSBvZiBOQSBvciB6ZXJvIHZhbHVlIEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCoqLiBIb3dldmVyLCBzdGlsbCB3ZSBjYW4gc2VlIHRoYXQgc29tZSBjYXRlZ29yaWVzIHNob3cgYSB0cmVuZCB0b3dhcmRzIGxvd2VyIGFtb3VudCBvZiBhc3NldHMgZXZlbiB3aXRoIHRoaXMgbGltaXRlZCBkYXRhLgoKYGBge3J9CmRmX3NpbXBsaWZpZWRfbm9femVybyAlPiUgZHJvcF9uYShOVEVFX3RleHQpICU+JQogIGdncGxvdChhZXMoeSA9IEFTU0VUX0FNVF9sb2csIHggPSBOZWlnaGJvcmhvb2QpKSArCiAgZ2VvbV9ib3hwbG90KCkrIGdlb21faml0dGVyKHdpZHRoID0gLjA4KSArIAogIGZhY2V0X3dyYXAofiBOVEVFX3RleHQsIHNjYWxlcyA9ICJmcmVlX3kiKSArIAogIGdlb21fc21vb3RoKG1ldGhvZCA9ICJsbSIsIHNlPVRSVUUsIGFlcyhncm91cD0xKSkKYGBgCgpDb21wYXJlIGFsbCBvcmdhbml6YXRpb25zIGJ5IG5laWdoYm9yaG9vZCBBQSBzdGF0dXMgZm9yIGxvZyBhc3NldCBkYXRhLiAqcmVtZW1iZXIgdGhlIGNhdmVhdCB0aGF0IHRoZXJlIGFyZSBtYW55IG9yZ2FuaXphdGlvbnMgdGhhdCBhcmUgbm90IGluY2x1ZGVkIGJlY2F1c2Ugb2YgTkEgb3IgemVybyB2YWx1ZSBGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQqCgpgYGB7cn0KZGZfc2ltcGxpZmllZF9ub196ZXJvICU+JSAKICBnZ3Bsb3QoYWVzKHkgPSBBU1NFVF9BTVRfbG9nLCB4ID0gTmVpZ2hib3Job29kKSkgKwogIGdlb21fYm94cGxvdCgpKyBnZW9tX2ppdHRlcih3aWR0aCA9IC4wOCkgKyBnZW9tX3Ntb290aChtZXRob2QgPSAibG0iLCBzZT1UUlVFLCBhZXMoZ3JvdXA9MSkpCmBgYAoKIyMgQXNzb2NpYXRpb24gVGVzdHMKCmBgYHtyfQojcmVjYWxsIHRoYXQgd2UgY2FuJ3QgZGlmZmVyZW50aWF0ZSBub3Qgc3VibWl0dGluZyBhcyBhIHplcm8gdmFsdWUgdnMgemVybyBhc3NldHMgKHRydWUgemVybyBhc3NldHMgaXMgYWxzbyB1bmxpa2VseSwgc29saWtlbHkgbWVhbnMgdGhleSBkaWRuJ3Qgc3VibWl0KQojc3RhcnRpbmcgd2l0aCBhIG1vcmUgYmFzaWMgbW9kZWwgYW5kIGNoZWNraW5nIGFzc3VtcHRpb25zCnN1bW1hcnkoZ2xtKGRhdGEgPSBkZl9zaW1wbGlmaWVkX25vX3plcm8sIEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCB+UGVyY2VudF9BQSkpIApnbG0oZGF0YSA9IGRmX3NpbXBsaWZpZWRfbm9femVybywgRjk5MF9UT1RBTF9BU1NFVFNfUkVDRU5UIH5QZXJjZW50X0FBKSAlPiUgcGxvdCh3aGljaCA9IDE6MykKZ2xtKGRhdGEgPSBkZl9zaW1wbGlmaWVkX25vX3plcm8sIEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCB+UGVyY2VudF9BQSArIFBvcHVsYXRpb24pICU+JSBwbG90KHdoaWNoID0gMTozKSAjIHBsb3RzIGluZGljYXRlIHRoYXQgdGhlcmUgYXJlIG91dGxpZXJzCgojIG5vdyB0cnkgd2l0aCBsb2cgdmVyc2lvbiBvZiBhc3NldCBhbW91bnQKaGlzdChkZl9zaW1wbGlmaWVkX25vX3plcm8kQVNTRVRfQU1UX2xvZykKc3VtbWFyeShnbG0oZGF0YSA9IGRmX3NpbXBsaWZpZWRfbm9femVybywgQVNTRVRfQU1UX2xvZ35QZXJjZW50X0FBKSkgCmdsbShkYXRhID0gZGZfc2ltcGxpZmllZF9ub196ZXJvLCBBU1NFVF9BTVRfbG9nIH4gUGVyY2VudF9BQSkgJT4lIHBsb3Qod2hpY2ggPSAxOjMpICMgbG9va3MgbXVjaCBiZXR0ZXIKCiMgbm93IHdpdGggcG9wdWxhdGlvbgpnbG0oZGF0YSA9IGRmX3NpbXBsaWZpZWRfbm9femVybywgQVNTRVRfQU1UX2xvZyB+IFBlcmNlbnRfQUEgKyBQb3B1bGF0aW9uKSAlPiUgcGxvdCh3aGljaCA9IDE6MykgIyBsb29rcyBzaW1pbGFyCgpgYGAKCgoKYGBge3J9CiNub25wYXJhbWV0cmljIHRlc3QgLSBiZWNhdXNlIHRoZSByZXNpZHVhbHMgbG9va2VkIHNrZXdlZCBpbiB0aGUgYWJvdmUgcXFwbG90cwpjb3IudGVzdChkZl9zaW1wbGlmaWVkX25vX3plcm8kQVNTRVRfQU1UX2xvZywgZGZfc2ltcGxpZmllZF9ub196ZXJvJFBlcmNlbnRfQUEsIG1ldGhvZCA9ICJzcGVhcm1hbiIsIGV4YWN0ID0gRkFMU0UpCgpzb3J0ZWRfZGF0YSA8LSBhcnJhbmdlKGRmX3NpbXBsaWZpZWRfbm9femVybywgZGVzYyhGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQpKQpnbGltcHNlKHNvcnRlZF9kYXRhKQoKIyMgc2VlbSB0byBoYXZlIG1hbnkgb3V0bGllcnMgZm9yIGFzc2V0IGFtb3VudAoKcG90ZW50aWFsX291dGxpZXJzIDwtIGJveHBsb3QoZGZfc2ltcGxpZmllZF9ub196ZXJvJEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCwgcGxvdD1GQUxTRSkkb3V0CmRmX3NpbXBsaWZpZWRfbm9femVyb19ub19vdXRsaWVycyA8LSBmaWx0ZXIoZGZfc2ltcGxpZmllZF9ub196ZXJvLCAhRjk5MF9UT1RBTF9BU1NFVFNfUkVDRU5UICVpbiUgcG90ZW50aWFsX291dGxpZXJzKQoKcGxvdChkZl9zaW1wbGlmaWVkX25vX3plcm9fbm9fb3V0bGllcnMkQVNTRVRfQU1UX2xvZywgZGZfc2ltcGxpZmllZF9ub196ZXJvX25vX291dGxpZXJzJFBlcmNlbnRfQUEpCgpnZ3Bsb3QoZGZfc2ltcGxpZmllZF9ub196ZXJvX25vX291dGxpZXJzLCBhZXMoUGVyY2VudF9BQSwgQVNTRVRfQU1UX2xvZykpICsKICBnZW9tX3BvaW50KGFscGhhID0gMC4yKSArCiAgZ2VvbV9zbW9vdGgobWV0aG9kID0gImxvZXNzIikgIyB3aXRob3V0IG91dGxpZXJzCgpnZ3Bsb3QoZGZfc2ltcGxpZmllZF9ub196ZXJvLCBhZXMoUGVyY2VudF9BQSwgQVNTRVRfQU1UX2xvZykpICsKICBnZW9tX3BvaW50KGFscGhhID0gMC4yKSArCiAgZ2VvbV9zbW9vdGgobWV0aG9kID0gImxvZXNzIikgIyB3aXRoIG91dGxpZXJzCgojIG5vdGljZSBhIHNpbWlsYXIgcGF0dGVybiB3aXRoIGFuZCB3aXRob3V0IG91dGxpZXJzCmBgYAoKCmBgYHtyfQojIENoZWNrIGRpZmZlcmVudCBtb2RlbHMgZm9yIHNjYWxpbmcgcGVyY2VudF9BQSwgaW5jbHVkaW5nIG9yIG5vdCBpbmNsdWRpbmcgcG9wdWxhdGlvbiAKCgpsbTEgPC0gbG0oQVNTRVRfQU1UX2xvZ34gUGVyY2VudF9BQSwgZGF0YSA9IGRmX3NpbXBsaWZpZWRfbm9femVybykKbG0yIDwtIGxtKEFTU0VUX0FNVF9sb2cgfiBwb2x5KFBlcmNlbnRfQUEsIDIpLCBkYXRhID0gZGZfc2ltcGxpZmllZF9ub196ZXJvKQoKYW5vdmEobG0xLCBsbTIpCkFJQyhsbTEpCkFJQyhsbTIpICMgc2xpZ2h0bHkgbG93ZXIgYW5kIHRoZXJlZm9yZSBwb3NzaWJseSBiZXR0ZXIgbW9kZWwKc3VtbWFyeShsbTEpJGFkai5yLnNxdWFyZWQKc3VtbWFyeShsbTIpJGFkai5yLnNxdWFyZWQgIyBzbGlnaHRseSBoaWdoZXIgc28gcG9zc2libHkgYmV0dGVyIG1vZGVsCgoKIyBub3cgbG9nIHNjYWxlIG9mIFBlcmNlbnRfQUEgdnMgcG9seV9BQQoKbG0xIDwtIGxtKGxvZyhGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQpIH4gbG9nKFBlcmNlbnRfQUEgKzEpLCBkYXRhID0gZGZfc2ltcGxpZmllZF9ub196ZXJvKQpsbTIgPC0gbG0obG9nKEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCkgfiBwb2x5KFBlcmNlbnRfQUEsIDIpLCBkYXRhID0gZGZfc2ltcGxpZmllZF9ub196ZXJvKQphbm92YShsbTEsIGxtMikgIyBzaWduaWZpY2FudCwgcG9seSBzY2FsaW5nIG9mIFBlcmNlbnRfQUEgc2VlbXMgdG8gYmUgYmV0dGVyIHRoYW4gbG9nCkFJQyhsbTEpCkFJQyhsbTIpICMgbG93ZXIgYW5kIHRoZXJlZm9yZSBzdWdnZXN0cyB0aGlzIG1vZGVsIGlzIGJldHRlcgoKc3VtbWFyeShsbTEpJGFkai5yLnNxdWFyZWQKc3VtbWFyeShsbTIpJGFkai5yLnNxdWFyZWQgIyBoaWdoZXIgc28gcG9zc2libHkgYmV0dGVyIG1vZGVsCgojYWRkaW5nIHBvcHVsYXRpb24gc2VlbXMgdG8gd2Vha2VuIHRoZSBtb2RlbCAKbG0xIDwtIGxtKGxvZyhGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQpIH4gcG9seShQZXJjZW50X0FBLCAyKSwgZGF0YSA9IGRmX3NpbXBsaWZpZWRfbm9femVybykKbG0yIDwtIGxtKGxvZyhGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQpIH4gcG9seShQZXJjZW50X0FBLCAyKSArIGxvZyhQb3B1bGF0aW9uKSwgZGF0YSA9IGRmX3NpbXBsaWZpZWRfbm9femVybykKYW5vdmEobG0xLCBsbTIpICMgbm90IHNpZ25pZmljYW50IC0gYWRkaW5nIHBvcHVsYXRpb24gZG9lcyBub3QgYXBwZWFyIHRvIGJlIGJldHRlcgpBSUMobG0xKQpBSUMobG0yKSAjIHNsaWdodGx5IGhpZ2hlciwgZG9lcyBub3Qgc2VlbSB0byBiZSBhIGJldHRlciBtb2RlbApzdW1tYXJ5KGxtMSkkYWRqLnIuc3F1YXJlZApzdW1tYXJ5KGxtMikkYWRqLnIuc3F1YXJlZCAjIHRoaXMgaXMgc2xpZ2h0bHkgaGlnaGVyIHRoYW4gYWJvdmUKCmdncGxvdChkZl9zaW1wbGlmaWVkX25vX3plcm8sIGFlcyhwb2x5KFBlcmNlbnRfQUEsMiksIGxvZyhGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQpKSkgKwogIGdlb21fcG9pbnQoYWxwaGEgPSAwLjIpICsKICBnZW9tX3Ntb290aChtZXRob2QgPSAibG9lc3MiKQoKYGBgCgoKIyMjIFNlbnNpdGl2aXR5IGFuYWx5c2lzIAoKTm93IHdlIHdpbGwgY29tcGFyZSB3aXRoIGFuZCB3aXRob3V0IG91dGxpZXJzIGFuZCB3aXRoIGFuZCB3aXRob3V0IHplcm9zIHRvIHNlZSBpZiBvdXIgcmVzdWx0cyBhcmUgc2ltaWxhciB0byBiZWZvcmUuIApgYGB7cn0KCgojIHRyeWluZyBhZ2FpbiB3aXRob3V0IHBvc3NpYmxlIG91dGxpZXJzCgpsbTIgPC0gbG0obG9nKEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCkgfiBwb2x5KFBlcmNlbnRfQUEsIDIpLCBkYXRhID0gZGZfc2ltcGxpZmllZF9ub196ZXJvX25vX291dGxpZXJzKQpzdW1tYXJ5KGxtMikKZ2dwbG90KGRmX3NpbXBsaWZpZWRfbm9femVyb19ub19vdXRsaWVycywgYWVzKHBvbHkoUGVyY2VudF9BQSwyKSwgbG9nKEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCkpKSArCiAgZ2VvbV9wb2ludChhbHBoYSA9IDAuMikgKwogIGdlb21fc21vb3RoKG1ldGhvZCA9ICJsb2VzcyIpCgojIHRyeWluZyBhZ2FpbiB3aXRoIG9yZ3Mgd2l0aCB6ZXJvIGFzc2V0IHZhbHVlCgpsbTIgPC0gbG0obG9nKEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCsxKSB+IHBvbHkoUGVyY2VudF9BQSwgMikgLCBkYXRhID0gZGZfc2ltcGxpZmllZCkKc3VtbWFyeShsbTIpICNuZWVkIHBsdXMgMSBmb3IgbG9nIG9mIHplcm8KZ2dwbG90KGRmX3NpbXBsaWZpZWQsIGFlcyhwb2x5KFBlcmNlbnRfQUEsMiksIGxvZyhGOTkwX1RPVEFMX0FTU0VUU19SRUNFTlQrMSkpKSArCiAgZ2VvbV9wb2ludChhbHBoYSA9IDAuMikgKwogIGdlb21fc21vb3RoKG1ldGhvZCA9ICJsb2VzcyIpCgpgYGAKSXQgc2VlbXMgdGhhdCB0aGVyZSBpcyBhIHRyZW5kIHRvd2FyZHMgYW4gYXNzb2NpYXRpb24gb2YgYXNzZXRzIHdpdGggbmVpZ2hib3Job29kIEJsYWNrIHBvcHVsYXRpb24gd2l0aCB3aGF0IGxvb2tzIGxpa2UgcmVkdWNlZCBzY2FsZWQgYXNzZXRzIGZvciBvcmdzIGluIG5laWdoYm9yaG9vZHMgd2l0aCBhIGhpZ2hlciBCbGFjayBwb3B1bGF0aW9uLgoKTG9vayBhdCBxdWFydGlsZXMgd2l0aCBsb2cgYXNzZXQgZGF0YToKKnJlbWVtYmVyIHRoZSBjYXZlYXQgdGhhdCB0aGVyZSBhcmUgbWFueSBvcmdhbml6YXRpb25zIHRoYXQgYXJlIG5vdCBpbmNsdWRlZCBiZWNhdXNlIG9mIE5BIG9yIHplcm8gdmFsdWUgRjk5MF9UT1RBTF9BU1NFVFNfUkVDRU5UKgoKYGBge3J9CmRmX3NpbXBsaWZpZWRfbm9femVybyAlPiUKICBnZ3Bsb3QoYWVzKHkgPSBBU1NFVF9BTVRfbG9nLCB4ID0gTmVpZ2hib3Job29kKSkgKwogIGdlb21fYm94cGxvdCgpKyBnZW9tX2ppdHRlcih3aWR0aCA9IC4wOCkgKyBnZW9tX3Ntb290aChtZXRob2QgPSAibG0iLCBzZT1UUlVFLCBhZXMoZ3JvdXA9MSkpICsgZmFjZXRfd3JhcCh+QVNTRVRfcXVhcnRpbGVfdGV4dCwgc2NhbGVzID0gImZyZWVfeSIpCgpgYGAKCkZpcnN0IHdlIHdpbGwgcmVtb3ZlIGdlbyBkYXRhIHRvIG1ha2UgaXQgZWFzaWVyIHRvIHNlZSByZXN1bHRzOgoKYGBge3J9CmRmX3NpbXBsaWZpZWRfbm9femVybyA8LWRmX3NpbXBsaWZpZWRfbm9femVybyAlPiUgc3RfZHJvcF9nZW9tZXRyeSgpCmRmX3NpbXBsaWZpZWQgPC1kZl9zaW1wbGlmaWVkICU+JSBzdF9kcm9wX2dlb21ldHJ5KCkKYGBgCgoKRmlyc3QgY3JlYXRlIGRhdGEgdG8gbWFrZSB2aXN1YWxpemF0aW9uIGVhc2llcgoqY2F2ZWF0IGZvciB0aGUgZGF0YTogIHRoYXQgdGhlcmUgYXJlIG1hbnkgb3JnYW5pemF0aW9ucyB0aGF0IGFyZSBub3QgaW5jbHVkZWQgYmVjYXVzZSBvZiBOQSBvciB6ZXJvIHZhbHVlIEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCoKCmBgYHtyfQpxdWFydGlsZV9kYXRhIDwtZGZfc2ltcGxpZmllZF9ub196ZXJvICU+JSAKICBncm91cF9ieShBU1NFVF9xdWFydGlsZV90ZXh0LCBOZWlnaGJvcmhvb2QpICU+JSAKICBjb3VudCgpCnF1YXJ0aWxlX2RhdGEKYGBgCgpDcmVhdGUgcGVyY2VudGFnZSB2YXJpYWJsZSBmb3IgZWFjaCBxdWFudGlsZQpgYGB7cn0KcXVhcnRpbGVfZGF0YSA8LSBxdWFydGlsZV9kYXRhICU+JQogIGdyb3VwX2J5KEFTU0VUX3F1YXJ0aWxlX3RleHQpICU+JSAKICBtdXRhdGUoUGVyY2VudCAgPSByb3VuZChuL3N1bShuKSoxMDApKSAKcXVhcnRpbGVfZGF0YQpgYGAKClZpc3VhbHMuLi5vZiB0aGUgYWJvdmUgZGF0YToKCmBgYHtyfQoKcXVhcnRfcGxvdCA8LSBxdWFydGlsZV9kYXRhICU+JSAKICBnZ3Bsb3QoYWVzKHg9IEFTU0VUX3F1YXJ0aWxlX3RleHQsIHkgPSBQZXJjZW50LCAgZmlsbCA9IE5laWdoYm9yaG9vZCkpICsgCiAgICBnZW9tX2NvbChwb3NpdGlvbiA9IHBvc2l0aW9uX2RvZGdlKHdpZHRoID0gLjkpKSsKICAgICBzY2FsZV95X2NvbnRpbnVvdXMobGFiZWxzID0gZnVuY3Rpb24oeCkgcGFzdGUwKHgsICIlIikpICsKICAgICB5bGltKDAsMTAwKSArCiAgICBzY2FsZV9maWxsX2dyZXkoKSArCiAgICB0aGVtZV9saW5lZHJhdygpICsKICAgIGdlb21fdGV4dChhZXMobGFiZWwgPSBwYXN0ZTAoUGVyY2VudCwgIiUiKSksIHBvc2l0aW9uID0gcG9zaXRpb25fZG9kZ2Uod2lkdGggPSAuOSksIHZqdXN0ID0gLS41KSAKCgpxdWFydF9wbG90ICsgbGFicyh4ID0gIlF1YXJ0aWxlIGJhc2VkIG9uIG5vbnByb2ZpdCBhc3NldCBhbW91bnQiLCB5ID0gIlBlcmNlbnRhZ2Ugb2Ygbm9ucHJvZml0cyBpbiB0aGUgYXNzZXQgcXVhcnRpbGUiKQoKYGBgCgoqKnRoaXMgZG9lcyBOT1QgaW5jbHVkZSBhbGwgb3JnYW5pemF0aW9ucyoqCgoKIyMgT3ZlcmFsbCBQZXJjZW50YWdlIFBsb3QKCkZpcnN0IGxldCdzIGdldCBhIGNvdW50IG9mIGVhY2ggLSAqKk5PVEUgd2UgYXJlIGtlZXBpbmcgemVybyB2YWx1ZXMgYW5kIE5BIGFzIGxvdyBhc3NldCoqIQpUaGUgTkEgbmVpZ2hib3Job29kIG1lYW5zIHRoZXJlIGlzIG9ubHkgb25lIG5laWdoYm9yaG9vZCB0aGF0IGRpZCBub3QgZml0IHRoZSBjYXRlZ29yaWVzIG9yIGhhdmUgaW5mb3JtYXRpb24uIFdlIGNhbiBkcm9wIHRoaXMgbmVpZ2hib3Job29kLgpgYGB7cn0KZGZfc2ltcGxpZmllZCAlPiUKICBjb3VudChBU1NFVF9IaWdoX3RleHQsIE5laWdoYm9yaG9vZCkKCmRmX3NpbXBsaWZpZWQgPC1kZl9zaW1wbGlmaWVkICU+JQogIGRyb3BfbmEoTmVpZ2hib3Job29kKQoKZGZfc2ltcGxpZmllZCAlPiUKICBjb3VudChBU1NFVF9IaWdoX3RleHQsIE5laWdoYm9yaG9vZCkKYGBgCgoKYGBge3J9CkhpZ2hfYXNzZXRfZGF0YSA8LWRmX3NpbXBsaWZpZWQgJT4lIAogIGdyb3VwX2J5KEFTU0VUX0hpZ2hfdGV4dCwgTmVpZ2hib3Job29kKSAlPiUgCiAgY291bnQoKSAKSGlnaF9hc3NldF9kYXRhCmBgYAoKQ3JlYXRlIHBlcmNlbnRhZ2UgdmFyaWFibGUgZm9yIGVhY2ggY2F0ZWdvcnk6CmBgYHtyfQpIaWdoX2Fzc2V0X2RhdGEgPC0gSGlnaF9hc3NldF9kYXRhICU+JQogIGdyb3VwX2J5KE5laWdoYm9yaG9vZCkgJT4lIAogIG11dGF0ZShQZXJjZW50X0FBX2NhdCA9IHJvdW5kKG4vc3VtKG4pKjEwMCkpIApIaWdoX2Fzc2V0X2RhdGEKYGBgCgpWaXN1YWxzLi4ub2YgdGhlIGFib3ZlIGRhdGE6CgpgYGB7cn0KCkhpZ2hfYXNzZXRfZGF0YSAlPiUgCiAgZ2dwbG90KGFlcyh4PSBOZWlnaGJvcmhvb2QsIHkgPSBQZXJjZW50X0FBX2NhdCwgIGZpbGwgPSBBU1NFVF9IaWdoX3RleHQpKSArIAogICAgZ2VvbV9jb2wocG9zaXRpb24gPSBwb3NpdGlvbl9kb2RnZSh3aWR0aCA9IC45KSkrCiAgICAgc2NhbGVfeV9jb250aW51b3VzKGxhYmVscyA9IGZ1bmN0aW9uKHgpIHBhc3RlMCh4LCAiJSIpKSArCiAgICAgeWxpbSgwLDEwMCkgKwogICAgZ2VvbV90ZXh0KGFlcyhsYWJlbCA9IHBhc3RlMChQZXJjZW50X0FBX2NhdCwgIiUiKSksIHBvc2l0aW9uID0gcG9zaXRpb25fZG9kZ2Uod2lkdGggPSAuOSksIHZqdXN0ID0gLS41KSArCiAgeWxhYigiUGVyY2VudCBvZiBOZWlnaGJvcmhvb2QgQ2F0ZWdvcnkiKSArCiAgdGhlbWVfbGluZWRyYXcoKSArCiAgc2NhbGVfZmlsbF9ncmV5KCkgKwogIHRoZW1lKGxlZ2VuZC50aXRsZSA9IGVsZW1lbnRfYmxhbmsoKSkKYGBgCioqdGhpcyBpbmNsdWRlcyBhbGwgb3JnYW5pemF0aW9ucyBpbmNsdWRpbmcgdGhvc2Ugd2l0aCBOQSB2YWx1ZXMqKgoKIyMgSGlnaCB2cyBub24gYXNzZXQgYnkgY2F0ZWdvcnkKRmlyc3QgY3JlYXRlIGRhdGEgdG8gbWFrZSB2aXN1YWxpemF0aW9uIGVhc2llci4KCmBgYHtyfQpIaWdoX2Fzc2V0X2RhdGEgPC1kZl9zaW1wbGlmaWVkICU+JQogIGdyb3VwX2J5KEFTU0VUX0hpZ2hfdGV4dCwgTmVpZ2hib3Job29kLCBOVEVFX3RleHQpICU+JSAKICBjb3VudCgpCkhpZ2hfYXNzZXRfZGF0YQoKY29udGluZ2VuY3lfdGFibGUgPC0gdGFibGUoIGRmX3NpbXBsaWZpZWQkTWFqb3JpdHlfQUEsIGRmX3NpbXBsaWZpZWQkQVNTRVRfSGlnaF90ZXh0KQpwcmludChjb250aW5nZW5jeV90YWJsZSkKCmluZGVwZW5kZW5jZV9yZXN1bHRzIDwtIGNoaXNxLnRlc3QoY29udGluZ2VuY3lfdGFibGUpCnByaW50KGluZGVwZW5kZW5jZV9yZXN1bHRzKQoKI0NyZWF0ZSBwZXJjZW50YWdlIHZhcmlhYmxlIGZvciBlYWNoIGNhdGVnb3J5CkhpZ2hfYXNzZXRfZGF0YSA8LSBIaWdoX2Fzc2V0X2RhdGEgJT4lCiAgZ3JvdXBfYnkoTlRFRV90ZXh0KSAlPiUgCiAgbXV0YXRlKFBlcmNlbnRfbnRlZV9jYXQgPSByb3VuZChuL3N1bShuKSoxMDApKSAKSGlnaF9hc3NldF9kYXRhCgoKYGBgCgpWaXN1YWxzLi4ub2YgdGhlIGFib3ZlIGRhdGE6CgpgYGB7ciwgZXZhbCA9IEZBTFNFfQoKSGlnaF9hc3NldF9kYXRhICU+JSAKICBnZ3Bsb3QoYWVzKHg9IE5laWdoYm9yaG9vZCwgeSA9IFBlcmNlbnRfbnRlZV9jYXQsICBmaWxsID0gQVNTRVRfSGlnaF90ZXh0KSkgKyAKICAgIGdlb21fY29sKHBvc2l0aW9uID0gcG9zaXRpb25fZG9kZ2Uod2lkdGggPSAuOSkpKwogICAgIHNjYWxlX3lfY29udGludW91cyhsYWJlbHMgPSBmdW5jdGlvbih4KSBwYXN0ZTAoeCwgIiUiKSkgKwogICAgeWxpbSgwLCAxMDApICsKICAgIGdlb21fdGV4dChhZXMobGFiZWwgPSBwYXN0ZTAoUGVyY2VudF9udGVlX2NhdCwgIiUiKSksIHBvc2l0aW9uID0gcG9zaXRpb25fZG9kZ2Uod2lkdGggPSAuOSksIHZqdXN0ID0gLS41KSArIGZhY2V0X3dyYXAofk5URUVfdGV4dCkgKwogIHRoZW1lX2xpbmVkcmF3KCkgKwogIHNjYWxlX2ZpbGxfZ3JleSgpICsKICB0aGVtZShsZWdlbmQudGl0bGUgPSBlbGVtZW50X2JsYW5rKCkpICsKICB5bGFiKCJQZXJjZW50YWdlIGZvciBlYWNoIGNhdGVnb3J5IikKCmBgYAoKKip0aGlzIGluY2x1ZGVzIGFsbCA0LDA4MiBvcmdhbml6YXRpb25zKioKCiMjIENvdW50IHBsb3RzL1RhYmxlcwoKIyMjIERpZmZlcmVudCBraW5kcyBvZiBvcmdzCgpgYGB7cn0KCmRmX3NpbXBsaWZpZWQgJT4lIGdyb3VwX2J5KE5URUVfdGV4dCkgJT4lc3VtbWFyaXplKGNvdW50ID0gbigpKSAlPiUgCiBtdXRhdGUoUGVyY2VudGFnZSA9IHJvdW5kKGNvdW50L3N1bShjb3VudCkqMTAwLCBkaWdpdHMgPSAyKSkgJT4lCiAgYXJyYW5nZShOVEVFX3RleHQpCgpUb3RhbF9OVEVFIDwtZGZfc2ltcGxpZmllZCAlPiUgZ3JvdXBfYnkoTlRFRV90ZXh0KSAlPiVzdW1tYXJpemUodG90YWxfY291bnQgPSBuKCkpICU+JSAKICBhcnJhbmdlKE5URUVfdGV4dCkKCmBgYAoKCmBgYHtyfQpkZl9zaW1wbGlmaWVkICU+JSAKICBncm91cF9ieShOVEVFX3RleHQsIE5laWdoYm9yaG9vZCkgJT4lCiAgc3VtbWFyaXplKGNvdW50ID0gbigpKSAlPiUgCiAgbXV0YXRlKE5URUVfdGV4dCA9IGFzX2ZhY3RvcihOVEVFX3RleHQpKSAlPiUKICBnZ3Bsb3QoYWVzKHggPSBmY3RfcmVvcmRlcihOVEVFX3RleHQsIGNvdW50LCBtaW4pLCB5ID0gY291bnQgLCBmaWxsID0gTmVpZ2hib3Job29kKSkgKyAKICBzY2FsZV9maWxsX3ZpcmlkaXNfZCgpICsKICBnZW9tX2NvbChwb3NpdGlvbiA9cG9zaXRpb25fZG9kZ2Uod2lkdGggPSAuOSkpICArIAogIHlsYWIgKCJOdW1iZXIgb2YgT3JnYW5pemF0aW9ucyIpICsKICB0aGVtZV9saW5lZHJhdygpICsKICB0aGVtZShheGlzLnRleHQueCA9IGVsZW1lbnRfdGV4dChhbmdsZSA9IDYwLCB2anVzdCA9IC41KSwKICAgICAgICBheGlzLnRpdGxlLnggPSBlbGVtZW50X2JsYW5rKCkpICsKICBzY2FsZV9maWxsX2dyZXkoKQoKCiAKYGBgCgoKKipUaGlzIGluY2x1ZGVzIGFsbCA0LDA4MiBvcmdhbml6YXRpb25zKiogVGhlcmUgd2FzIG5vIHJlbW92YWwgb2Ygb3JnYW5pemF0aW9ucyBiYXNlZCBvbiBhc3NldCBhbW91bnQsIGp1c3QgdG8gZ2V0IGEgc2Vuc2Ugb2Ygd2hhdCBvZ2FuaXphdGlvbnMgYXJlIGluIEJhbHRpbW9yZS4KCgoKYGBge3J9CgpwbG90MiA8LSBkZl9zaW1wbGlmaWVkICU+JSAKICAgIG11dGF0ZShOVEVFX3RleHQgPSBhc19mYWN0b3IoTlRFRV90ZXh0KSwKICAgICAgICAgTlRFRV90ZXh0ID0gZm9yY2F0czo6ZmN0X3JlbGV2ZWwoTlRFRV90ZXh0LCAiSW50ZXJuYXRpb25hbCBBZmZhaXJzIiwgIkVudmlyb25tZW50L0FuaW1hbHMiLCAiQXJ0cyIsICJSZWxpZ2lvdXMiLCAiSGVhbHRoIiwiRWR1Y2F0aW9uIiwgIlNvY2lldGFsIEJlbmVmaXQiLCAiSHVtYW4gU2VydmljZXMiLCAiT3RoZXIiLCAiVW5jbGFzc2lmaWVkIiApKSAlPiUKICBncm91cF9ieShOVEVFX3RleHQsIE5laWdoYm9yaG9vZCwgQVNTRVRfSGlnaF90ZXh0KSAlPiUKICBzdW1tYXJpemUoY291bnQgPSBuKCkpICU+JSAKICBnZ3Bsb3QoYWVzKHggPSBOVEVFX3RleHQsIHkgPSBjb3VudCAsIGZpbGwgPSBOZWlnaGJvcmhvb2QpKSArIAogIGdlb21fY29sKHBvc2l0aW9uID1wb3NpdGlvbl9kb2RnZSh3aWR0aCA9IC45KSkgICsgCiAgZmFjZXRfZ3JpZChyb3dzID0gdmFycyhBU1NFVF9IaWdoX3RleHQpKSArCiAgeWxhYiAoIk51bWJlciBvZiBPcmdhbml6YXRpb25zIikgKwogIHRoZW1lX2xpbmVkcmF3KCkgKwogIHRoZW1lKGF4aXMudGV4dC54ID0gZWxlbWVudF90ZXh0KGFuZ2xlID0gNjAsIHZqdXN0ID0gLjUpLAogICAgICAgIGF4aXMudGl0bGUueCA9IGVsZW1lbnRfYmxhbmsoKSkgKwogIHNjYWxlX2ZpbGxfZ3JleSgpCiAgCnBsb3QyCgpgYGAKCgoqKlRoaXMgaW5jbHVkZXMgYWxsIDQsMDgyIG9yZ2FuaXphdGlvbnMqKiBUaGVyZSB3YXMgbm8gcmVtb3ZhbCBvZiBvcmdhbml6YXRpb25zIGJhc2VkIG9uIGFzc2V0IGFtb3VudCwganVzdCB0byBnZXQgYSBzZW5zZSBvZiB3aGF0IG9nYW5pemF0aW9ucyBhcmUgaW4gQmFsdGltb3JlLgoKCiMjIyBIaWdoIEFzc2V0IE9yZ3MKIApCYXNlZCBvbiBBc3NldCBBbW91bnQgKEY5OTBfVE9UQUxfQVNTRVRTX1JFQ0VOVCkKCmBgYHtyfQpIaWdoX2NvdW50cyA8LSBkZl9zaW1wbGlmaWVkICU+JSAKICAgIG11dGF0ZShOVEVFX3RleHQgPSBhc19mYWN0b3IoTlRFRV90ZXh0KSwKICAgICAgICBOVEVFX3RleHQgPSBmb3JjYXRzOjpmY3RfcmVsZXZlbChOVEVFX3RleHQsICJJbnRlcm5hdGlvbmFsIEFmZmFpcnMiLCAiRW52aXJvbm1lbnQvQW5pbWFscyIsICJBcnRzIiwgIlJlbGlnaW91cyIsICJIZWFsdGgiLCJFZHVjYXRpb24iLCAiU29jaWV0YWwgQmVuZWZpdCIsICJIdW1hbiBTZXJ2aWNlcyIsICJPdGhlciIsICJVbmNsYXNzaWZpZWQiICkpICU+JQogIHN1bW1hcml6ZShjb3VudCA9IG4oKSwgLmJ5ID0gYyhOVEVFX3RleHQsIEFTU0VUX0hpZ2hfdGV4dCkpICU+JSBmaWx0ZXIoQVNTRVRfSGlnaF90ZXh0ID09ICJIaWdoIEFzc2V0IikKCkhpZ2hfY291bnRzCiAgCmZ1bGxfam9pbihUb3RhbF9OVEVFLCBIaWdoX2NvdW50cywgam9pbl9ieShOVEVFX3RleHQpKSAlPiUKICAgbXV0YXRlKCJQZXJjZW50YWdlX29mX2VhY2hfY29kZSIgPSByb3VuZChjb3VudC90b3RhbF9jb3VudCAqMTAwLCBkaWdpdHMgPSAyKSkgJT4lCiAgYXJyYW5nZShOVEVFX3RleHQpIApgYGAKCkJhc2VkIG9uIEJNRl9BU1NFVF9DT0RFIChXaGVyZSA1IG1lYW5zID49NTAwLDAwMCkKCmBgYHtyfQpIaWdoX2NvdW50cyA8LSBkZl9zaW1wbGlmaWVkICU+JSAKICAgIG11dGF0ZShOVEVFX3RleHQgPSBhc19mYWN0b3IoTlRFRV90ZXh0KSwKICAgICAgICBOVEVFX3RleHQgPSBmb3JjYXRzOjpmY3RfcmVsZXZlbChOVEVFX3RleHQsICJJbnRlcm5hdGlvbmFsIEFmZmFpcnMiLCAiRW52aXJvbm1lbnQvQW5pbWFscyIsICJBcnRzIiwgIlJlbGlnaW91cyIsICJIZWFsdGgiLCJFZHVjYXRpb24iLCAiU29jaWV0YWwgQmVuZWZpdCIsICJIdW1hbiBTZXJ2aWNlcyIsICJOQSIgKSkgJT4lCiAgbXV0YXRlKEFTU0VUX0NEX0hpZ2ggPSBjYXNlX3doZW4oQk1GX0FTU0VUX0NPREUgPj0gNSB+ICJIaWdoIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBCTUZfQVNTRVRfQ09ERSA8IDUgfiAiTG93IikpICU+JQogIGdyb3VwX2J5KE5URUVfdGV4dCwgQVNTRVRfQ0RfSGlnaCkgJT4lCiAgc3VtbWFyaXplKGNvdW50ID0gbigpKSAlPiUgZmlsdGVyKEFTU0VUX0NEX0hpZ2ggPT0gIkhpZ2giKSAlPiUKICAgIG11dGF0ZShOVEVFX3RleHQgPSBzdHJfcmVwbGFjZShzdHJpbmcgPSBOVEVFX3RleHQsIHBhdHRlcm4gPSAiTkEiLCByZXBsYWNlbWVudCA9ICJVbmNsYXNzaWZpZWQiKSkKCkhpZ2hfY291bnRzCiAgCmZ1bGxfam9pbihUb3RhbF9OVEVFLCBIaWdoX2NvdW50cywgam9pbl9ieShOVEVFX3RleHQpKSAlPiUKICAgbXV0YXRlKCJQZXJjZW50YWdlX29mX2VhY2hfY29kZSIgPSByb3VuZChjb3VudC90b3RhbF9jb3VudCAqMTAwLCBkaWdpdHMgPSAyKSkgJT4lCiAgYXJyYW5nZShOVEVFX3RleHQpIApgYGAKCiMjIyBDb3VudHMgYWNyb3NzIG5laWdoYm9yaG9vZCB0eXBlIGFuZCBOVEVFCgogICBCTUZfQVNTRVRfQ09ERSB3YXMgQVNTRVRfQ0QgaW4gb2xkZXIgcmF3IGZpbGVzCiAgIApgYGB7cn0KQ291bnRfYnlfbmVpZ2hib3Job29kX3R5cGUgPC0gZGZfc2ltcGxpZmllZCAlPiUgCiAgICBtdXRhdGUoTlRFRV90ZXh0ID0gYXNfZmFjdG9yKE5URUVfdGV4dCksCiAgICAgICAgTlRFRV90ZXh0ID0gZm9yY2F0czo6ZmN0X25hX3ZhbHVlX3RvX2xldmVsKE5URUVfdGV4dCwgbGV2ZWwgPSAiVW5jbGFzc2lmaWVkIiksICAgCiAgICAgICAgTlRFRV90ZXh0ID0gZm9yY2F0czo6ZmN0X3JlbGV2ZWwoTlRFRV90ZXh0LCAiSW50ZXJuYXRpb25hbCBBZmZhaXJzIiwgIkVudmlyb25tZW50L0FuaW1hbHMiLCAiQXJ0cyIsICJSZWxpZ2lvdXMiLCAiSGVhbHRoIiwiRWR1Y2F0aW9uIiwgIlNvY2lldGFsIEJlbmVmaXQiLCAiSHVtYW4gU2VydmljZXMiLCAiVW5jbGFzc2lmaWVkIikpICU+JQogIG11dGF0ZShBU1NFVF9DRF9IaWdoID0gY2FzZV93aGVuKEJNRl9BU1NFVF9DT0RFID49IDUgfiAiSGlnaCIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQk1GX0FTU0VUX0NPREUgPCA1IH4gIkxvdyIpKSAlPiUKICBzdW1tYXJpemUoY291bnQgPSBuKCksIC5ieSA9IGMoTlRFRV90ZXh0LCBNYWpvcml0eV9BQSkpICU+JSBhcnJhbmdlKE5URUVfdGV4dCkKCkNvdW50X2J5X25laWdoYm9yaG9vZF90eXBlCmBgYAoKCmBgYHtyfQoKcmVuYW1lZF9wZXJjX2RhdGEgPC1mdWxsX2pvaW4oVG90YWxfTlRFRSwgQ291bnRfYnlfbmVpZ2hib3Job29kX3R5cGUpICU+JQogICBtdXRhdGUoIlBlcmNlbnRhZ2Vfb2ZfZWFjaF9jb2RlIiA9IHJvdW5kKGNvdW50L3RvdGFsX2NvdW50ICoxMDAsIGRpZ2l0cyA9IDIpKSAlPiUKICBhcnJhbmdlKE5URUVfdGV4dCkgJT4lCiAgcGl2b3Rfd2lkZXIobmFtZXNfZnJvbSA9IE1ham9yaXR5X0FBLCB2YWx1ZXNfZnJvbSA9IGNvdW50OlBlcmNlbnRhZ2Vfb2ZfZWFjaF9jb2RlKSAlPiUgCiAgZHBseXI6OnNlbGVjdChOVEVFX3RleHQsIHRvdGFsX2NvdW50LCBjb3VudF9ZZXMsIFBlcmNlbnRhZ2Vfb2ZfZWFjaF9jb2RlX1llcywgIGNvdW50X05vLCBQZXJjZW50YWdlX29mX2VhY2hfY29kZV9ObykgJT4lCiAgcGl2b3RfbG9uZ2VyKC1OVEVFX3RleHQpICU+JQogIG11dGF0ZShuYW1lID0gY2FzZV93aGVuKAogICAgICAgICAgICBuYW1lID09ICJ0b3RhbF9jb3VudCIgfiAiVG90YWwiLAogICAgICAgICAgICBuYW1lID09ICJjb3VudF9ZZXMiIH4iQ291bnRfTWFqb3JpdHlfQmxhY2siLAogICAgICAgICAgICBuYW1lID09ICJQZXJjZW50YWdlX29mX2VhY2hfY29kZV9ZZXMiIH4gIlBlcmNfTWFqX0JsYWNrIiwKICAgICAgICAgICAgbmFtZSA9PSAiY291bnRfTm8iIH4gIkNvdW50X05vbl9CbGFjayIsCiAgICAgICAgICAgIG5hbWUgPT0gIlBlcmNlbnRhZ2Vfb2ZfZWFjaF9jb2RlX05vIiB+ICJQZXJjX05vbl9CbGFjayIpKQogCmBgYAoKYGBge3J9CiAgcmVuYW1lZF9wZXJjX2RhdGEgICU+JQogIHBpdm90X3dpZGVyKG5hbWVzX2Zyb20gPSBuYW1lLCB2YWx1ZXNfZnJvbSA9IHZhbHVlKSAlPiUKICBtdXRhdGUocmF0aW8gPSBDb3VudF9NYWpvcml0eV9CbGFjay9Db3VudF9Ob25fQmxhY2spCgoKYGBgCgojIyBEaXN0cmlidXRpb24gb2YgcGVyY2VudCBBQSAKCk5vdyB0byB0YWtlIGEgbG9vayBhdCBpZiA1MCUgQWZyaWNhbiBBbWVyaWNhbiBtYWtlcyBzZW5zZS4gV2hhdCBkbyB0aGUgbmVpZ2hib3Job29kcyBsb29rIGxpa2U/CgpOYW1lIHdhcyBuZWlnaGJvcmhvb2QgbmFtZSBpbiB0aGUgb2xkIGRhdGEKCmBgYHtyfQoKIyBnZXQgdGhlIG5laWdoYm9yaG9vZCB2YWx1ZXMgaWYgbm8gcmVtb3Zpbmcgcm93cyBmb3Igbm9ucHJvZml0cyB3aXRoIE5BIG9yIHplcm8gYXNzZXRzCm5laWdoYm9yaG9vZF9BQXBlcmMgPC0gZGZfc2ltcGxpZmllZCAlPiUgCiBkaXN0aW5jdChOYW1lLCBQZXJjZW50X0FBKQoKIyBnZXQgdGhlIG5laWdoYm9yaG9vZCB2YWx1ZXMgYWZ0ZXIgcmVtb3Zpbmcgcm93cyBmb3Igbm9ucHJvZml0cyB3aXRoIE5BIG9yIHplcm8gYXNzZXRzCm5laWdoYm9yaG9vZF9BQXBlcmNfbm96ZXJvIDwtIGRmX3NpbXBsaWZpZWRfbm9femVybyAlPiUgCiBkaXN0aW5jdChOYW1lLCBQZXJjZW50X0FBKQpgYGAKCgpXZSBjYW4gc2VlIHRoYXQgdGhlcmUgYXJlIG1hbnkgbmVpZ2hib3Job29kcyB0aGF0IGhhdmUgYSBtb3JlIGV4dHJlbWUgcGVyY2VudGFnZS4KCmBgYHtyfQoKIyBnZXQgdGhlIG5laWdoYm9yaG9vZCB2YWx1ZXMgaWYgbm8gcmVtb3Zpbmcgcm93cyBmb3Igbm9ucHJvZml0cyB3aXRoIE5BIG9yIHplcm8gYXNzZXRzCgpuZWlnaGJvcmhvb2RfQUFwZXJjJT4lIHB1bGwoUGVyY2VudF9BQSkgJT4lIGhpc3QobWFpbiA9ICJEaXN0cmlidXRpb24gb2YgQmxhY2sgcG9wdWxhdGlvbiBwZXJjZW50YWdlcyBhY3Jvc3MgQmFsdGltb3JlIG5laWdoYm9yaG9vZHMiKQoKIyBnZXQgdGhlIG5laWdoYm9yaG9vZCB2YWx1ZXMgYWZ0ZXIgcmVtb3Zpbmcgcm93cyBmb3Igbm9ucHJvZml0cyB3aXRoIE5BIG9yIHplcm8gYXNzZXRzCm5laWdoYm9yaG9vZF9BQXBlcmNfbm96ZXJvICU+JSBwdWxsKFBlcmNlbnRfQUEpICU+JSBoaXN0KG1haW4gPSAiRGlzdHJpYnV0aW9uIG9mIEJsYWNrIHBvcHVsYXRpb24gcGVyY2VudGFnZXMgYWNyb3NzIEJhbHRpbW9yZSBuZWlnaGJvcmhvb2RzXG4gKHJlbW92ZWQgbmVpZ2hib3Job29kcyB3aXRoIG9ubHkgemVybyBvciBOQSBhc3NldHMpIikKCmBgYAoKIyMgV2hhdCAlIG9mIHBlb3BsZSBsaXZpbmcgaW4gQmFsdGltb3JlIG5laWdoYm9yaG9vZHMgbGl2ZSBpbiBtYWpvcml0eSBibGFjayBuZWlnaGJvcmhvb2RzCgoKYGBge3J9CiNzdGFydCB3aXRoIHRoZSByYXcgbmVpZ2hib3Job29kIHN0YXRpc3RpY2FsIGFyZWEgZGF0YSBhbmQgdXNlIGl0IHRvIGdldCBwb3B1bGF0aW9uIGVzdGltYXRlcyAKbmVpZ2hib3Job29kcyA8LSByZWFkX2NzdihoZXJlOjpoZXJlKCJkYXRhIiwgIk5laWdoYm9yaG9vZF9TdGF0aXN0aWNhbF9BcmVhXyhOU0EpX0JvdW5kYXJpZXMuY3N2IikpCgpCbGFja19tYWpvcml0eV9uZWlnaGJvcmhvb2RzIDwtbmVpZ2hib3Job29kcyU+JSBtdXRhdGUoUGVyY2VudF9BQSA9IAogICAgICAgICAgIHJvdW5kKEJsa19BZkFtL1BvcHVsYXRpb24qMTAwLCBkaWdpdHMgPSAyKSkgJT4lZmlsdGVyKFBlcmNlbnRfQUE+PTUwKSAlPiUgcHVsbChOYW1lKQoKbGVuZ3RoKEJsYWNrX21ham9yaXR5X25laWdoYm9yaG9vZHMpICMgbnVtYmVyIG9mIGJsYWNrIG1ham9yaXR5IG5laWdoYm9yaG9vZHMKCk5vdF9CbGFja19tYWpvcml0eV9uZWlnaGJvcmhvb2RzIDwtbmVpZ2hib3Job29kcyU+JSBtdXRhdGUoUGVyY2VudF9BQSA9IAogICAgICAgICAgIHJvdW5kKEJsa19BZkFtL1BvcHVsYXRpb24qMTAwLCBkaWdpdHMgPSAyKSkgJT4lIGZpbHRlcihQZXJjZW50X0FBPDUwKSAlPiUgcHVsbChOYW1lKQoKbGVuZ3RoKE5vdF9CbGFja19tYWpvcml0eV9uZWlnaGJvcmhvb2RzKQoKcG9wX2luX2JsYWNrX25laWdoYm9yaG9vZHMgPC1maWx0ZXIobmVpZ2hib3Job29kcywgTmFtZSAlaW4lIEJsYWNrX21ham9yaXR5X25laWdoYm9yaG9vZHMpICU+JSBwdWxsKFBvcHVsYXRpb24pICU+JSBzdW0oKQojIGVzdGltYXRlIG9mIHBvcHVsYXRpb24gbGl2aW5nIGluIEJsYWNrIG1ham9yaXR5IG5laWdoYm9yaG9vZHMKcG9wX2luX2JsYWNrX25laWdoYm9yaG9vZHMKCnBvcF9ub3RfaW5fYmxhY2tfbmVpZ2hib3Job29kcyA8LSBmaWx0ZXIobmVpZ2hib3Job29kcywgIShOYW1lICVpbiUgQmxhY2tfbWFqb3JpdHlfbmVpZ2hib3Job29kcykpICU+JSBwdWxsKFBvcHVsYXRpb24pICU+JSBzdW0obmEucm0gPSBUUlVFKQoKI2VzdGltYXRlIG9mIHBvcHVsYXRpb24gbGl2aW5nIGluIG5vdCBCbGFjayBtYWpvcml0eSBuZWlnaGJvcmhvb2RzCnBvcF9ub3RfaW5fYmxhY2tfbmVpZ2hib3Job29kcwoKcG9wX2luX2JsYWNrX25laWdoYm9yaG9vZHMvKHBvcF9pbl9ibGFja19uZWlnaGJvcmhvb2RzK3BvcF9ub3RfaW5fYmxhY2tfbmVpZ2hib3Job29kcykqMTAwCgp0b3RhbF9wb3BfZXN0IDwtIHBvcF9ub3RfaW5fYmxhY2tfbmVpZ2hib3Job29kcytwb3Bfbm90X2luX2JsYWNrX25laWdoYm9yaG9vZHMKCgpgYGAKCg==</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("03_analysis.Rmd");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
