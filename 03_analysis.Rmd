@@ -246,9 +246,6 @@ ggplot(aes(y = ASSET_AMT_log, x = Percent_AA)) +
 
 
 
-
-
-
 Look at log asset data for each NTEE type- **remember the caveat that there are many organizations that are not included because of NA or zero value F990_TOTAL_ASSETS_RECENT**. However, still we can see that some categories show a trend towards lower amount of assets even with this limited data.
 
 ```{r}
@@ -357,11 +354,11 @@ ggplot(df_simplified_no_zero, aes(poly(Percent_AA,2), log(F990_TOTAL_ASSETS_RECE
 
 ### Sensitivity analysis 
 
-To compare with and without outliers and with and without zeros
+Now we will compare with and without outliers and with and without zeros to see if our results are similar to before. 
 ```{r}
 
 
-# trying again without outliers for 
+# trying again without possible outliers
 
 lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
 summary(lm2)
@@ -369,14 +366,16 @@ ggplot(df_simplified_no_zero_no_outliers, aes(poly(Percent_AA,2), log(F990_TOTAL
   geom_point(alpha = 0.2) +
   geom_smooth(method = "loess")
 
-lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2) , data = df_simplified)
+# trying again with orgs with zero asset value
+
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT+1) ~ poly(Percent_AA, 2) , data = df_simplified)
 summary(lm2) #need plus 1 for log of zero
-ggplot(df_simplified, aes(poly(Percent_AA,2), log(F990_TOTAL_ASSETS_RECENT))) +
+ggplot(df_simplified, aes(poly(Percent_AA,2), log(F990_TOTAL_ASSETS_RECENT+1))) +
   geom_point(alpha = 0.2) +
   geom_smooth(method = "loess")
 
 ```
-
+It seems that there is a trend towards an association of assets with neighborhood Black population with what looks like reduced scaled assets for orgs in neighborhoods with a higher Black population.
 
 Look at quartiles with log asset data:
 *remember the caveat that there are many organizations that are not included because of NA or zero value F990_TOTAL_ASSETS_RECENT*
