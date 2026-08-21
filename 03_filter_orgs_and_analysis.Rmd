@@ -18,13 +18,13 @@ Information about the data:
 https://nccs.urban.org/nccs/catalogs/catalog-bmf.html (to get MD file)
 Here’s an [article](https://nccs.urban.org/nccs/datasets/bmf/) describing some of the datasets from the IRS 990s. We’re using the Business Master File (BMF).  There’s a section titled “Minimum Filing Threshold” that explains a data limitation (and why we’re seeing so many 0’s). See [here](https://www.irs.gov/charities-non-profits/exempt-organizations-annual-reporting-requirements-overview-annual-return-filing-exceptions) for more info.
 
-It seems that if there is a value less than 50,000 other than zero, it must mean that the organization decided to submit to the IRS, because otherwise they would be listed as a zero. It is not possible to distinguish a true zero from a zero due to not meeting the threshold of 50,000 and just not submitting. See [this guide](https://github.com/jhudsl/Baltimore_nonprofits_assets/blob/8094191b88bcef6503c132c7cc73408c12ddc916/Guide_to_Using_NCCS_Data_202.pdf), page 5 in the "minimum filing threshold" section.
+It is not possible to distinguish a true zero from a zero due to not meeting the threshold of $50,000 for gross receipts and just not submitting. See [this guide](https://github.com/jhudsl/Baltimore_nonprofits_assets/blob/8094191b88bcef6503c132c7cc73408c12ddc916/Guide_to_Using_NCCS_Data_202.pdf), page 5 in the "minimum filing threshold" section.
 
-It therefore makes sense to remove zero values and to report this caveat that the data is incomplete because many nonprofits that had assets less than 50,000 are not included.
+It therefore makes sense to remove zero values and to report this caveat that the data is incomplete because many nonprofits that had gross receipts less than 50,000 are not included.
 
 However for the high vs nonhigh asset we could keep these - because zero values would still be less than the threshold regardless.
 
-Adding to this NA values can be considered less than 50000, as organizations are not required to report an amount if they have less than 50000.
+Adding to this, NA values might be considered ors with gross receipts less than 50000, as organizations are not required to report an amount if they have less than 50000.
 
 # Tidying data and Exploratory Analysis
 
@@ -45,7 +45,7 @@ gg_miss_var(df_simplified)
 
 Yes, indeed there are...
 
-NA and zero values likely mean the nonprofit did not need to submit to the IRS.
+NA and zero values may mean the nonprofit did not need to submit to the IRS.
 It is impossible to know however, if a zero is actually a true zero. NA values could mean something else. 
 
 Thus, we will recode asset amount based on a threshold of greater than or equal to 500,000 as high asset and less than 500,000 (including zero) as not high asset.
@@ -70,7 +70,7 @@ Now we will replace `NA` values with `False` as well:
 
 ```{r}
  df_simplified <- df_simplified %>%  
-  mutate(ASSET_High = replace_na(ASSET_High, FALSE)) #NA values will be coded as not high asset (if no cases match the other two F990_TOTAL_ASSETS_RECENT statements then code as FALSE) based on the above logic
+  mutate(ASSET_High = replace_na(ASSET_High, FALSE)) #NA values will be coded as not high asset for this analysis  (assuming that missing values are not high, because they would likely have a gross receipt of greater than 50000 and would be required to apply (although not everyone will still apply who should))
 ```
 
 Check that this worked and that there are no NA values now:
@@ -79,7 +79,7 @@ Check that this worked and that there are no NA values now:
 table(df_simplified$ASSET_High, useNA = "always")
 ```
 
-Now we will convert these to text as another variable and also create a log version of the asset amount to normalize it, as plots and analysis may be easier to interpret if there are many values that are high or low.
+Now we will convert these to text as another variable and also create a log version of the asset amount to compress the scale, as plots and analysis may be easier to interpret if there are many values that are high or low.
 
 ```{r}
  df_simplified<-df_simplified %>%
@@ -159,7 +159,7 @@ table(df_simplified_no_removal$ASSET_quartile, useNA = "always")
 df_simplified_no_removal %>% group_by(ASSET_quartile_text) %>% reframe(range = range(F990_TOTAL_ASSETS_RECENT))
 ```
 
-Turns out this doesn't really work because the 1st and 2nd quartiles can't be distinguished as we don't know if the values of 0 are actually some number below 50,000 and both quartlies have a max of less than 50,000. So we will stick with our removal.
+Turns out this doesn't really work well, as we don't know if the values of 0  are real or for orgs that had a gross receipt of below 50,000 and didn't have to report total assets. So we will stick with our removal.
 
 ## National Taxonomy of Exempt Entities (NTEE) recoding
 
@@ -196,7 +196,7 @@ df_simplified_no_zero <-df_simplified_no_zero %>%
     str_starts(NTEE_IRS, pattern = "I|J|K|L|M|N|O|P") ~ "Human Services",
     str_starts(NTEE_IRS, pattern = "Q") ~ "International Affairs",
     str_starts(NTEE_IRS, pattern = "R|S|T|U|V|W") ~ "Societal Benefit",
-    str_starts(NTEE_IRS, pattern = "X") ~ "Religous",
+    str_starts(NTEE_IRS, pattern = "X") ~ "Religious",
     is.na(NTEE_IRS) ~ "Unclassified",
     TRUE~ "Other")) # everything else will be Other
 ```
@@ -249,7 +249,7 @@ ggplot(aes(y = ASSET_AMT_log, x = Percent_AA)) +
 
 
 
-Look at log asset data for each NTEE type- **remember the caveat that there are many organizations that are not included because of NA or zero value F990_TOTAL_ASSETS_RECENT**. However, still we can see that there is a trend towards lower amount of assets for most categories even with this limited data.
+Look at log asset data for each NTEE type- **remember the caveat that there are many organizations that are not included because of NA or zero value F990_TOTAL_ASSETS_RECENT**. However, still we can see that some categories show a trend towards lower amount of assets even with this limited data.
 
 ```{r}
 df_simplified_no_zero %>% drop_na(NTEE_text) %>%
@@ -297,8 +297,8 @@ glimpse(sorted_data)
 
 ## seem to have many outliers for asset amount
 
-outliers <- boxplot(df_simplified_no_zero$F990_TOTAL_ASSETS_RECENT, plot=FALSE)$out
-df_simplified_no_zero_no_outliers <- filter(df_simplified_no_zero, !F990_TOTAL_ASSETS_RECENT %in% outliers)
+potential_outliers <- boxplot(df_simplified_no_zero$F990_TOTAL_ASSETS_RECENT, plot=FALSE)$out
+df_simplified_no_zero_no_outliers <- filter(df_simplified_no_zero, !F990_TOTAL_ASSETS_RECENT %in% potential_outliers)
 
 plot(df_simplified_no_zero_no_outliers$ASSET_AMT_log, df_simplified_no_zero_no_outliers$Percent_AA)
 
@@ -315,7 +315,7 @@ ggplot(df_simplified_no_zero, aes(Percent_AA, ASSET_AMT_log)) +
 
 
 ```{r}
-# Check different models for scaling percent_AA, including or not including population and removing outliers
+# Check different models for scaling percent_AA, including or not including population 
 
 
 lm1 <- lm(ASSET_AMT_log~ Percent_AA, data = df_simplified_no_zero)
@@ -327,18 +327,6 @@ AIC(lm2) # slightly lower and therefore possibly better model
 summary(lm1)$adj.r.squared
 summary(lm2)$adj.r.squared # slightly higher so possibly better model
 
-# try again with outlier removal
-
-lm1 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero)
-lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
-
-
-AIC(lm1)
-AIC(lm2) # much lower so possibly better
-summary(lm1)$adj.r.squared # slightly higher so possibly better model
-summary(lm2)$adj.r.squared 
-
-#hard to conclude but can use in sensitivity analysis
 
 # now log scale of Percent_AA vs poly_AA
 
@@ -371,7 +359,9 @@ ggplot(df_simplified_no_zero, aes(poly(Percent_AA,2), log(F990_TOTAL_ASSETS_RECE
 
 To compare with and without outliers and with and without zeros
 ```{r}
-# trying again without outliers
+
+
+# trying again without outliers for 
 
 lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2), data = df_simplified_no_zero_no_outliers)
 summary(lm2)
@@ -379,7 +369,7 @@ ggplot(df_simplified_no_zero_no_outliers, aes(poly(Percent_AA,2), log(F990_TOTAL
   geom_point(alpha = 0.2) +
   geom_smooth(method = "loess")
 
-lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT +1) ~ poly(Percent_AA, 2) , data = df_simplified)
+lm2 <- lm(log(F990_TOTAL_ASSETS_RECENT) ~ poly(Percent_AA, 2) , data = df_simplified)
 summary(lm2) #need plus 1 for log of zero
 ggplot(df_simplified, aes(poly(Percent_AA,2), log(F990_TOTAL_ASSETS_RECENT))) +
   geom_point(alpha = 0.2) +
@@ -491,7 +481,7 @@ High_asset_data %>%
   scale_fill_grey() +
   theme(legend.title = element_blank())
 ```
-**this includes all organizations**
+**this includes all organizations including those with NA values**
 
 ## High vs non asset by category
 First create data to make visualization easier.
@@ -708,30 +698,35 @@ neighborhood_AAperc_nozero %>% pull(Percent_AA) %>% hist(main = "Distribution of
 
 ```
 
-## What % of the total baltimore population live in majority black neighborhoods
+## What % of people living in Baltimore neighborhoods live in majority black neighborhoods
 
 
 ```{r}
+#start with the raw neighborhood statistical area data and use it to get population estimates 
+neighborhoods <- read_csv(here::here("data", "Neighborhood_Statistical_Area_(NSA)_Boundaries.csv"))
 
-Black_majority_neighborhoods <-neighborhood_shape%>% mutate(Percent_AA = 
+Black_majority_neighborhoods <-neighborhoods%>% mutate(Percent_AA = 
            round(Blk_AfAm/Population*100, digits = 2)) %>%filter(Percent_AA>=50) %>% pull(Name)
 
 length(Black_majority_neighborhoods) # number of black majority neighborhoods
 
-Not_Black_majority_neighborhoods <-neighborhood_shape%>% mutate(Percent_AA = 
+Not_Black_majority_neighborhoods <-neighborhoods%>% mutate(Percent_AA = 
            round(Blk_AfAm/Population*100, digits = 2)) %>% filter(Percent_AA<50) %>% pull(Name)
 
 length(Not_Black_majority_neighborhoods)
 
 pop_in_black_neighborhoods <-filter(neighborhoods, Name %in% Black_majority_neighborhoods) %>% pull(Population) %>% sum()
-#population living in Black majority neighborhoods
+# estimate of population living in Black majority neighborhoods
 pop_in_black_neighborhoods
 
 pop_not_in_black_neighborhoods <- filter(neighborhoods, !(Name %in% Black_majority_neighborhoods)) %>% pull(Population) %>% sum(na.rm = TRUE)
-#population living in not living in Black majority neighborhoods
+
+#estimate of population living in not Black majority neighborhoods
 pop_not_in_black_neighborhoods
 
-pop_in_black_neighborhoods/(sum(pop_in_black_neighborhoods+pop_not_in_black_neighborhoods))*100
+pop_in_black_neighborhoods/(pop_in_black_neighborhoods+pop_not_in_black_neighborhoods)*100
+
+total_pop_est <- pop_not_in_black_neighborhoods+pop_not_in_black_neighborhoods
 
 
 ```
