@@ -30,7 +30,7 @@ Data was last updated before we downloaded on April 11, 2025.(Data was downloade
 - Takes data/processed/org_data.rds and filters out foundation code 00orgs, social clubs, PO Boxes,  code 04 and 17 foundations,  and filters for appropriate years.  
 - It creates the active_orgs.rds and the non_active_orgs.rds.
 
-03-filter_orgs_and_analysis.Rmd 
+03-analysis.Rmd 
 
 - Takes processed/active_orgs.rds and  does some additional filtering for orgs with zero assets and creates key variables of interest for plots and analysis and outputs data/processed/formaps/rds and data/processed/foremaps_nozero.rds.: 
   - ASSET_High:TRUE  if asset amount (F990_Total_ASSETS_RECENT column) was >= 500,000 and FALSE if <- 500,000

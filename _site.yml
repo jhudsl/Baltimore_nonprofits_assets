@@ -10,7 +10,7 @@ navbar:
   - text: Filtering
     href: 02_filtering_data.html
   - text: Variable Generation & Analysis
-    href: 03_filter_orgs_and_analysis.html
+    href: 03_analysis.html
   - text: Maps
     href: 04_maps.html
 
