@@ -119,4 +119,12 @@ asset_plot_high_Vs_low_amt_orgs
 ```
 
 
+```{r}
+
+high_asset_orgs <- df_simplified %>% filter(ASSET_High_text == "High Asset") 
+neighborhood_pop + 
+    geom_sf(data = high_asset_orgs, alpha = 0.8, shape = 21, color ="black", fill = "#DCE319FF")
+    theme_void() +
+     labs(title = "High vs Low Asset Non-Profits in Baltimore") 
+```
 
