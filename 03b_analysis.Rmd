@@ -393,11 +393,11 @@ High_asset_data %>%
     geom_col(position = position_dodge(width = .9))+
      scale_y_continuous(labels = function(x) paste0(x, "%")) +
      ylim(0,100) +
-    geom_text(aes(label = paste0(Percent_AA_cat, "%")), position = position_dodge(width = .9), vjust = -.5) +
+    geom_text(aes(label = paste0(Percent_AA_cat, "%")), position = position_dodge(width = .8), vjust = -.5, hjust = -.5) +
   ylab("Percent of Neighborhood Category") +
   theme_linedraw() +
   scale_fill_grey() +
-  theme(legend.title = element_blank())
+  theme(legend.title = element_blank()) + coord_flip()
 
 
 High_income_data %>% 
@@ -405,15 +405,15 @@ High_income_data %>%
     geom_col(position = position_dodge(width = .9))+
      scale_y_continuous(labels = function(x) paste0(x, "%")) +
      ylim(0,100) +
-    geom_text(aes(label = paste0(Percent_AA_cat, "%")), position = position_dodge(width = .9), vjust = -.5) +
+    geom_text(aes(label = paste0(Percent_AA_cat, "%")), position = position_dodge(width = .8), vjust = 0, hjust = -.5) +
   ylab("Percent of Neighborhood Category") +
   theme_linedraw() +
   scale_fill_grey() +
-  theme(legend.title = element_blank())
+  theme(legend.title = element_blank()) + coord_flip()
 ```
 **this includes all organizations including those with NA values**
 
-## Chi-Square test
+## Chi-Square test with zeros
 First create data to make visualization easier.
 
 ```{r}
@@ -439,6 +439,37 @@ print(contingency_table)
 independence_results <- chisq.test(contingency_table)
 print(independence_results)
 ```
+
+## Chi-Square test after removing zeros
+
+
+
+```{r}
+High_asset_data_no_zero <-df_simplified_no_zero %>%
+  group_by(ASSET_High_text, Neighborhood, NTEE_text) %>% 
+  count()
+
+contingency_table <- table( df_simplified_no_zero$Majority_AA, df_simplified_no_zero$ASSET_High_text)
+print(contingency_table)
+
+independence_results <- chisq.test(contingency_table)
+print(independence_results)
+
+High_income_data_no_zero <-df_simplified_no_zero_income %>%
+  group_by(INCOME_High_text, Neighborhood, NTEE_text) %>% 
+  count()
+
+contingency_table <- table( df_simplified_no_zero_income$Majority_AA, df_simplified_no_zero_income$INCOME_High_text)
+print(contingency_table)
+
+independence_results <- chisq.test(contingency_table)
+print(independence_results)
+```
+
+If we remove zeros, than looking at income the chi-square test is no longer significant. 
+
+
+Now back to the data with zeros:
 
 ```{R}
 #Create percentage variable for each category
