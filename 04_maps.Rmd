@@ -41,6 +41,32 @@ neighborhoods_sf <- neighborhoods_sf %>% mutate(Percent_AA
 
 ```
 
+# Map of High vs Low Asset Orgs
+
+
+```{r}
+data_to_plot <- df_simplified %>% count(Name, ASSET_High_text) %>% rename("num_org" = n)
+data_to_plot <- data_to_plot %>% mutate(color_amt = case_when(
+  num_org  < 10 ~ "low",
+  num_org  >=10 & num_org < 20 ~ "med",
+  num_org  >=20 & num_org < 40 ~ "medhigh",
+  num_org  >=40 ~"high"
+))
+data_to_plot <- st_as_sf(data_to_plot)
+asset_plot_high_Vs_low_amt_orgs <- neighborhood_dem + 
+    geom_sf(data = data_to_plot, aes(color =as.factor(color_amt))) + scale_color_manual(values = c("low" = "yellow", "med" = "gold","medhigh" = "orange", "high" = "red" ))+
+ facet_grid(~ASSET_High_text)+
+    theme_void() +
+     labs(title = "High vs Low Asset Non-Profits in Baltimore") 
+
+
+asset_plot_high_Vs_low_amt_orgs
+
+```
+
+
+
+
 
 # Map of High vs Low Asset Orgs
 
@@ -79,7 +105,18 @@ asset_plot <- neighborhood_dem +
 asset_plot
 ```
 
+# Map of High vs Low Asset Orgs and Population
 
+
+```{r, fig.show="hold", out.width="50%"}
+
+neighborhood_pop<- ggplot() +geom_sf(data = neighborhoods_sf, aes(fill = Population))
+
+neighborhood_pop 
+
+asset_plot_high_Vs_low_amt_orgs
+
+```
 
 
 
