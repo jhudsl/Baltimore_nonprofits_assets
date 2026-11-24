@@ -10,7 +10,7 @@ library(here)
 
 BMF file from:
 https://nccsdata.s3.amazonaws.com/harmonized/bmf/unified/MD_BMF_V1.1.csv 
-Neighborhood csv file from (copy and paste full url): https://data.baltimorecity.gov/datasets/baltimore::neighborhood-statistical-area-nsa-boundaries/about 
+Neighborhood csv file from (copy and paste full url): https://data.baltimorecity.gov/datasets/baltimore::neighborhood-statistical-area-nsa-boundaries/about (data last updated on the website before this analysis on April 11, 2025)
 
 ```{r}
 BMF <- read_csv(here::here("data","MD_BMF_V1.1.csv"))
