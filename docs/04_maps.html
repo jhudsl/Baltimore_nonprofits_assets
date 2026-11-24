@@ -493,39 +493,241 @@ div.tocify {
 </div>
 <div id="map-of-high-vs-low-asset-orgs" class="section level1">
 <h1>Map of High vs Low Asset Orgs</h1>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>asset_plot_high_Vs_low <span class="ot">&lt;-</span> neighborhood_dem <span class="sc">+</span> </span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> df_simplified, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span><span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#DCE319FF&quot;</span>)<span class="sc">+</span> <span class="fu">facet_grid</span>(<span class="sc">~</span>ASSET_High_text)<span class="sc">+</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>     <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;High vs Low Asset Non-Profits in Baltimore&quot;</span>) </span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>asset_plot_high_Vs_low</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>data_to_plot <span class="ot">&lt;-</span> df_simplified <span class="sc">%&gt;%</span> <span class="fu">count</span>(Name, ASSET_High_text) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="st">&quot;num_org&quot;</span> <span class="ot">=</span> n)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>data_to_plot <span class="ot">&lt;-</span> data_to_plot <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">color_amt =</span> <span class="fu">case_when</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  num_org  <span class="sc">&lt;</span> <span class="dv">10</span> <span class="sc">~</span> <span class="st">&quot;low&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  num_org  <span class="sc">&gt;=</span><span class="dv">10</span> <span class="sc">&amp;</span> num_org <span class="sc">&lt;</span> <span class="dv">20</span> <span class="sc">~</span> <span class="st">&quot;med&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  num_org  <span class="sc">&gt;=</span><span class="dv">20</span> <span class="sc">&amp;</span> num_org <span class="sc">&lt;</span> <span class="dv">40</span> <span class="sc">~</span> <span class="st">&quot;medhigh&quot;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  num_org  <span class="sc">&gt;=</span><span class="dv">40</span> <span class="sc">~</span><span class="st">&quot;high&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>))</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>data_to_plot <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(data_to_plot)</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>asset_plot_high_Vs_low_amt_orgs <span class="ot">&lt;-</span> neighborhood_dem <span class="sc">+</span> </span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> data_to_plot, <span class="fu">aes</span>(<span class="at">color =</span><span class="fu">as.factor</span>(color_amt))) <span class="sc">+</span> <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;low&quot;</span> <span class="ot">=</span> <span class="st">&quot;yellow&quot;</span>, <span class="st">&quot;med&quot;</span> <span class="ot">=</span> <span class="st">&quot;gold&quot;</span>,<span class="st">&quot;medhigh&quot;</span> <span class="ot">=</span> <span class="st">&quot;orange&quot;</span>, <span class="st">&quot;high&quot;</span> <span class="ot">=</span> <span class="st">&quot;red&quot;</span> ))<span class="sc">+</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a> <span class="fu">facet_grid</span>(<span class="sc">~</span>ASSET_High_text)<span class="sc">+</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>     <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;High vs Low Asset Non-Profits in Baltimore&quot;</span>) </span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>asset_plot_high_Vs_low_amt_orgs</span></code></pre></div>
 <p><img src="04_maps_files/figure-html/unnamed-chunk-3-1.png" alt="" width="672" /></p>
+</div>
+<div id="map-of-high-vs-low-asset-orgs-1" class="section level1">
+<h1>Map of High vs Low Asset Orgs</h1>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>asset_plot_high_Vs_low <span class="ot">&lt;-</span> neighborhood_dem <span class="sc">+</span> </span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> df_simplified, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span><span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#DCE319FF&quot;</span>)<span class="sc">+</span> <span class="fu">facet_grid</span>(<span class="sc">~</span>ASSET_High_text)<span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>     <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;High vs Low Asset Non-Profits in Baltimore&quot;</span>) </span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>asset_plot_high_Vs_low</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-4-1.png" alt="" width="672" /></p>
 </div>
 <div id="map-of-different-types-of-orgs-by-asset"
 class="section level1">
 <h1>Map of different types of orgs by asset</h1>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>asset_plot_all_faceted <span class="ot">&lt;-</span> neighborhood_dem <span class="sc">+</span> </span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> df_simplified, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span><span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#DCE319FF&quot;</span>)<span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>NTEE_text, <span class="at">ncol =</span> <span class="dv">4</span> )<span class="sc">+</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Non-Profits in Baltimore by Type&quot;</span>) </span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>asset_plot_all_faceted</span></code></pre></div>
-<p><img src="04_maps_files/figure-html/unnamed-chunk-4-1.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>asset_plot_all_faceted <span class="ot">&lt;-</span> neighborhood_dem <span class="sc">+</span> </span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> df_simplified, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span><span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#DCE319FF&quot;</span>)<span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>NTEE_text, <span class="at">ncol =</span> <span class="dv">4</span> )<span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Non-Profits in Baltimore by Type&quot;</span>) </span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>asset_plot_all_faceted</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-5-1.png" alt="" width="672" /></p>
 </div>
 <div id="high-asset-non-profits-in-baltimore-by-type"
 class="section level1">
 <h1>High Asset Non-Profits in Baltimore by Type</h1>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>data_to_map <span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ASSET_High_text <span class="sc">==</span> <span class="st">&quot;High Asset&quot;</span>) </span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>asset_plot <span class="ot">&lt;-</span> neighborhood_dem <span class="sc">+</span> </span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> data_to_map, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span><span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#DCE319FF&quot;</span>)<span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>NTEE_text, <span class="at">ncol =</span> <span class="dv">4</span> )<span class="sc">+</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;High Asset Non-Profits in Baltimore by Type&quot;</span>) </span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>asset_plot</span></code></pre></div>
-<p><img src="04_maps_files/figure-html/unnamed-chunk-5-1.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>data_to_map <span class="ot">&lt;-</span>df_simplified <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ASSET_High_text <span class="sc">==</span> <span class="st">&quot;High Asset&quot;</span>) </span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>asset_plot <span class="ot">&lt;-</span> neighborhood_dem <span class="sc">+</span> </span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> data_to_map, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span><span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#DCE319FF&quot;</span>)<span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>NTEE_text, <span class="at">ncol =</span> <span class="dv">4</span> )<span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;High Asset Non-Profits in Baltimore by Type&quot;</span>) </span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>asset_plot</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-6-1.png" alt="" width="672" /></p>
+</div>
+<div id="map-of-high-vs-low-asset-orgs-and-population"
+class="section level1">
+<h1>Map of High vs Low Asset Orgs and Population</h1>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>neighborhood_pop<span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span><span class="fu">geom_sf</span>(<span class="at">data =</span> neighborhoods_sf, <span class="fu">aes</span>(<span class="at">fill =</span> Population))</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>neighborhood_pop </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>asset_plot_high_Vs_low_amt_orgs</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-7-1.png" alt="" width="50%" /><img src="04_maps_files/figure-html/unnamed-chunk-7-2.png" alt="" width="50%" /></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>high_asset_orgs <span class="ot">&lt;-</span> df_simplified <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ASSET_High_text <span class="sc">==</span> <span class="st">&quot;High Asset&quot;</span>) </span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>neighborhood_pop <span class="sc">+</span> </span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="at">data =</span> high_asset_orgs, <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">color =</span><span class="st">&quot;black&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#DCE319FF&quot;</span>)</span></code></pre></div>
+<p><img src="04_maps_files/figure-html/unnamed-chunk-8-1.png" alt="" width="672" /></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>     <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;High vs Low Asset Non-Profits in Baltimore&quot;</span>) </span></code></pre></div>
+<pre><code>## &lt;theme&gt; List of 144
+##  $ line                            : &lt;ggplot2::element_blank&gt;
+##  $ rect                            : &lt;ggplot2::element_rect&gt;
+##   ..@ fill         : chr &quot;#00000000&quot;
+##   ..@ colour       : logi NA
+##   ..@ linewidth    : num 0
+##   ..@ linetype     : num 1
+##   ..@ linejoin     : chr &quot;round&quot;
+##   ..@ inherit.blank: logi TRUE
+##  $ text                            : &lt;ggplot2::element_text&gt;
+##   ..@ family       : chr &quot;&quot;
+##   ..@ face         : chr &quot;plain&quot;
+##   ..@ italic       : chr NA
+##   ..@ fontweight   : num NA
+##   ..@ fontwidth    : num NA
+##   ..@ colour       : chr &quot;black&quot;
+##   ..@ size         : num 11
+##   ..@ hjust        : num 0.5
+##   ..@ vjust        : num 0.5
+##   ..@ angle        : num 0
+##   ..@ lineheight   : num 0.9
+##   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 0
+##   ..@ debug        : logi FALSE
+##   ..@ inherit.blank: logi TRUE
+##  $ title                           : chr &quot;High vs Low Asset Non-Profits in Baltimore&quot;
+##  $ point                           : &lt;ggplot2::element_blank&gt;
+##  $ polygon                         : &lt;ggplot2::element_blank&gt;
+##  $ geom                            : &lt;ggplot2::element_geom&gt;
+##   ..@ ink        : chr &quot;black&quot;
+##   ..@ paper      : chr &quot;#00000000&quot;
+##   ..@ accent     : chr &quot;#3366FF&quot;
+##   ..@ linewidth  : num 0.5
+##   ..@ borderwidth: num 0.5
+##   ..@ linetype   : int 1
+##   ..@ bordertype : int 1
+##   ..@ family     : chr &quot;&quot;
+##   ..@ fontsize   : num 3.87
+##   ..@ pointsize  : num 1.5
+##   ..@ pointshape : num 19
+##   ..@ colour     : NULL
+##   ..@ fill       : NULL
+##  $ spacing                         : &#39;simpleUnit&#39; num 5.5points
+##   ..- attr(*, &quot;unit&quot;)= int 8
+##  $ margins                         : &lt;ggplot2::margin&gt; num [1:4] 5.5 5.5 5.5 5.5
+##  $ aspect.ratio                    : NULL
+##  $ axis.title                      : &lt;ggplot2::element_blank&gt;
+##  $ axis.title.x                    : NULL
+##  $ axis.title.x.top                : NULL
+##  $ axis.title.x.bottom             : NULL
+##  $ axis.title.y                    : NULL
+##  $ axis.title.y.left               : NULL
+##  $ axis.title.y.right              : NULL
+##  $ axis.text                       : &lt;ggplot2::element_blank&gt;
+##  $ axis.text.x                     : NULL
+##  $ axis.text.x.top                 : NULL
+##  $ axis.text.x.bottom              : NULL
+##  $ axis.text.y                     : NULL
+##  $ axis.text.y.left                : NULL
+##  $ axis.text.y.right               : NULL
+##  $ axis.text.theta                 : NULL
+##  $ axis.text.r                     : NULL
+##  $ axis.ticks                      : NULL
+##  $ axis.ticks.x                    : NULL
+##  $ axis.ticks.x.top                : NULL
+##  $ axis.ticks.x.bottom             : NULL
+##  $ axis.ticks.y                    : NULL
+##  $ axis.ticks.y.left               : NULL
+##  $ axis.ticks.y.right              : NULL
+##  $ axis.ticks.theta                : NULL
+##  $ axis.ticks.r                    : NULL
+##  $ axis.minor.ticks.x.top          : NULL
+##  $ axis.minor.ticks.x.bottom       : NULL
+##  $ axis.minor.ticks.y.left         : NULL
+##  $ axis.minor.ticks.y.right        : NULL
+##  $ axis.minor.ticks.theta          : NULL
+##  $ axis.minor.ticks.r              : NULL
+##  $ axis.ticks.length               : &#39;rel&#39; num 0
+##  $ axis.ticks.length.x             : NULL
+##  $ axis.ticks.length.x.top         : NULL
+##  $ axis.ticks.length.x.bottom      : NULL
+##  $ axis.ticks.length.y             : NULL
+##  $ axis.ticks.length.y.left        : NULL
+##  $ axis.ticks.length.y.right       : NULL
+##  $ axis.ticks.length.theta         : NULL
+##  $ axis.ticks.length.r             : NULL
+##  $ axis.minor.ticks.length         : NULL
+##  $ axis.minor.ticks.length.x       : NULL
+##  $ axis.minor.ticks.length.x.top   : NULL
+##  $ axis.minor.ticks.length.x.bottom: NULL
+##  $ axis.minor.ticks.length.y       : NULL
+##  $ axis.minor.ticks.length.y.left  : NULL
+##  $ axis.minor.ticks.length.y.right : NULL
+##  $ axis.minor.ticks.length.theta   : NULL
+##  $ axis.minor.ticks.length.r       : NULL
+##  $ axis.line                       : NULL
+##  $ axis.line.x                     : NULL
+##  $ axis.line.x.top                 : NULL
+##  $ axis.line.x.bottom              : NULL
+##  $ axis.line.y                     : NULL
+##  $ axis.line.y.left                : NULL
+##  $ axis.line.y.right               : NULL
+##  $ axis.line.theta                 : NULL
+##  $ axis.line.r                     : NULL
+##  $ legend.background               : &lt;ggplot2::element_blank&gt;
+##  $ legend.margin                   : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 0
+##  $ legend.spacing                  : NULL
+##  $ legend.spacing.x                : NULL
+##  $ legend.spacing.y                : NULL
+##  $ legend.key                      : NULL
+##  $ legend.key.size                 : &#39;simpleUnit&#39; num 1.2lines
+##   ..- attr(*, &quot;unit&quot;)= int 3
+##  $ legend.key.height               : NULL
+##  $ legend.key.width                : NULL
+##  $ legend.key.spacing              : &#39;rel&#39; num 1
+##  $ legend.key.spacing.x            : NULL
+##  $ legend.key.spacing.y            : NULL
+##  $ legend.key.justification        : NULL
+##  $ legend.frame                    : &lt;ggplot2::element_blank&gt;
+##  $ legend.ticks                    : NULL
+##  $ legend.ticks.length             : &#39;rel&#39; num 0.2
+##  $ legend.axis.line                : NULL
+##  $ legend.text                     : &lt;ggplot2::element_text&gt;
+##   ..@ family       : NULL
+##   ..@ face         : NULL
+##   ..@ italic       : chr NA
+##   ..@ fontweight   : num NA
+##   ..@ fontwidth    : num NA
+##   ..@ colour       : NULL
+##   ..@ size         : &#39;rel&#39; num 0.8
+##   ..@ hjust        : NULL
+##   ..@ vjust        : NULL
+##   ..@ angle        : NULL
+##   ..@ lineheight   : NULL
+##   ..@ margin       : NULL
+##   ..@ debug        : NULL
+##   ..@ inherit.blank: logi TRUE
+##  $ legend.text.position            : NULL
+##  $ legend.title                    : &lt;ggplot2::element_text&gt;
+##   ..@ family       : NULL
+##   ..@ face         : NULL
+##   ..@ italic       : chr NA
+##   ..@ fontweight   : num NA
+##   ..@ fontwidth    : num NA
+##   ..@ colour       : NULL
+##   ..@ size         : NULL
+##   ..@ hjust        : num 0
+##   ..@ vjust        : NULL
+##   ..@ angle        : NULL
+##   ..@ lineheight   : NULL
+##   ..@ margin       : NULL
+##   ..@ debug        : NULL
+##   ..@ inherit.blank: logi TRUE
+##  $ legend.title.position           : NULL
+##  $ legend.position                 : chr &quot;right&quot;
+##  $ legend.position.inside          : NULL
+##  $ legend.direction                : NULL
+##  $ legend.byrow                    : NULL
+##  $ legend.justification            : NULL
+##  $ legend.justification.top        : NULL
+##  $ legend.justification.bottom     : NULL
+##  $ legend.justification.left       : NULL
+##  $ legend.justification.right      : NULL
+##  $ legend.justification.inside     : NULL
+##   [list output truncated]
+##  @ complete: logi TRUE
+##  @ validate: logi TRUE</code></pre>
 </div>
 
-<div id="rmd-source-code">CiMgTWFwcwoKYGBge3J9CmxpYnJhcnkoc2YpCmxpYnJhcnkodGlkeXZlcnNlKQoKCmRmX3NpbXBsaWZpZWQgPC0gcmVhZF9yZHMoaGVyZTo6aGVyZSgiZGF0YS9wcm9jZXNzZWQvZm9ybWFwcy5yZHMiKSkgIyBvcmcgYW5kIHNoYXBlIGRhdGEKbmVpZ2hib3Job29kc19zaGFwZSA8LSByZWFkX3JkcyhoZXJlOjpoZXJlKCJkYXRhL3Byb2Nlc3NlZC9uZWlnaGJvcmhvb2Rfc2hhcGVfZGF0YS5yZHMiKSkjbmVpZ2hib3Job29kIHN0YXQgZGF0YSAocmVhZCBpbnRvIFIpCgpgYGAKCgojIE5laWdoYm9yaG9vZCBEZW1vZ3JhcGhpY3MKCmBgYHtyfQoKIyBtYWtlIGRhdGEgYXQgbmVpZ2hib3Job29kIGxldmVsIHRvIHBsb3QgbWFwcyAKbmVpZ2hib3Job29kc19zZiA8LSBzdF9hc19zZihuZWlnaGJvcmhvb2RzX3NoYXBlKSAjIGNvbnZlcnQgdG8gc2Ygb2JqZWN0Cm5laWdoYm9yaG9vZHNfc2YgPC0gbmVpZ2hib3Job29kc19zZiAlPiUgbXV0YXRlKFBlcmNlbnRfQUEKICA9IHJvdW5kKEJsa19BZkFtL1BvcHVsYXRpb24qMTAwLCBkaWdpdHMgPSAyKSkgICU+JSAjIG1ha2Ugb3VyIHZhcmlhYmxlcyBsaWtlIGJlZm9yZSBidXQgdGhpcyB0aW1lIGF0IG5laWdoYm9yaG9vZCBsZXZlbCBvbmx5CgogICMgY3JlYXRlIG5ldyBNYWpvcml0eV9BQSB2YXJpYWJsZSB0aGF0IGluZGljYXRlcyBpZiBQZXJjZW50X0FBIGlzIGdyZWF0ZXIgdGhhbiA1MCUgb3Igbm90ICU+JQogIG11dGF0ZShNYWpvcml0eV9BQSA9IGNhc2Vfd2hlbigKICAgIFBlcmNlbnRfQUEgPj0gNTAgfiAiWWVzIiwgCiAgICBQZXJjZW50X0FBIDwgIDUwIH4gIk5vIikpICU+JQogICMgY3JlYXRlIGEgbmV3IHZhcmlhYmxlIGFib3V0IHRoaXMgaW4gdGV4dAogICBtdXRhdGUoTmVpZ2hib3Job29kX3R5cGUgPSBjYXNlX3doZW4oCiAgICBQZXJjZW50X0FBID49IDUwIH4gIk1ham9yaXR5XG5CbGFjayIsIAogICAgUGVyY2VudF9BQSA8ICA1MCB+ICJNYWpvcml0eVxuTm9uLUJsYWNrIikpICU+JSAKICAjIG1ha2UgdGhpcyBhIGZhY3RvciBhbmQgb3JkZXIgYnkgbGV2ZWwgYXBwZWFyYW5jZSBpbiB0aGUgZGF0YQogIG11dGF0ZShOZWlnaGJvcmhvb2RfdHlwZSA9IGFzX2ZhY3RvcihOZWlnaGJvcmhvb2RfdHlwZSksCiAgICAgICAgIE5laWdoYm9yaG9vZF90eXBlID0gZm9yY2F0czo6ZmN0X2lub3JkZXIoTmVpZ2hib3Job29kX3R5cGUpKQoKCiBuZWlnaGJvcmhvb2RfZGVtIDwtIGdncGxvdCgpICtnZW9tX3NmKGRhdGEgPSBuZWlnaGJvcmhvb2RzX3NmLCBhZXMoZmlsbCA9IE5laWdoYm9yaG9vZF90eXBlKSkrCiAgIHNjYWxlX2ZpbGxfbWFudWFsKHZhbHVlcyA9IGMoIk1ham9yaXR5XG5CbGFjayIgPSAiIzQ4MjY3N0ZGIiwgIk1ham9yaXR5XG5Ob24tQmxhY2siID0gIiMyMEEzODdGRiIpLCBuYS52YWx1ZSA9ICIjRDNEM0QzIikrCiAgICB0aGVtZV9taW5pbWFsKCkKIG5laWdoYm9yaG9vZF9kZW0KCmBgYAoKCiMgTWFwIG9mIEhpZ2ggdnMgTG93IEFzc2V0IE9yZ3MKCgpgYGB7cn0KYXNzZXRfcGxvdF9oaWdoX1ZzX2xvdyA8LSBuZWlnaGJvcmhvb2RfZGVtICsgCiAgICBnZW9tX3NmKGRhdGEgPSBkZl9zaW1wbGlmaWVkLCBhbHBoYSA9IDAuOCwgc2hhcGUgPSAyMSwgY29sb3IgPSJibGFjayIsIGZpbGwgPSAiI0RDRTMxOUZGIikrIGZhY2V0X2dyaWQofkFTU0VUX0hpZ2hfdGV4dCkrCiAgICB0aGVtZV92b2lkKCkgKwogICAgIGxhYnModGl0bGUgPSAiSGlnaCB2cyBMb3cgQXNzZXQgTm9uLVByb2ZpdHMgaW4gQmFsdGltb3JlIikgCgoKYXNzZXRfcGxvdF9oaWdoX1ZzX2xvdwoKYGBgCgoKIyBNYXAgb2YgZGlmZmVyZW50IHR5cGVzIG9mIG9yZ3MgYnkgYXNzZXQKYGBge3J9Cgphc3NldF9wbG90X2FsbF9mYWNldGVkIDwtIG5laWdoYm9yaG9vZF9kZW0gKyAKICAgIGdlb21fc2YoZGF0YSA9IGRmX3NpbXBsaWZpZWQsIGFscGhhID0gMC44LCBzaGFwZSA9IDIxLCBjb2xvciA9ImJsYWNrIiwgZmlsbCA9ICIjRENFMzE5RkYiKSsgZmFjZXRfd3JhcCh+TlRFRV90ZXh0LCBuY29sID0gNCApKwogICAgdGhlbWVfdm9pZCgpICsKICBsYWJzKHRpdGxlID0gIk5vbi1Qcm9maXRzIGluIEJhbHRpbW9yZSBieSBUeXBlIikgCmFzc2V0X3Bsb3RfYWxsX2ZhY2V0ZWQKYGBgCgojIEhpZ2ggQXNzZXQgTm9uLVByb2ZpdHMgaW4gQmFsdGltb3JlIGJ5IFR5cGUKCmBgYHtyfQpkYXRhX3RvX21hcCA8LWRmX3NpbXBsaWZpZWQgJT4lIGZpbHRlcihBU1NFVF9IaWdoX3RleHQgPT0gIkhpZ2ggQXNzZXQiKSAKCmFzc2V0X3Bsb3QgPC0gbmVpZ2hib3Job29kX2RlbSArIAogICAgZ2VvbV9zZihkYXRhID0gZGF0YV90b19tYXAsIGFscGhhID0gMC44LCBzaGFwZSA9IDIxLCBjb2xvciA9ImJsYWNrIiwgZmlsbCA9ICIjRENFMzE5RkYiKSsgZmFjZXRfd3JhcCh+TlRFRV90ZXh0LCBuY29sID0gNCApKwogICAgdGhlbWVfdm9pZCgpICsKICBsYWJzKHRpdGxlID0gIkhpZ2ggQXNzZXQgTm9uLVByb2ZpdHMgaW4gQmFsdGltb3JlIGJ5IFR5cGUiKSAKYXNzZXRfcGxvdApgYGAKCgoKCgo=</div>
+<div id="rmd-source-code">CiMgTWFwcwoKYGBge3J9CmxpYnJhcnkoc2YpCmxpYnJhcnkodGlkeXZlcnNlKQoKCmRmX3NpbXBsaWZpZWQgPC0gcmVhZF9yZHMoaGVyZTo6aGVyZSgiZGF0YS9wcm9jZXNzZWQvZm9ybWFwcy5yZHMiKSkgIyBvcmcgYW5kIHNoYXBlIGRhdGEKbmVpZ2hib3Job29kc19zaGFwZSA8LSByZWFkX3JkcyhoZXJlOjpoZXJlKCJkYXRhL3Byb2Nlc3NlZC9uZWlnaGJvcmhvb2Rfc2hhcGVfZGF0YS5yZHMiKSkjbmVpZ2hib3Job29kIHN0YXQgZGF0YSAocmVhZCBpbnRvIFIpCgpgYGAKCgojIE5laWdoYm9yaG9vZCBEZW1vZ3JhcGhpY3MKCmBgYHtyfQoKIyBtYWtlIGRhdGEgYXQgbmVpZ2hib3Job29kIGxldmVsIHRvIHBsb3QgbWFwcyAKbmVpZ2hib3Job29kc19zZiA8LSBzdF9hc19zZihuZWlnaGJvcmhvb2RzX3NoYXBlKSAjIGNvbnZlcnQgdG8gc2Ygb2JqZWN0Cm5laWdoYm9yaG9vZHNfc2YgPC0gbmVpZ2hib3Job29kc19zZiAlPiUgbXV0YXRlKFBlcmNlbnRfQUEKICA9IHJvdW5kKEJsa19BZkFtL1BvcHVsYXRpb24qMTAwLCBkaWdpdHMgPSAyKSkgICU+JSAjIG1ha2Ugb3VyIHZhcmlhYmxlcyBsaWtlIGJlZm9yZSBidXQgdGhpcyB0aW1lIGF0IG5laWdoYm9yaG9vZCBsZXZlbCBvbmx5CgogICMgY3JlYXRlIG5ldyBNYWpvcml0eV9BQSB2YXJpYWJsZSB0aGF0IGluZGljYXRlcyBpZiBQZXJjZW50X0FBIGlzIGdyZWF0ZXIgdGhhbiA1MCUgb3Igbm90ICU+JQogIG11dGF0ZShNYWpvcml0eV9BQSA9IGNhc2Vfd2hlbigKICAgIFBlcmNlbnRfQUEgPj0gNTAgfiAiWWVzIiwgCiAgICBQZXJjZW50X0FBIDwgIDUwIH4gIk5vIikpICU+JQogICMgY3JlYXRlIGEgbmV3IHZhcmlhYmxlIGFib3V0IHRoaXMgaW4gdGV4dAogICBtdXRhdGUoTmVpZ2hib3Job29kX3R5cGUgPSBjYXNlX3doZW4oCiAgICBQZXJjZW50X0FBID49IDUwIH4gIk1ham9yaXR5XG5CbGFjayIsIAogICAgUGVyY2VudF9BQSA8ICA1MCB+ICJNYWpvcml0eVxuTm9uLUJsYWNrIikpICU+JSAKICAjIG1ha2UgdGhpcyBhIGZhY3RvciBhbmQgb3JkZXIgYnkgbGV2ZWwgYXBwZWFyYW5jZSBpbiB0aGUgZGF0YQogIG11dGF0ZShOZWlnaGJvcmhvb2RfdHlwZSA9IGFzX2ZhY3RvcihOZWlnaGJvcmhvb2RfdHlwZSksCiAgICAgICAgIE5laWdoYm9yaG9vZF90eXBlID0gZm9yY2F0czo6ZmN0X2lub3JkZXIoTmVpZ2hib3Job29kX3R5cGUpKQoKCiBuZWlnaGJvcmhvb2RfZGVtIDwtIGdncGxvdCgpICtnZW9tX3NmKGRhdGEgPSBuZWlnaGJvcmhvb2RzX3NmLCBhZXMoZmlsbCA9IE5laWdoYm9yaG9vZF90eXBlKSkrCiAgIHNjYWxlX2ZpbGxfbWFudWFsKHZhbHVlcyA9IGMoIk1ham9yaXR5XG5CbGFjayIgPSAiIzQ4MjY3N0ZGIiwgIk1ham9yaXR5XG5Ob24tQmxhY2siID0gIiMyMEEzODdGRiIpLCBuYS52YWx1ZSA9ICIjRDNEM0QzIikrCiAgICB0aGVtZV9taW5pbWFsKCkKIG5laWdoYm9yaG9vZF9kZW0KCmBgYAoKIyBNYXAgb2YgSGlnaCB2cyBMb3cgQXNzZXQgT3JncwoKCmBgYHtyfQpkYXRhX3RvX3Bsb3QgPC0gZGZfc2ltcGxpZmllZCAlPiUgY291bnQoTmFtZSwgQVNTRVRfSGlnaF90ZXh0KSAlPiUgcmVuYW1lKCJudW1fb3JnIiA9IG4pCmRhdGFfdG9fcGxvdCA8LSBkYXRhX3RvX3Bsb3QgJT4lIG11dGF0ZShjb2xvcl9hbXQgPSBjYXNlX3doZW4oCiAgbnVtX29yZyAgPCAxMCB+ICJsb3ciLAogIG51bV9vcmcgID49MTAgJiBudW1fb3JnIDwgMjAgfiAibWVkIiwKICBudW1fb3JnICA+PTIwICYgbnVtX29yZyA8IDQwIH4gIm1lZGhpZ2giLAogIG51bV9vcmcgID49NDAgfiJoaWdoIgopKQpkYXRhX3RvX3Bsb3QgPC0gc3RfYXNfc2YoZGF0YV90b19wbG90KQphc3NldF9wbG90X2hpZ2hfVnNfbG93X2FtdF9vcmdzIDwtIG5laWdoYm9yaG9vZF9kZW0gKyAKICAgIGdlb21fc2YoZGF0YSA9IGRhdGFfdG9fcGxvdCwgYWVzKGNvbG9yID1hcy5mYWN0b3IoY29sb3JfYW10KSkpICsgc2NhbGVfY29sb3JfbWFudWFsKHZhbHVlcyA9IGMoImxvdyIgPSAieWVsbG93IiwgIm1lZCIgPSAiZ29sZCIsIm1lZGhpZ2giID0gIm9yYW5nZSIsICJoaWdoIiA9ICJyZWQiICkpKwogZmFjZXRfZ3JpZCh+QVNTRVRfSGlnaF90ZXh0KSsKICAgIHRoZW1lX3ZvaWQoKSArCiAgICAgbGFicyh0aXRsZSA9ICJIaWdoIHZzIExvdyBBc3NldCBOb24tUHJvZml0cyBpbiBCYWx0aW1vcmUiKSAKCgphc3NldF9wbG90X2hpZ2hfVnNfbG93X2FtdF9vcmdzCgpgYGAKCgoKCgojIE1hcCBvZiBIaWdoIHZzIExvdyBBc3NldCBPcmdzCgoKYGBge3J9CmFzc2V0X3Bsb3RfaGlnaF9Wc19sb3cgPC0gbmVpZ2hib3Job29kX2RlbSArIAogICAgZ2VvbV9zZihkYXRhID0gZGZfc2ltcGxpZmllZCwgYWxwaGEgPSAwLjgsIHNoYXBlID0gMjEsIGNvbG9yID0iYmxhY2siLCBmaWxsID0gIiNEQ0UzMTlGRiIpKyBmYWNldF9ncmlkKH5BU1NFVF9IaWdoX3RleHQpKwogICAgdGhlbWVfdm9pZCgpICsKICAgICBsYWJzKHRpdGxlID0gIkhpZ2ggdnMgTG93IEFzc2V0IE5vbi1Qcm9maXRzIGluIEJhbHRpbW9yZSIpIAoKCmFzc2V0X3Bsb3RfaGlnaF9Wc19sb3cKCmBgYAoKCiMgTWFwIG9mIGRpZmZlcmVudCB0eXBlcyBvZiBvcmdzIGJ5IGFzc2V0CmBgYHtyfQoKYXNzZXRfcGxvdF9hbGxfZmFjZXRlZCA8LSBuZWlnaGJvcmhvb2RfZGVtICsgCiAgICBnZW9tX3NmKGRhdGEgPSBkZl9zaW1wbGlmaWVkLCBhbHBoYSA9IDAuOCwgc2hhcGUgPSAyMSwgY29sb3IgPSJibGFjayIsIGZpbGwgPSAiI0RDRTMxOUZGIikrIGZhY2V0X3dyYXAofk5URUVfdGV4dCwgbmNvbCA9IDQgKSsKICAgIHRoZW1lX3ZvaWQoKSArCiAgbGFicyh0aXRsZSA9ICJOb24tUHJvZml0cyBpbiBCYWx0aW1vcmUgYnkgVHlwZSIpIAphc3NldF9wbG90X2FsbF9mYWNldGVkCmBgYAoKIyBIaWdoIEFzc2V0IE5vbi1Qcm9maXRzIGluIEJhbHRpbW9yZSBieSBUeXBlCgpgYGB7cn0KZGF0YV90b19tYXAgPC1kZl9zaW1wbGlmaWVkICU+JSBmaWx0ZXIoQVNTRVRfSGlnaF90ZXh0ID09ICJIaWdoIEFzc2V0IikgCgphc3NldF9wbG90IDwtIG5laWdoYm9yaG9vZF9kZW0gKyAKICAgIGdlb21fc2YoZGF0YSA9IGRhdGFfdG9fbWFwLCBhbHBoYSA9IDAuOCwgc2hhcGUgPSAyMSwgY29sb3IgPSJibGFjayIsIGZpbGwgPSAiI0RDRTMxOUZGIikrIGZhY2V0X3dyYXAofk5URUVfdGV4dCwgbmNvbCA9IDQgKSsKICAgIHRoZW1lX3ZvaWQoKSArCiAgbGFicyh0aXRsZSA9ICJIaWdoIEFzc2V0IE5vbi1Qcm9maXRzIGluIEJhbHRpbW9yZSBieSBUeXBlIikgCmFzc2V0X3Bsb3QKYGBgCgojIE1hcCBvZiBIaWdoIHZzIExvdyBBc3NldCBPcmdzIGFuZCBQb3B1bGF0aW9uCgoKYGBge3IsIGZpZy5zaG93PSJob2xkIiwgb3V0LndpZHRoPSI1MCUifQoKbmVpZ2hib3Job29kX3BvcDwtIGdncGxvdCgpICtnZW9tX3NmKGRhdGEgPSBuZWlnaGJvcmhvb2RzX3NmLCBhZXMoZmlsbCA9IFBvcHVsYXRpb24pKQoKbmVpZ2hib3Job29kX3BvcCAKCmFzc2V0X3Bsb3RfaGlnaF9Wc19sb3dfYW10X29yZ3MKCmBgYAoKCmBgYHtyfQoKaGlnaF9hc3NldF9vcmdzIDwtIGRmX3NpbXBsaWZpZWQgJT4lIGZpbHRlcihBU1NFVF9IaWdoX3RleHQgPT0gIkhpZ2ggQXNzZXQiKSAKbmVpZ2hib3Job29kX3BvcCArIAogICAgZ2VvbV9zZihkYXRhID0gaGlnaF9hc3NldF9vcmdzLCBhbHBoYSA9IDAuOCwgc2hhcGUgPSAyMSwgY29sb3IgPSJibGFjayIsIGZpbGwgPSAiI0RDRTMxOUZGIikKICAgIHRoZW1lX3ZvaWQoKSArCiAgICAgbGFicyh0aXRsZSA9ICJIaWdoIHZzIExvdyBBc3NldCBOb24tUHJvZml0cyBpbiBCYWx0aW1vcmUiKSAKYGBgCgo=</div>
 
 
 </div>
